@@ -1,5 +1,7 @@
 import unittest
-from src.services.resource_locator import ResourceLocator
+
+from services.resource_locator import ResourceLocator
+
 
 __author__ = 'john'
 
@@ -48,7 +50,7 @@ class ResourceLocatorTests(unittest.TestCase):
 
         resolved = self.resource_locator.get_instances(int)
 
-        self.assertSequenceEqual(resolved, [10,])
+        self.assertSequenceEqual(resolved, [10, ])
 
     def test_get_instance_returns_correct_instances_no_key(self):
         self.resource_locator.register_instance(int, 10)

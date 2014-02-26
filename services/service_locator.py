@@ -3,7 +3,11 @@ from collections import defaultdict
 __author__ = 'john'
 
 
-class ResourceLocator(object):
+class ServiceLocator(object):
+    """
+    Simplistic implementation of ServiceLocator pattern.
+    Ideally one day should be replaced by some kind of DI container. Or not.
+    """
     _empty_tag = "###NO_TAG###"
 
     def __init__(self):

@@ -1,6 +1,6 @@
 import unittest
 
-from services.resource_locator import ResourceLocator
+from services.service_locator import ServiceLocator
 
 
 __author__ = 'john'
@@ -22,7 +22,7 @@ class ResourceLocatorTests(unittest.TestCase):
     resource_locator = None
 
     def setUp(self):
-        self.resource_locator = ResourceLocator()
+        self.resource_locator = ServiceLocator()
 
     def test_register_instance_type_parameter_is_not_type_raises_value_error(self):
         self.assertRaises(ValueError, lambda: self.resource_locator.register_instance(10, 11))

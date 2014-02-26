@@ -20,6 +20,7 @@ if __name__ == "__main__":
     output_collector = OutputCollector(output_spec)
     output_collector.register_consumers()
 
+    runner.initialize()
     runner.run()
 
     output_render = ConsoleOutputRender()

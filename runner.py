@@ -7,3 +7,6 @@ class Runner(object):
 
     def run(self):
         pass
+
+    def initialize(self):
+        pass

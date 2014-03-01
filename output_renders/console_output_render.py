@@ -4,4 +4,8 @@ __author__ = 'john'
 
 
 class ConsoleOutputRender(OutputRenderBase):
-    pass
+    def render(self, results):
+        """
+        :param SimulationResult results: simulation result object
+        """
+        pass

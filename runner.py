@@ -37,5 +37,5 @@ class Runner(object):
         :rtype: None
         """
         resources = (Resource(spec) for spec in resources_spec)
-        self._resources_lookup = { resource.agent_id: resource for resource in resources}
+        self._resources_lookup = {resource.agent_id: resource for resource in resources}
 

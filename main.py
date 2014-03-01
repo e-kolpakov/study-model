@@ -1,12 +1,13 @@
 from output_collector import OutputCollector
 from output_renders.console_output_render import ConsoleOutputRender
 from runner import Runner
+from simulation_specification.simulation_specification import SimulationSpecification
 
 __author__ = 'john'
 
 
 def read_simulation_spec():
-    return {}
+    return SimulationSpecification()
 
 
 def read_output_spec():

@@ -8,4 +8,7 @@ class ConsoleOutputRender(OutputRenderBase):
         """
         :param SimulationResult results: simulation result object
         """
-        pass
+        print("="*10 + " SIMULATION RESULT START " + "="*10)
+        for result in results.results:
+            print("{key} {timestamp}: {value}".format(key=result.key, timestamp=result.timestamp, value=result.value))
+        print("="*11 + " SIMULATION RESULT END " + "="*11)

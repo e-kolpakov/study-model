@@ -18,3 +18,11 @@ class ResultRecord(object):
     @property
     def value(self):
         return self._value
+
+    def __eq__(self, other):
+        if not isinstance(other, ResultRecord):
+            return False
+        return other.key == self.key and other.timestamp == self.timestamp and other.value == self.value
+
+    def __hash__(self):
+        return hash(self.key) * 31**2 + hash(self.timestamp) * 31 + hash(self.value)

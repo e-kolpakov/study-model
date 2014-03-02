@@ -14,7 +14,7 @@ class OutputSpecification(object):
         return self._observables
 
     @observables.setter
-    def observables_setter(self, value):
+    def observables(self, value):
         """
         :type value: list[Observable]
         """

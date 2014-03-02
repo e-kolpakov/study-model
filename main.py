@@ -1,5 +1,5 @@
-from output_collector import OutputCollector
-from output_renders.console_output_render import ConsoleOutputRender
+from output.output_collector import OutputCollector
+from output.output_renders.console_output_render import ConsoleOutputRender
 from runner import Runner
 from simulation_specification.simulation_specification import SimulationSpecification
 
@@ -11,7 +11,7 @@ def read_simulation_spec():
 
 
 def read_output_spec():
-    return {}
+    return SimulationSpecification()
 
 
 if __name__ == "__main__":

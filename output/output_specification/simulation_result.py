@@ -4,7 +4,7 @@ __author__ = 'john'
 class SimulationResult(object):
     def __init__(self):
         self._results = list()
-        """:type: list[ResultRecord]"""
+        """:type : list[ResultRecord]"""
 
     def register_result(self, result_record):
         """

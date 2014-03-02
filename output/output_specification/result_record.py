@@ -26,3 +26,9 @@ class ResultRecord(object):
 
     def __hash__(self):
         return hash(self.key) * 31**2 + hash(self.timestamp) * 31 + hash(self.value)
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return "{key} ({timestamp}): {value}".format(key=self.key, timestamp=self.timestamp, value=self.value)

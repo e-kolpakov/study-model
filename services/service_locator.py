@@ -2,6 +2,15 @@ from collections import defaultdict
 
 __author__ = 'john'
 
+_locator = None
+
+
+def locator():
+    global _locator
+    if _locator is None:
+        _locator = ServiceLocator()
+    return _locator
+
 
 class ServiceLocator(object):
     """

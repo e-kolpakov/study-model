@@ -1,5 +1,5 @@
 from agents.resource import Resource
-from agents.student import Student
+from services.student_factory import StudentFactory
 
 __author__ = 'john'
 
@@ -12,14 +12,22 @@ class Runner(object):
         self.__spec = simulation_spec
 
         self._students_lookup = None
+        """ :type: dict[str, Student] """
         self._resources_lookup = None
+        """ :type: dict[str, Resource] """
         self._course_competencies = None
+        """ :type: list[str] """
+
+        self._student_factory = StudentFactory()
+        """ :type: StudentFactory """
 
     def run(self):
         pass
 
     def initialize(self):
         self._course_competencies = self.__spec.course_competencies
+        self._create_students(self.__spec.students)
+        self._create_resources(self.__spec.resources)
 
     def _create_students(self, students_spec):
         """
@@ -27,7 +35,7 @@ class Runner(object):
         :param list[StudentSpecification] students_spec: Student specifications
         :rtype: None
         """
-        students = (Student(spec) for spec in students_spec)
+        students = (self._student_factory.create_student(spec, self._course_competencies) for spec in students_spec)
         self._students_lookup = {student.agent_id: student for student in students}
 
     def _create_resources(self, resources_spec):

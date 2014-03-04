@@ -12,9 +12,9 @@ class OutputCollector(object):
         """
         self._output_spec = output_spec
         self._simulation_result = SimulationResult()
-        self.register_handlers()
+        self.register_consumers()
 
-    def register_handlers(self):
+    def register_consumers(self):
         for observable in self._output_spec.observables:
             pub.subscribe(self._result_listener, observable.key)
 

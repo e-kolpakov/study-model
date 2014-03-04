@@ -2,7 +2,7 @@ __author__ = 'john'
 
 
 class Observable(object):
-    def __init__(self, key, name = None):
+    def __init__(self, key, nam=None):
         self._key = key
         self._name = name
 

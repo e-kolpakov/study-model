@@ -15,4 +15,7 @@ class Student(BaseAgent):
 
     @property
     def knowledge(self):
+        """
+        :rtype: dict[str, float]
+        """
         return self._knowledge

@@ -2,12 +2,14 @@ __author__ = 'john'
 
 
 class StudentSpecification(object):
-    def __init__(self, student_name, knowledge, behavior, student_id = None):
-        self.student_id = student_id
-        """ :type: int """
+    def __init__(self, student_name, competencies, behavior, agent_id=None):
+        """
+        :type agent_id: str | int
+        :type student_name: str
+        :type competencies: dict[str, float]
+        :type behavior: str
+        """
+        self.agent_id = agent_id
         self.student_name = student_name
-        """ :type: str """
-        self.knowledge = knowledge
-        """ :type: dict[str, float] """
+        self.competencies = competencies
         self.behavior = behavior
-        """ :type: str """

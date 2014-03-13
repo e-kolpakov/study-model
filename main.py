@@ -1,5 +1,6 @@
 import logging
 import logging.config
+from agents.behaviors.factory import BehaviorFactory
 
 import log_config
 from simulation import Simulation
@@ -72,6 +73,9 @@ if __name__ == "__main__":
     logging.config.dictConfig(log_config.config)
     logger = logging.getLogger(__name__)
     logger.debug("Starting...")
+
+    logger.debug("Initializing behavior factory...")
+    behavior_factory = BehaviorFactory()
 
     sim_spec = read_simulation_spec()
 

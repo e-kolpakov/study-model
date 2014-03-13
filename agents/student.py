@@ -13,10 +13,11 @@ __author__ = 'john'
 
 
 class Student(BaseAgentWithCompetencies):
-    def __init__(self, name, competencies, behavior=None, *args, **kwargs):
+    def __init__(self, name, competencies, behavior, *args, **kwargs):
         """
-            :type competencies: dict[str, double]
-            """
+        :type competencies: dict[str, double]
+        :type behavior: BehaviorGroup
+        """
         super().__init__(competencies, *args, **kwargs)
         self._name = name
         self._resource_lookup_service = None
@@ -77,7 +78,7 @@ class Student(BaseAgentWithCompetencies):
         :type available_resources: tuple[Resource]
         :rtype: Resource
         """
-        return available_resources[randint(0, len(available_resources) - 1)]
+        return self._behavior.resource_choice.choose_resource(self, available_resources)
 
     def _study_resource(self, resource_to_study):
         """

@@ -62,6 +62,16 @@ class Student(BaseAgentWithCompetencies):
 
         self._study_resource(resource_to_study)
 
+    def calculate_competency_delta(self, resource):
+        """
+        :type resource: Resource
+        :rtype: dict[str, double]
+        """
+        return {
+            competency: max(value - self.competencies.get(competency, 0), 0)
+            for competency, value in resource.get_competencies(self).items()
+        }
+
     def _choose_resource(self, available_resources):
         """
         :type available_resources: tuple[Resource]

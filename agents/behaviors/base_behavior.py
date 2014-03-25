@@ -1,5 +1,7 @@
 __author__ = 'john'
 
+BEHAVIOR_TYPE = "Behavior"
+
 
 class BaseBehavior:
     def __init__(self):
@@ -7,4 +9,4 @@ class BaseBehavior:
 
     @classmethod
     def behavior_key(cls):
-        return cls.__name__
+        return BEHAVIOR_TYPE + "." + cls.__name__.replace(BEHAVIOR_TYPE, "")

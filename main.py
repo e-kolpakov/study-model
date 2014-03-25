@@ -22,8 +22,10 @@ def read_simulation_spec():
 
     zero_knowledge = {competency: 0 for competency in sim_spec.course_competencies}
 
-    sim_spec.students.append(StudentSpecification("John", zero_knowledge, 'rational', agent_id='s1'))
-    sim_spec.students.append(StudentSpecification("Jim", zero_knowledge, 'rational', agent_id='s2'))
+    sim_spec.students.append(
+        StudentSpecification("John", zero_knowledge, {'resource_choice': 'rational'}, agent_id='s1'))
+    sim_spec.students.append(
+        StudentSpecification("Jim", zero_knowledge, {'resource_choice': 'rational'}, agent_id='s2'))
     sim_spec.resources.append(
         ResourceSpecification("Resource1", {'algebra': 1.0, 'calculus': 0.2, 'diff_eq': 0}, 'basic', agent_id='r1')
     )

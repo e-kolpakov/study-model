@@ -3,11 +3,13 @@ from agents.behaviors.base_behavior import BaseBehavior
 
 __author__ = 'john'
 
+BEHAVIOR_TYPE = "ResourceChoiceBehavior"
+
 
 class BaseResourceChoiceBehavior(BaseBehavior):
     @classmethod
     def behavior_key(cls):
-        return "ResourceChoice." + cls.__name__.replace("ResourceChoiceBehavior", "")
+        return BEHAVIOR_TYPE + "." + cls.__name__.replace(BEHAVIOR_TYPE, "")
 
     def __init__(self):
         super().__init__()
@@ -39,6 +41,6 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         :rtype: Resource
         """
         def calculate_absolute_competency_delta(resource):
-            return sum(delta for delta in student.calculate_competency_delta(resource).values())
+            return sum(delta for delta in student.calculate_competency_delta(resource.get_competencies(student)).values())
 
         return max(available_resources, key=calculate_absolute_competency_delta)

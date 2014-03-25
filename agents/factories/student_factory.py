@@ -8,22 +8,19 @@ __author__ = 'john'
 
 
 class StudentFactory(object):
-    def __init__(self, competencies=None):
-        """
-        :param list[str] competencies: Optional. List of competencies in the course
-        """
-        self._course_competencies = competencies
+    def __init__(self):
         self._behavior_factory = BehaviorFactory()
 
-    def produce(self, student_spec):
+    def produce(self, student_spec, all_competencies=None):
         """
         :param StudentSpecification student_spec: Student specification
         """
+        all_comp = all_competencies if all_competencies else []
         behavior_group = self._get_behavior_group(student_spec.behavior)
         student = Student(student_spec.student_name, student_spec.competencies,
                           agent_id=student_spec.agent_id, behavior=behavior_group)
         student.competencies.update(
-            {competency: 0 for competency in self._course_competencies if competency not in student.competencies})
+            {competency: 0 for competency in all_comp if competency not in student.competencies})
         return student
 
     def _get_behavior_group(self, behaviors_spec):

@@ -2,9 +2,8 @@ from collections import defaultdict
 import logging
 
 from pubsub import pub
-from agents.resource_factory import ResourceFactory
-from agents.student_factory import StudentFactory
 
+from agents.factories.resource_factory import ResourceFactory
 from simulation_result import SimulationResult
 from agents.resource import Resource
 from resource_lookup_service import ResourceLookupService
@@ -16,18 +15,17 @@ __author__ = 'john'
 
 
 class Simulation(object):
-    def __init__(self, sim_spec):
+    def __init__(self, sim_spec, student_factory, resource_factory):
         """
         :type sim_spec: SimulationSpecification
+        :type student_factory: StudentFactory
+        :type resource_factory: ResourceFactory
         """
         self._step = 0
         """ :type: int """
 
-        student_factory = StudentFactory(sim_spec.course_competencies)
-        resource_factory = ResourceFactory(sim_spec.course_competencies)
-
-        self._students = [student_factory.produce(spec) for spec in sim_spec.students]
-        self._resources = [resource_factory.produce(spec) for spec in sim_spec.resources]
+        self._students = [student_factory.produce(spec, sim_spec.course_competencies) for spec in sim_spec.students]
+        self._resources = [resource_factory.produce(spec, sim_spec.course_competencies) for spec in sim_spec.resources]
         self._competencies = sim_spec.course_competencies
 
         self._stop_condition = lambda x: False
@@ -90,6 +88,13 @@ class Simulation(object):
         """
         return self._results[self.step]
 
+    @property
+    def results(self):
+        """
+        :rtype: dict[int, SimulationResult]
+        """
+        return self._results
+
     def resource_usage_listener(self, student, resource):
         """
         :type student: Student
@@ -135,10 +140,3 @@ class Simulation(object):
             for student in self._students:
                 student.study()
             logger.info("Finalizing step {step_no}".format(step_no=self._step))
-
-    @property
-    def results(self):
-        """
-        :rtype: dict[int, SimulationResult]
-        """
-        return self._results

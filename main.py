@@ -1,6 +1,9 @@
 import logging
 import logging.config
 from agents.behaviors.factory import BehaviorFactory
+from agents.behaviors.student import resource_choice
+from agents.factories.resource_factory import ResourceFactory
+from agents.factories.student_factory import StudentFactory
 
 import log_config
 from simulation import Simulation
@@ -23,9 +26,9 @@ def read_simulation_spec():
     zero_knowledge = {competency: 0 for competency in sim_spec.course_competencies}
 
     sim_spec.students.append(
-        StudentSpecification("John", zero_knowledge, {'resource_choice': 'rational'}, agent_id='s1'))
+        StudentSpecification("John", zero_knowledge, {resource_choice.BEHAVIOR_TYPE: 'Rational'}, agent_id='s1'))
     sim_spec.students.append(
-        StudentSpecification("Jim", zero_knowledge, {'resource_choice': 'rational'}, agent_id='s2'))
+        StudentSpecification("Jim", zero_knowledge, {resource_choice.BEHAVIOR_TYPE: 'Rational'}, agent_id='s2'))
     sim_spec.resources.append(
         ResourceSpecification("Resource1", {'algebra': 1.0, 'calculus': 0.2, 'diff_eq': 0}, 'basic', agent_id='r1')
     )
@@ -82,7 +85,7 @@ if __name__ == "__main__":
     sim_spec = read_simulation_spec()
 
     logger.debug("Initializing simulation")
-    simulation = Simulation(sim_spec)
+    simulation = Simulation(sim_spec, StudentFactory(), ResourceFactory())
     simulation.stop_condition = stop_condition
 
     logger.debug("Starting simulation")

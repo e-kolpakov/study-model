@@ -3,14 +3,8 @@ from agents.behaviors.base_behavior import BaseBehavior
 
 __author__ = 'john'
 
-BEHAVIOR_TYPE = "ResourceChoiceBehavior"
-
 
 class BaseResourceChoiceBehavior(BaseBehavior):
-    @classmethod
-    def behavior_key(cls):
-        return BEHAVIOR_TYPE + "." + cls.__name__.replace(BEHAVIOR_TYPE, "")
-
     def __init__(self):
         super().__init__()
 

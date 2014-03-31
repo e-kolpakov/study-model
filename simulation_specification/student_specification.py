@@ -7,7 +7,7 @@ class StudentSpecification(object):
         :type agent_id: str | int
         :type student_name: str
         :type competencies: dict[str, float]
-        :type behavior: dict[str, str]
+        :type behavior: BehaviorGroup
         """
         self.agent_id = agent_id
         self.student_name = student_name

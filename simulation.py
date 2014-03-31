@@ -3,7 +3,6 @@ import logging
 
 from pubsub import pub
 
-from agents.factories.resource_factory import ResourceFactory
 from simulation_result import SimulationResult
 from agents.resource import Resource
 from resource_lookup_service import ResourceLookupService
@@ -15,18 +14,16 @@ __author__ = 'john'
 
 
 class Simulation(object):
-    def __init__(self, sim_spec, student_factory, resource_factory):
+    def __init__(self, simulation_input):
         """
-        :type sim_spec: SimulationSpecification
-        :type student_factory: StudentFactory
-        :type resource_factory: ResourceFactory
+        :type simulation_input: SimulationInput
         """
         self._step = 0
         """ :type: int """
 
-        self._students = [student_factory.produce(spec, sim_spec.course_competencies) for spec in sim_spec.students]
-        self._resources = [resource_factory.produce(spec, sim_spec.course_competencies) for spec in sim_spec.resources]
-        self._competencies = sim_spec.course_competencies
+        self._students = simulation_input.students
+        self._resources = simulation_input.resources
+        self._competencies = simulation_input.competencies
 
         self._stop_condition = lambda x: False
         self._lookup_service = None

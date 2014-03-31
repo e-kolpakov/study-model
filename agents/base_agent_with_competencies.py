@@ -6,9 +6,15 @@ __author__ = 'john'
 
 class BaseAgentWithCompetencies(BaseAgent):
     def __init__(self, competencies, *args, **kwargs):
+        """
+        :type competencies: dict[str, double]
+        """
         super().__init__(*args, **kwargs)
         self._competencies = deepcopy(competencies)
 
     @property
     def competencies(self):
+        """
+        :rtype: dict[str, double]
+        """
         return self._competencies

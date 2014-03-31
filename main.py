@@ -3,43 +3,41 @@ import logging.config
 from agents.behaviors import RationalResourceChoiceBehavior
 
 from agents.behaviors.student.behavior_group import BehaviorGroup
-from agents.factories.resource_factory import ResourceFactory
-from agents.factories.student_factory import StudentFactory
+from agents.resource import Resource
+from agents.student import Student
 
 import log_config
 from simulation import Simulation
-from simulation_specification.resource_specification import ResourceSpecification
-from simulation_specification.simulation_specification import SimulationSpecification
-from simulation_specification.student_specification import StudentSpecification
+from simulation_input import SimulationInput
 from simulation_state import SimulationState
 from simulation_result import SimulationResult
 
 __author__ = 'john'
 
 
-def read_simulation_spec():
+def get_simulation_input():
     """
-    :rtype: SimulationSpecification
+    :rtype: SimulationInput
     """
-    sim_spec = SimulationSpecification()
-    sim_spec.course_competencies.extend(['algebra', 'calculus', 'diff_eq'])
+    sim_input = SimulationInput()
+    sim_input.competencies.extend(['algebra', 'calculus', 'diff_eq'])
 
-    zero_knowledge = {competency: 0 for competency in sim_spec.course_competencies}
+    zero_knowledge = {competency: 0 for competency in sim_input.competencies}
 
     rational_behavior = BehaviorGroup()
     rational_behavior.resource_choice = RationalResourceChoiceBehavior()
 
-    sim_spec.students.append(
-        StudentSpecification("John", zero_knowledge, rational_behavior, agent_id='s1'))
-    sim_spec.students.append(
-        StudentSpecification("Jim", zero_knowledge, rational_behavior, agent_id='s2'))
-    sim_spec.resources.append(
-        ResourceSpecification("Resource1", {'algebra': 1.0, 'calculus': 0.2, 'diff_eq': 0}, 'basic', agent_id='r1')
+    sim_input.students.append(
+        Student("John", zero_knowledge, rational_behavior, agent_id='s1'))
+    sim_input.students.append(
+        Student("Jim", {}, rational_behavior, agent_id='s2'))
+    sim_input.resources.append(
+        Resource("Resource1", {'algebra': 1.0, 'calculus': 0.2, 'diff_eq': 0}, 'basic', agent_id='r1')
     )
-    sim_spec.resources.append(
-        ResourceSpecification("Resource1", {'algebra': 0.0, 'calculus': 0.8, 'diff_eq': 1.0}, 'basic', agent_id='r2')
+    sim_input.resources.append(
+        Resource("Resource1", {'algebra': 0.0, 'calculus': 0.8, 'diff_eq': 1.0}, 'basic', agent_id='r2')
     )
-    return sim_spec
+    return sim_input
 
 
 def perfect_knowledge_stop_condition(students, competencies):
@@ -83,13 +81,10 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     logger.debug("Starting...")
 
-    logger.debug("Initializing behavior factory...")
-    # behavior_factory = BehaviorFactory()
-
-    sim_spec = read_simulation_spec()
+    simulation_input = get_simulation_input()
 
     logger.debug("Initializing simulation")
-    simulation = Simulation(sim_spec, StudentFactory(), ResourceFactory())
+    simulation = Simulation(simulation_input)
     simulation.stop_condition = stop_condition
 
     logger.debug("Starting simulation")

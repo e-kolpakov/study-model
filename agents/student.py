@@ -15,13 +15,13 @@ __author__ = 'john'
 class Student(BaseAgentWithCompetencies):
     def __init__(self, name, competencies, behavior, *args, **kwargs):
         """
-        :type competencies: dict[str, double]
+        :type competencies: dict[Competency, double]
         :type behavior: BehaviorGroup
         """
         super().__init__(competencies, *args, **kwargs)
         self._name = name
-        self._resource_lookup_service = None
         self._behavior = behavior
+        self._resource_lookup_service = None
 
     def get_knowledge(self, competencies=None):
         eff_competencies = competencies if competencies else self.competencies.keys()

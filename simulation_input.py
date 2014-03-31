@@ -24,7 +24,7 @@ class SimulationInput:
     @property
     def competencies(self):
         """
-        :rtype: list[str]
+        :rtype: list[Competency]
         """
         return self._competencies
 

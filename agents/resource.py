@@ -8,7 +8,7 @@ class Resource(BaseAgentWithCompetencies):
     def __init__(self, name, competencies, behavior=None, *args, **kwargs):
         """
         :type name: str
-        :type competencies: dict[str, double]
+        :type competencies: dict[Competency, double]
         """
         super().__init__(competencies, *args, **kwargs)
         self._name = name
@@ -24,6 +24,6 @@ class Resource(BaseAgentWithCompetencies):
     def get_competencies(self, student):
         """
         :type student: Student
-        :rtype: dict[str, double]
+        :rtype: dict[Competency, double]
         """
         return self.competencies

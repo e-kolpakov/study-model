@@ -21,14 +21,14 @@ class SimulationResult(object):
     def register_knowledge_snapshot(self, student, knowledge):
         """
         :type student: Student
-        :type knowledge: dict[str, double]
+        :type knowledge: dict[Competency, double]
         """
         self._knowledge_snapshot[student.name] = knowledge
 
     def register_knowledge_delta(self, student, knowledge_delta):
         """
         :type student: Student
-        :type knowledge: dict[str, double]
+        :type knowledge: dict[Competency, double]
         """
         self._knowledge_delta[student.name] = knowledge_delta
 

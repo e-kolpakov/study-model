@@ -1,10 +1,12 @@
 import logging
 import logging.config
+import operator
 from agents.behaviors import RationalResourceChoiceBehavior
 
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.resource import Resource
 from agents.student import Student
+from competency import Competency
 
 import log_config
 from simulation import Simulation
@@ -20,7 +22,10 @@ def get_simulation_input():
     :rtype: SimulationInput
     """
     sim_input = SimulationInput()
-    sim_input.competencies.extend(['algebra', 'calculus', 'diff_eq'])
+    alg = Competency('algebra')
+    calc = Competency('calculus', ['algebra'])
+    diff_eq = Competency('diff_eq', ['algebra', 'calculus'])
+    sim_input.competencies.extend([alg, calc, diff_eq])
 
     zero_knowledge = {competency: 0 for competency in sim_input.competencies}
 
@@ -32,10 +37,10 @@ def get_simulation_input():
     sim_input.students.append(
         Student("Jim", {}, rational_behavior, agent_id='s2'))
     sim_input.resources.append(
-        Resource("Resource1", {'algebra': 1.0, 'calculus': 0.2, 'diff_eq': 0}, 'basic', agent_id='r1')
+        Resource("Resource1", {alg: 1.0, calc: 0.2, diff_eq: 0}, 'basic', agent_id='r1')
     )
     sim_input.resources.append(
-        Resource("Resource1", {'algebra': 0.0, 'calculus': 0.8, 'diff_eq': 1.0}, 'basic', agent_id='r2')
+        Resource("Resource1", {alg: 0.0, calc: 0.8, diff_eq: 1.0}, 'basic', agent_id='r2')
     )
     return sim_input
 
@@ -66,13 +71,16 @@ def output_results(results):
     for step, result in results.items():
         print("======= Step {step} =======".format(step=step))
         for resource, usage in result.resource_usage.items():
-            print("Resource {name} used {times}".format(name=resource, times=usage))
-        print("=== Snapshots ===")
-        for student, snapshot in result.knowledge_snapshot.items():
-            print("Student {name}: {snapshot}".format(name=student, snapshot=snapshot))
-        print("===== Delta =====")
+            print("Resource {name} used {times} times".format(name=resource, times=usage))
+        # print("=== Snapshots ===")
+        # for student, snapshot in result.knowledge_snapshot.items():
+        #     print("Student {name}: {snapshot}".format(name=student, snapshot=snapshot))
+        # print("===== Delta =====")
         for student, delta in result.knowledge_delta.items():
-            print("Student {name}: {delta}".format(name=student, delta=delta))
+            deltas = [(competency, value) for competency, value in delta.items()]
+            deltas.sort(key=operator.itemgetter(0))
+            delta_str = ", ".join("{code}: {value}".format(code=competency.code, value=value) for competency, value in deltas)
+            print("Student {name}: {delta}".format(name=student, delta=delta_str))
         print("===== Step {step} End =====".format(step=step))
 
 

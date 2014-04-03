@@ -24,26 +24,6 @@ class Student(BaseAgentWithCompetencies):
         self._resource_lookup_service = None
         self._competency_lookup_service = None
 
-    def get_knowledge(self, competencies=None):
-        """
-        :type competencies: list[Competency] | list[str]
-        """
-        comp = competencies if competencies else self.competencies.keys()
-
-        eff_competencies = [self._get_competency(competency) for competency in comp]
-
-        return {competency: self.competencies.get(competency, 0) for competency in eff_competencies}
-
-    def _get_competency(self, competency_or_code):
-        """
-        :type competency_or_code: Competency | str
-        :rtype: Competency
-        """
-        if isinstance(competency_or_code, Competency):
-            return competency_or_code
-        else:
-            return self.competency_lookup_service.get_competency(competency_or_code)
-
     @property
     def name(self):
         return self._name
@@ -76,6 +56,16 @@ class Student(BaseAgentWithCompetencies):
         """
         self._resource_lookup_service = value
 
+    def get_knowledge(self, competencies=None):
+        """
+        :type competencies: list[Competency] | list[str]
+        """
+        comp = competencies if competencies else self.competencies.keys()
+
+        eff_competencies = [self._get_competency(competency) for competency in comp]
+
+        return {competency: self.competencies.get(competency, 0) for competency in eff_competencies}
+
     def study(self):
         logger = logging.getLogger(__name__)
         logger.debug("Student {name} study".format(name=self.name))
@@ -102,6 +92,16 @@ class Student(BaseAgentWithCompetencies):
             competency: max(value * competency.get_value_multiplier(self) - self.competencies.get(competency, 0), 0)
             for competency, value in competencies.items()
         }
+
+    def _get_competency(self, competency_or_code):
+        """
+        :type competency_or_code: Competency | str
+        :rtype: Competency
+        """
+        if isinstance(competency_or_code, Competency):
+            return competency_or_code
+        else:
+            return self.competency_lookup_service.get_competency(competency_or_code)
 
     def _choose_resource(self, available_resources):
         """
@@ -140,6 +140,4 @@ class Student(BaseAgentWithCompetencies):
         logger.debug("Student {name}: Studying resource {resource_name} done".format(
             name=self.name,
             resource_name=resource_to_study.name))
-
-
 

@@ -39,10 +39,10 @@ def get_simulation_input():
     sim_input.students.append(
         Student("Jim", {}, random_behavior, agent_id='s2'))
     sim_input.resources.append(
-        Resource("Resource1", {alg: 1.0, calc: 0.2, diff_eq: 0, trigonometry:0}, 'basic', agent_id='r1')
+        Resource("Resource1", {alg: 1.0, calc: 0.2, diff_eq: 0, trigonometry: 0}, 'basic', agent_id='r1')
     )
     sim_input.resources.append(
-        Resource("Resource2", {alg: 0.0, calc: 0.8, diff_eq: 1.0, trigonometry:0}, 'basic', agent_id='r2')
+        Resource("Resource2", {alg: 0.0, calc: 0.8, diff_eq: 1.0, trigonometry: 0}, 'basic', agent_id='r2')
     )
     sim_input.resources.append(
         Resource("Resource3", {alg: 0.0, calc: 0.0, diff_eq: 0.0, trigonometry: 1}, 'basic', agent_id='r3')

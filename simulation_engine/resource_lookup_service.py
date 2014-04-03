@@ -3,12 +3,17 @@ from agents.resource import Resource
 __author__ = 'john'
 
 
-class ResourceLookupService(object):
-    def __init__(self, resources):
-        """
-        :type resources: tuple[Resource]
-        """
+class ResourceLookupService:
+    def __init__(self, *args, **kwargs):
         self._access_privileges = dict()
+        self._resources = None
+
+        super(ResourceLookupService, self).__init__(*args, **kwargs)
+
+    def _register_resources(self, resources):
+        """
+        :type resources: list[Resource]
+        """
         self._resources = resources
 
     def grant_access(self, student, resource):

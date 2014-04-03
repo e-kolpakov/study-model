@@ -1,12 +1,12 @@
 import copy
 import logging
-from random import randint
 
 from pubsub import pub
 
 from agents.base_agent_with_competencies import BaseAgentWithCompetencies
 from agents.resource import Resource
-from topics import Topics
+from agents.competency import Competency
+from simulation_engine.topics import Topics
 
 
 __author__ = 'john'
@@ -22,11 +22,27 @@ class Student(BaseAgentWithCompetencies):
         self._name = name
         self._behavior = behavior
         self._resource_lookup_service = None
+        self._competency_lookup_service = None
 
     def get_knowledge(self, competencies=None):
-        eff_competencies = competencies if competencies else self.competencies.keys()
+        """
+        :type competencies: list[Competency] | list[str]
+        """
+        comp = competencies if competencies else self.competencies.keys()
+
+        eff_competencies = [self._get_competency(competency) for competency in comp]
 
         return {competency: self.competencies.get(competency, 0) for competency in eff_competencies}
+
+    def _get_competency(self, competency_or_code):
+        """
+        :type competency_or_code: Competency | str
+        :rtype: Competency
+        """
+        if isinstance(competency_or_code, Competency):
+            return competency_or_code
+        else:
+            return self.competency_lookup_service.get_competency(competency_or_code)
 
     @property
     def name(self):
@@ -43,6 +59,20 @@ class Student(BaseAgentWithCompetencies):
     def resource_lookup_service(self, value):
         """
         :type value: ResourceLookupService
+        """
+        self._resource_lookup_service = value
+
+    @property
+    def competency_lookup_service(self):
+        """
+        :rtype: CompetencyLookupService
+        """
+        return self._resource_lookup_service
+
+    @competency_lookup_service.setter
+    def competency_lookup_service(self, value):
+        """
+        :type value: CompetencyLookupService
         """
         self._resource_lookup_service = value
 
@@ -65,11 +95,11 @@ class Student(BaseAgentWithCompetencies):
 
     def calculate_competency_delta(self, competencies):
         """
-        :type competencies: dict[str, double]
+        :type competencies: dict[Competency, double]
         :rtype: dict[str, double]
         """
         return {
-            competency: max(value - self.competencies.get(competency, 0), 0)
+            competency: max(value * competency.get_value_multiplier(self) - self.competencies.get(competency, 0), 0)
             for competency, value in competencies.items()
         }
 

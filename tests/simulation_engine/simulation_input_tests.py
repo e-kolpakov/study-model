@@ -1,8 +1,9 @@
 import unittest
+
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.student import Student
-from competency import Competency
-from simulation_input import SimulationInput
+from agents.competency import Competency
+from simulation_engine.simulation_input import SimulationInput
 
 
 class SimulationInputTests(unittest.TestCase):

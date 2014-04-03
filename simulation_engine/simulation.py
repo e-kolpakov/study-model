@@ -3,27 +3,33 @@ import logging
 
 from pubsub import pub
 
-from simulation_result import SimulationResult
+from simulation_engine.competency_lookup_service import CompetencyLookupService
+from simulation_engine.simulation_result import SimulationResult
 from agents.resource import Resource
-from resource_lookup_service import ResourceLookupService
-from simulation_state import SimulationState
-from topics import Topics
+from simulation_engine.resource_lookup_service import ResourceLookupService
+from simulation_engine.simulation_state import SimulationState
+from simulation_engine.topics import Topics
 
 
 __author__ = 'john'
 
 
-class Simulation(object):
-    def __init__(self, simulation_input):
+class Simulation(ResourceLookupService, CompetencyLookupService):
+    def __init__(self, simulation_input, *args, **kwargs):
         """
         :type simulation_input: SimulationInput
         """
+        super(Simulation, self).__init__(*args, **kwargs)
+
         self._step = 0
         """ :type: int """
 
         self._students = simulation_input.students
+        """ :type: list[Student] """
         self._resources = simulation_input.resources
+        """ :type: list[Resource] """
         self._competencies = simulation_input.competencies
+        """ :type: list[Competency] """
 
         self._stop_condition = lambda x: False
         self._lookup_service = None
@@ -31,6 +37,12 @@ class Simulation(object):
 
         self._results = defaultdict(lambda: SimulationResult(self.step))
         """ :type: dict[int, SimulationResult] """
+
+        self._comptetencies_lookup = {competency.code: competency for competency in self._competencies}
+        """ :type: dict[str, Competency] """
+
+        self._build_lookup(self._competencies)
+        self._register_resources(self._resources)
 
     @property
     def step(self):
@@ -114,9 +126,9 @@ class Simulation(object):
         self.current_step_result.register_knowledge_delta(student, knowledge_delta)
 
     def _initialize(self):
-        self._lookup_service = ResourceLookupService(tuple(self._resources))
         for student in self._students:
-            student.resource_lookup_service = self._lookup_service
+            student.resource_lookup_service = self
+            student.competency_lookup_service = self
 
         pub.subscribe(self.resource_usage_listener, Topics.RESOURCE_USAGE)
         pub.subscribe(self.knowledge_snapshot_listener, Topics.KNOWLEDGE_SNAPSHOT)
@@ -125,7 +137,7 @@ class Simulation(object):
     def _grant_initial_access_rights(self):
         for student in self._students:
             for resource in self._resources:
-                self._lookup_service.grant_access(student, resource)
+                self.grant_access(student, resource)
 
     def run(self):
         self._initialize()

@@ -1,18 +1,16 @@
 import logging
 import logging.config
 import operator
-from agents.behaviors import RationalResourceChoiceBehavior
 
+from agents.behaviors import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.resource import Resource
 from agents.student import Student
-from competency import Competency
-
+from agents.competency import Competency
 import log_config
-from simulation import Simulation
-from simulation_input import SimulationInput
-from simulation_state import SimulationState
-from simulation_result import SimulationResult
+from simulation_engine.simulation import Simulation
+from simulation_engine.simulation_input import SimulationInput
+
 
 __author__ = 'john'
 
@@ -25,22 +23,29 @@ def get_simulation_input():
     alg = Competency('algebra')
     calc = Competency('calculus', ['algebra'])
     diff_eq = Competency('diff_eq', ['algebra', 'calculus'])
-    sim_input.competencies.extend([alg, calc, diff_eq])
+    trigonometry = Competency('trigonometry', ['algebra'])
+    sim_input.competencies.extend([alg, calc, diff_eq, trigonometry])
 
     zero_knowledge = {competency: 0 for competency in sim_input.competencies}
 
     rational_behavior = BehaviorGroup()
     rational_behavior.resource_choice = RationalResourceChoiceBehavior()
 
+    random_behavior = BehaviorGroup()
+    random_behavior.resource_choice = RandomResourceChoiceBehavior()
+
     sim_input.students.append(
         Student("John", zero_knowledge, rational_behavior, agent_id='s1'))
     sim_input.students.append(
-        Student("Jim", {}, rational_behavior, agent_id='s2'))
+        Student("Jim", {}, random_behavior, agent_id='s2'))
     sim_input.resources.append(
-        Resource("Resource1", {alg: 1.0, calc: 0.2, diff_eq: 0}, 'basic', agent_id='r1')
+        Resource("Resource1", {alg: 1.0, calc: 0.2, diff_eq: 0, trigonometry:0}, 'basic', agent_id='r1')
     )
     sim_input.resources.append(
-        Resource("Resource1", {alg: 0.0, calc: 0.8, diff_eq: 1.0}, 'basic', agent_id='r2')
+        Resource("Resource2", {alg: 0.0, calc: 0.8, diff_eq: 1.0, trigonometry:0}, 'basic', agent_id='r2')
+    )
+    sim_input.resources.append(
+        Resource("Resource3", {alg: 0.0, calc: 0.0, diff_eq: 0.0, trigonometry: 1}, 'basic', agent_id='r3')
     )
     return sim_input
 

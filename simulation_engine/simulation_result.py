@@ -1,4 +1,5 @@
 from collections import defaultdict
+from decimal import Decimal
 
 from agents.resource import Resource
 
@@ -9,8 +10,8 @@ class SimulationResult(object):
     def __init__(self, simulation_step):
         self._simulation_step = simulation_step
         self._resource_usage = defaultdict(int)
-        self._knowledge_snapshot = dict()
-        self._knowledge_delta = dict()
+        self._competencies_snapshot = dict()
+        self._competenices_delta = dict()
 
     def add_resource_usage(self, resource):
         """
@@ -18,28 +19,35 @@ class SimulationResult(object):
         """
         self._resource_usage[resource.name] += 1
 
-    def register_knowledge_snapshot(self, student, knowledge):
+    def register_knowledge_snapshot(self, student, competencies):
         """
         :type student: Student
-        :type knowledge: dict[Competency, double]
+        :type competencies: dict[Competency, double]
         """
-        self._knowledge_snapshot[student.name] = knowledge
+        self._competencies_snapshot[student.name] = self._prepare_data(competencies)
 
-    def register_knowledge_delta(self, student, knowledge_delta):
+    def register_knowledge_delta(self, student, competency_delta):
         """
         :type student: Student
-        :type knowledge: dict[Competency, double]
+        :type competency_delta: dict[Competency, double]
         """
-        self._knowledge_delta[student.name] = knowledge_delta
+        self._competenices_delta[student.name] = self._prepare_data(competency_delta)
+
+    def _prepare_data(self, competency_data):
+        """
+        :type competency_data: dict[Competency, double]
+        :rtype: dict[Competency, Decimal]
+        """
+        return {competency: value for competency, value in competency_data.items()}
 
     @property
     def resource_usage(self):
         return self._resource_usage
 
     @property
-    def knowledge_snapshot(self):
-        return self._knowledge_snapshot
+    def competencies_snapshot(self):
+        return self._competencies_snapshot
 
     @property
-    def knowledge_delta(self):
-        return self._knowledge_delta
+    def competenices_delta(self):
+        return self._competenices_delta

@@ -93,8 +93,10 @@ class StudentTests(unittest.TestCase):
     def test_study_resource_updates_student_competencies(self):
         comp = self._to_competency
         resource1 = Resource('A', {comp('A'): 0.5, comp('B'): 0.2,  comp('C'): 0.5})
-        self._student._competencies = {comp('A'): 0, comp('B'): 0.3, comp('C'): 0.5}
+        self._student._competencies = {comp('A'): 0, comp('B'): 0.4, comp('C'): 0.5}
 
         self._student.study_resource(resource1)
 
-        self.assertDictEqual(self._student.competencies, {comp('A'): 0.5, comp('B'): 0.5, comp('C'): 1.0})
+        self.assertAlmostEqual(self._student.competencies[comp('A')], 0.5)
+        self.assertAlmostEqual(self._student.competencies[comp('B')], 0.6)
+        self.assertAlmostEqual(self._student.competencies[comp('C')], 1.0)

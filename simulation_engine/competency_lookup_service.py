@@ -5,7 +5,7 @@ class CompetencyLookupService:
     def __init__(self):
         self._competency_lookup = None
 
-    def _build_lookup(self, competencies):
+    def _build_competency_lookup(self, competencies):
         """
         :type competencies: list[Competency]
         """

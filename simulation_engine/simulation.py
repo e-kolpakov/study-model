@@ -38,10 +38,7 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
         self._results = defaultdict(lambda: SimulationResult(self.step))
         """ :type: dict[int, SimulationResult] """
 
-        self._comptetencies_lookup = {competency.code: competency for competency in self._competencies}
-        """ :type: dict[str, Competency] """
-
-        self._build_lookup(self._competencies)
+        self._build_competency_lookup(self._competencies)
         self._register_resources(self._resources)
 
     @property
@@ -121,7 +118,7 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
     def knowledge_delta_listener(self, student, competency_delta):
         """
         :type student: Student
-        :type competency_delta: dict[str, double]
+        :type competency_delta: dict[Competency, double]
         """
         self.current_step_result.register_knowledge_delta(student, competency_delta)
 

@@ -1,10 +1,13 @@
+import logging
 import unittest
+import agents
 from agents.behaviors.student.behavior_group import BehaviorGroup
-from agents.behaviors.student.resource_choice import RationalResourceChoiceBehavior, BaseResourceChoiceBehavior
+from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
 from agents.competency import Competency
 from agents.student import Student
 from nose_parameterized import parameterized
 from unittest import mock
+from unittest.mock import patch
 
 __author__ = 'john'
 
@@ -21,9 +24,11 @@ class StudentTests(unittest.TestCase):
         self._student = Student("student", {}, self._behavior_group, agent_id='s1')
         """ :type: Student """
         self._competency_lookup = mock.Mock()
+        self._resource_lookup = mock.Mock()
         self._competency_lookup.get_competency = mock.Mock(side_effect=self._to_competency)
-        self._resources_lookup = mock.Mock()
+
         self._student.competency_lookup_service = self._competency_lookup
+        self._student.resource_lookup_service = self._resource_lookup
 
     def _to_competency(self, code):
         return Competency(code)
@@ -61,3 +66,11 @@ class StudentTests(unittest.TestCase):
         expected = {comp('A'): 0, comp('B'): 0.4, comp('C'): 0.5}
 
         self.assertSequenceEqual(result, expected)
+
+    def test_study_no_resources_logs_and_returns(self):
+        logger = logging.getLogger(agents.student.__name__)
+        self._resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
+        with patch.object(logger, 'warn') as mocked_debug:
+            self._student.study()
+            mocked_debug.assert_called_once_with("No resources available")
+

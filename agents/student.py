@@ -48,14 +48,14 @@ class Student(BaseAgentWithCompetencies):
         """
         :rtype: CompetencyLookupService
         """
-        return self._resource_lookup_service
+        return self._competency_lookup_service
 
     @competency_lookup_service.setter
     def competency_lookup_service(self, value):
         """
         :type value: CompetencyLookupService
         """
-        self._resource_lookup_service = value
+        self._competency_lookup_service = value
 
     def get_knowledge(self, competencies=None):
         """

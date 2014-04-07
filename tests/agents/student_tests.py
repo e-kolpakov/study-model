@@ -9,6 +9,7 @@ from agents.student import Student
 from nose_parameterized import parameterized
 from unittest import mock
 from unittest.mock import patch
+from simulation_engine.topics import Topics
 
 __author__ = 'john'
 
@@ -100,3 +101,20 @@ class StudentTests(unittest.TestCase):
         self.assertAlmostEqual(self._student.competencies[comp('A')], 0.5)
         self.assertAlmostEqual(self._student.competencies[comp('B')], 0.6)
         self.assertAlmostEqual(self._student.competencies[comp('C')], 1.0)
+
+    def test_study_resource_sends_messages(self):
+        comp = self._to_competency
+        resource1 = Resource('A', {comp('A'): 0.5, comp('B'): 0.2,  comp('C'): 0.5, comp('D'): 0.7})
+        self._student._competencies = {comp('A'): 0, comp('B'): 0.3, comp('C'): 0.5, comp('D'): 0.5}
+        expected_snapshot = {comp('A'): 0.5, comp('B'): 0.5, comp('C'): 1.0, comp('D'): 1.0}
+        expected_delta = {comp('A'): 0.5, comp('B'): 0.2, comp('C'): 0.5, comp('D'): 0.3}
+
+        with patch('agents.student.pub', spec=True) as pub_mock:
+            self._student.study_resource(resource1)
+
+            pub_mock.sendMessage.assert_any_call(
+                Topics.RESOURCE_USAGE, student=self._student, resource=resource1)
+            # pub_mock.sendMessage.assert_any_call(
+            #     Topics.KNOWLEDGE_SNAPSHOT, student=self._student, resource=expected_snapshot)
+            # pub_mock.sendMessage.assert_any_call(
+            #     Topics.KNOWLEDGE_DELTA, student=self._student, resource=expected_delta)

@@ -111,19 +111,19 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
         """
         self.current_step_result.add_resource_usage(resource)
 
-    def knowledge_snapshot_listener(self, student, knowledge):
+    def knowledge_snapshot_listener(self, student, competencies):
         """
         :type student: Student
-        :type knowledge: dict[str, double]
+        :type competencies: dict[Competency, double]
         """
-        self.current_step_result.register_knowledge_snapshot(student, knowledge)
+        self.current_step_result.register_knowledge_snapshot(student, competencies)
 
-    def knowledge_delta_listener(self, student, knowledge_delta):
+    def knowledge_delta_listener(self, student, competency_delta):
         """
         :type student: Student
-        :type knowledge_delta: dict[str, double]
+        :type competency_delta: dict[str, double]
         """
-        self.current_step_result.register_knowledge_delta(student, knowledge_delta)
+        self.current_step_result.register_knowledge_delta(student, competency_delta)
 
     def _initialize(self):
         for student in self._students:

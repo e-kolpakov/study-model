@@ -7,6 +7,7 @@ from agents.base_agent_with_competencies import BaseAgentWithCompetencies
 from agents.resource import Resource
 from agents.competency import Competency
 from simulation_engine.topics import Topics
+from utils.calculations import get_competency_delta
 
 
 __author__ = 'john'
@@ -83,16 +84,6 @@ class Student(BaseAgentWithCompetencies):
 
         self._study_resource(resource_to_study)
 
-    def calculate_competency_delta(self, competencies):
-        """
-        :type competencies: dict[Competency, double]
-        :rtype: dict[str, double]
-        """
-        return {
-            competency: max(value * competency.get_value_multiplier(self) - self.competencies.get(competency, 0), 0)
-            for competency, value in competencies.items()
-        }
-
     def _get_competency(self, competency_or_code):
         """
         :type competency_or_code: Competency | str
@@ -110,6 +101,9 @@ class Student(BaseAgentWithCompetencies):
         """
         return self._behavior.resource_choice.choose_resource(self, available_resources)
 
+    def _competency_change(self, competency, value):
+        return self._competencies.get(competency, 0) + value * competency.get_value_multiplier(self)
+
     def _study_resource(self, resource_to_study):
         """
         :type resource_to_study: Resource
@@ -118,24 +112,23 @@ class Student(BaseAgentWithCompetencies):
         logger = logging.getLogger(__name__)
         logger.debug("Studying resource")
 
-        old_knowledge = copy.deepcopy(self.competencies)
+        old_competencies = copy.deepcopy(self.competencies)
         logger.debug("Extracting resource competencies")
         competencies = resource_to_study.get_competencies(self)
 
         logger.debug("Updating self knowledge")
-        for competency, value in competencies.items():
-            self._competencies[competency] = min(self._competencies.get(competency, 0) + value, 1.0)
+        self._competencies.update({
+            competency: min(self._competency_change(competency, value), 1.0)
+            for competency, value in competencies.items()
+        })
 
         logger.debug("Calculating delta")
-        knowledge_delta = {
-            competency: value - old_knowledge.get(competency, 0)
-            for competency, value in self.competencies.items()
-        }
+        competency_delta = get_competency_delta(self.competencies, old_competencies)
 
         logger.debug("Sending messages")
         pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource_to_study)
-        pub.sendMessage(Topics.KNOWLEDGE_SNAPSHOT, student=self, knowledge=self.competencies)
-        pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, knowledge_delta=knowledge_delta)
+        pub.sendMessage(Topics.KNOWLEDGE_SNAPSHOT, student=self, competencies=self.competencies)
+        pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, competency_delta=competency_delta)
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(
             name=self.name,

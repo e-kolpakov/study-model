@@ -1,6 +1,6 @@
 import unittest
 from agents.behaviors.student.behavior_group import BehaviorGroup
-from agents.behaviors.student.resource_choice import RationalResourceChoiceBehavior
+from agents.behaviors.student.resource_choice import RationalResourceChoiceBehavior, BaseResourceChoiceBehavior
 from agents.competency import Competency
 from agents.student import Student
 from nose_parameterized import parameterized
@@ -10,14 +10,20 @@ __author__ = 'john'
 
 
 class StudentTests(unittest.TestCase):
+    _student = None
+    _resource_lookup = None
+    _competency_lookup = None
+    _behavior_group = None
+
     def setUp(self):
-        default_dehavior = BehaviorGroup()
-        default_dehavior.resource_choice = RationalResourceChoiceBehavior()
-        self._student = Student("student", {}, default_dehavior, agent_id='s1')
+        self._behavior_group = mock.Mock(BehaviorGroup)
+        self._behavior_group.resource_choice = mock.Mock(BaseResourceChoiceBehavior)
+        self._student = Student("student", {}, self._behavior_group, agent_id='s1')
         """ :type: Student """
-        competency_lookup = mock.Mock()
-        competency_lookup.get_competency = mock.Mock(side_effect=self._to_competency)
-        self._student.competency_lookup_service = competency_lookup
+        self._competency_lookup = mock.Mock()
+        self._competency_lookup.get_competency = mock.Mock(side_effect=self._to_competency)
+        self._resources_lookup = mock.Mock()
+        self._student.competency_lookup_service = self._competency_lookup
 
     def _to_competency(self, code):
         return Competency(code)
@@ -55,4 +61,3 @@ class StudentTests(unittest.TestCase):
         expected = {comp('A'): 0, comp('B'): 0.4, comp('C'): 0.5}
 
         self.assertSequenceEqual(result, expected)
-

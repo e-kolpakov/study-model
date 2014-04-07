@@ -32,7 +32,7 @@ def get_simulation_input():
     rational_behavior.resource_choice = RationalResourceChoiceBehavior()
 
     random_behavior = BehaviorGroup()
-    random_behavior.resource_choice = RandomResourceChoiceBehavior()
+    random_behavior.resource_choice = RationalResourceChoiceBehavior()
 
     sim_input.students.append(
         Student("John", zero_knowledge, rational_behavior, agent_id='s1'))

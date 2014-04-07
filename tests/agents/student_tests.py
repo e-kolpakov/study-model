@@ -70,7 +70,10 @@ class StudentTests(unittest.TestCase):
     def test_study_no_resources_logs_and_returns(self):
         logger = logging.getLogger(agents.student.__name__)
         self._resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
-        with patch.object(logger, 'warn') as mocked_debug:
+        with patch.object(logger, 'warn') as mocked_warn, \
+                patch.object(self._student, '_choose_resource') as resource_choice:
             self._student.study()
-            mocked_debug.assert_called_once_with("No resources available")
+            mocked_warn.assert_called_once_with("No resources available")
+            self.assertSequenceEqual(resource_choice.call_args_list, [])
+            self.assertFalse(resource_choice.called)
 

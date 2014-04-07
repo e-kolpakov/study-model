@@ -82,7 +82,7 @@ class Student(BaseAgentWithCompetencies):
             resource_name=resource_to_study.name, resource_id=resource_to_study.agent_id
         ))
 
-        self._study_resource(resource_to_study)
+        self.study_resource(resource_to_study)
 
     def _get_competency(self, competency_or_code):
         """
@@ -104,7 +104,7 @@ class Student(BaseAgentWithCompetencies):
     def _competency_change(self, competency, value):
         return self._competencies.get(competency, 0) + value * competency.get_value_multiplier(self)
 
-    def _study_resource(self, resource_to_study):
+    def study_resource(self, resource_to_study):
         """
         :type resource_to_study: Resource
         :rtype: None

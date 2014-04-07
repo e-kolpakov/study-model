@@ -4,6 +4,7 @@ import agents
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
 from agents.competency import Competency
+from agents.resource import Resource
 from agents.student import Student
 from nose_parameterized import parameterized
 from unittest import mock
@@ -77,3 +78,23 @@ class StudentTests(unittest.TestCase):
             self.assertSequenceEqual(resource_choice.call_args_list, [])
             self.assertFalse(resource_choice.called)
 
+    def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self):
+        resource1 = Resource('A', {self._to_competency('A'): 0.5, self._to_competency('B'): 0.2})
+        resource2 = Resource('B', {self._to_competency('A'): 0.1, self._to_competency('B'): 0.3})
+        resources = [resource1, resource2]
+        self._resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
+        self._behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
+
+        with patch.object(self._student, 'study_resource') as patched_study_resource:
+            self._student.study()
+            self._behavior_group.resource_choice.choose_resource.assert_called_once_with(self._student, resources)
+            patched_study_resource.assert_called_once_with(resource1)
+
+    def test_study_resource_updates_student_competencies(self):
+        comp = self._to_competency
+        resource1 = Resource('A', {comp('A'): 0.5, comp('B'): 0.2,  comp('C'): 0.5})
+        self._student._competencies = {comp('A'): 0, comp('B'): 0.3, comp('C'): 0.5}
+
+        self._student.study_resource(resource1)
+
+        self.assertDictEqual(self._student.competencies, {comp('A'): 0.5, comp('B'): 0.5, comp('C'): 1.0})

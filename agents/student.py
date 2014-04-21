@@ -59,13 +59,11 @@ class Student(BaseAgentWithCompetencies):
 
     def get_knowledge(self, competencies=None):
         """
-        :type competencies: list[Competency] | list[str]
+        :type competencies: list[str]
         """
         comp = competencies if competencies else self.competencies.keys()
 
-        eff_competencies = [self._get_competency(competency) for competency in comp]
-
-        return {competency: self.competencies.get(competency, 0) for competency in eff_competencies}
+        return {competency: self.competencies.get(competency, 0) for competency in comp}
 
     def study(self):
         logger = logging.getLogger(__name__)
@@ -84,16 +82,6 @@ class Student(BaseAgentWithCompetencies):
 
         self.study_resource(resource_to_study)
 
-    def _get_competency(self, competency_or_code):
-        """
-        :type competency_or_code: Competency | str
-        :rtype: Competency
-        """
-        if isinstance(competency_or_code, Competency):
-            return competency_or_code
-        else:
-            return self.competency_lookup_service.get_competency(competency_or_code)
-
     def _choose_resource(self, available_resources):
         """
         :type available_resources: tuple[Resource]
@@ -101,36 +89,52 @@ class Student(BaseAgentWithCompetencies):
         """
         return self._behavior.resource_choice.choose_resource(self, available_resources)
 
-    def _competency_change(self, competency, value):
-        return self._competencies.get(competency, 0) + value * competency.get_value_multiplier(self)
+    def _competency_change(self, resource, competency, value):
+        return self._competencies.get(competency, 0) + value * resource.get_value_multiplier(self, competency)
 
-    def study_resource(self, resource_to_study):
+    def get_value_multiplier(self, resource, competency_code):
         """
-        :type resource_to_study: Resource
+        :type resource: Resource
+        """
+        competency = self.competency_lookup_service.get_competency(competency_code)
+        deps = competency.dependencies
+        if not deps:
+            return 1
+        student_comps = self.get_knowledge(deps)
+        resource_comps = {dep: resource.competencies.get(dep, 0) for dep in deps}
+        merged_comps = dict()
+        for comp in list(student_comps.keys()) + list(resource_comps.keys()):
+            merged_comps[comp] = min(student_comps.get(comp, 0) + resource_comps.get(comp, 0), 1.0)
+        return 1 if all(value >= 1 for competency, value in merged_comps.items()) else 0
+
+    def study_resource(self, resource):
+        """
+        :type resource: Resource
         :rtype: None
         """
         logger = logging.getLogger(__name__)
         logger.debug("Studying resource")
 
-        old_competencies = copy.deepcopy(self.competencies)
-        logger.debug("Extracting resource competencies")
-        competencies = resource_to_study.get_competencies(self)
-
         logger.debug("Updating self knowledge")
-        self._competencies.update({
-            competency: min(self._competency_change(competency, value), 1.0)
-            for competency, value in competencies.items()
-        })
+        new_competencies = {
+            competency: min(
+                self._competencies.get(competency, 0) + value * self.get_value_multiplier(resource, competency),
+                1.0
+            )
+            for competency, value in resource.competencies.items()
+        }
 
         logger.debug("Calculating delta")
-        competency_delta = get_competency_delta(self.competencies, old_competencies)
+        competency_delta = get_competency_delta(new_competencies, self.competencies)
+
+        self._competencies.update(new_competencies)
 
         logger.debug("Sending messages")
-        pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource_to_study)
+        pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource)
         pub.sendMessage(Topics.KNOWLEDGE_SNAPSHOT, student=self, competencies=self.competencies)
         pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, competency_delta=competency_delta)
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(
             name=self.name,
-            resource_name=resource_to_study.name))
+            resource_name=resource.name))
 

@@ -7,17 +7,17 @@ __author__ = 'john'
 class BaseAgentWithCompetencies(BaseAgent):
     def __init__(self, competencies, *args, **kwargs):
         """
-        :type competencies: dict[Competency, double]
+        :type competencies: dict[str, double]
         """
         super().__init__(*args, **kwargs)
         self._competencies = deepcopy(competencies)
         """
-        :type: dict[Competency, double]
+        :type: dict[str, double]
         """
 
     @property
     def competencies(self):
         """
-        :rtype: dict[Competency, double]
+        :rtype: dict[str, double]
         """
         return self._competencies

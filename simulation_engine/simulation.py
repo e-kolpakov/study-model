@@ -65,7 +65,7 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
     @property
     def competencies(self):
         """
-        :rtype: tuple[str]
+        :rtype: tuple[Competency]
         """
         return tuple(self._competencies)
 
@@ -126,6 +126,9 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
         for student in self._students:
             student.resource_lookup_service = self
             student.competency_lookup_service = self
+
+        for resource in self._resources:
+            resource.competency_lookup_service = self
 
         pub.subscribe(self.resource_usage_listener, Topics.RESOURCE_USAGE)
         pub.subscribe(self.knowledge_snapshot_listener, Topics.KNOWLEDGE_SNAPSHOT)

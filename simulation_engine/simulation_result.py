@@ -11,7 +11,7 @@ class SimulationResult(object):
         self._simulation_step = simulation_step
         self._resource_usage = defaultdict(int)
         self._competencies_snapshot = dict()
-        self._competenices_delta = dict()
+        self._competencies_delta = dict()
 
     def add_resource_usage(self, resource):
         """
@@ -31,14 +31,15 @@ class SimulationResult(object):
         :type student: Student
         :type competency_delta: dict[Competency, double]
         """
-        self._competenices_delta[student.name] = self._prepare_data(competency_delta)
+        self._competencies_delta[student.name] = self._prepare_data(competency_delta)
 
-    def _prepare_data(self, competency_data):
+    @staticmethod
+    def _prepare_data(competency_data):
         """
         :type competency_data: dict[Competency, double]
-        :rtype: dict[Competency, Decimal]
+        :rtype: dict[Competency, double]
         """
-        return {competency: value for competency, value in competency_data.items()}
+        return competency_data
 
     @property
     def resource_usage(self):
@@ -50,4 +51,4 @@ class SimulationResult(object):
 
     @property
     def competenices_delta(self):
-        return self._competenices_delta
+        return self._competencies_delta

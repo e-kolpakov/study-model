@@ -24,15 +24,6 @@ class Competency:
         """
         return tuple(self._dependencies)
 
-    def get_value_multiplier(self, student):
-        """
-        :type student: Student
-        """
-        if not self.dependencies:
-            return 1
-        student_knowledge = student.get_knowledge(self.dependencies)
-        return 1 if all(value >= 1 for competency, value in student_knowledge.items()) else 0
-
     def __str__(self):
         return self.code
 

@@ -1,3 +1,4 @@
+import logging
 import random
 from agents.behaviors.base_behavior import BaseBehavior
 from utils.calculations import get_competency_delta
@@ -38,20 +39,23 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         def calculate_absolute_competency_delta(resource):
             return sum(
                 delta for delta
-                in self._calculate_competency_delta(student, resource.get_competencies(student)).values()
+                in self._calculate_competency_delta(student, resource).values()
             )
 
         return max(available_resources, key=calculate_absolute_competency_delta)
 
     @staticmethod
-    def _calculate_competency_delta(student, competencies):
+    def _calculate_competency_delta(student, resource):
         """
         :type student: Student
-        :type competencies: dict[Competency, double]
+        :type resource: Resource
         :rtype: dict[str, double]
         """
+        competencies = resource.competencies
         estimated_competency = {
-            competency: value * competency.get_value_multiplier(student)
+            competency: value * student.get_value_multiplier(resource, competency)
             for competency, value in competencies.items()
         }
+        _logger = logging.getLogger(RationalResourceChoiceBehavior.__name__)
+        _logger.debug("Esimated competency delta:\n{0}".format(estimated_competency))
         return get_competency_delta(estimated_competency, student.competencies)

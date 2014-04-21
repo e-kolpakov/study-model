@@ -6,7 +6,7 @@ class SimulationState(object):
         """
         :type students: tuple[Student]
         :type resources: tuple[Resource]
-        :type competencies: tuple[str]
+        :type competencies: tuple[Competency]
         """
         self._step = 0
         self._students = students
@@ -22,18 +22,18 @@ class SimulationState(object):
         """
         :rtype: tuple(Student)
         """
-        return tuple(self._students)
+        return self._students
 
     @property
     def resources(self):
         """
         :rtype: tuple[Resource]
         """
-        return tuple(self._resources)
+        return self._resources
 
     @property
     def competencies(self):
         """
-        :rtype: tuple[str]
+        :rtype: tuple[Competency]
         """
-        return tuple(self._competencies)
+        return self._competencies

@@ -31,7 +31,7 @@ class SimulationInput:
     def _assign_default_competencies(self):
         for student in self.students:
             student.competencies.update(
-                {competency: 0 for competency in self.competencies if competency not in student.competencies}
+                {competency.code: 0 for competency in self.competencies if competency.code not in student.competencies}
             )
 
     def prepare(self):

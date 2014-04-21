@@ -20,11 +20,6 @@ class SimulationTests(unittest.TestCase):
         sim_input.resources = mock.Mock(return_value=resources)
         sim_input.students = mock.Mock(return_value=[])
 
-        with patch("simulation.pub.subscribe") as subscribe_mock:
-            simulation = Simulation(sim_input)
-
-            subscribe_mock.assert_called_once_with()
-
 
 
 

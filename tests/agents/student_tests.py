@@ -47,27 +47,21 @@ class StudentTests(unittest.TestCase):
 
         self.assertSequenceEqual(result, expected)
 
-    @parameterized.expand([
-        (['A', 'B', 'C'],),
-        ('X',),
-        (['QWE', 'ASD'],)
-    ])
-    def test_get_knowledge_given_codes_looks_up_competencies(self, competencies):
-        result = self._student.get_knowledge(competencies)
-
-        expected = {self._to_competency(item): 0 for item in competencies}
-
-        self.assertSequenceEqual(result, expected)
-
     def test_get_knowledge_non_zero_competency(self):
-        comp = self._to_competency
-        self._student._competencies = {comp('A'): 0, comp('B'): 0.4, comp('C'): 0.5}
+        self._student._competencies = {'A': 0, 'B': 0.4, 'C': 0.5}
 
-        result = self._student.get_knowledge([comp('A'), comp('B'), comp('C')])
+        result = self._student.get_knowledge(['A', 'B', 'C'])
 
-        expected = {comp('A'): 0, comp('B'): 0.4, comp('C'): 0.5}
+        expected = {'A': 0, 'B': 0.4, 'C': 0.5}
 
         self.assertSequenceEqual(result, expected)
+
+    def test_get_knowledge_given_empty_competencies_list_returns_all_competencies(self):
+        self._student._competencies = {'A': 0, 'B': 0.4, 'C': 0.5}
+
+        result = self._student.get_knowledge()
+
+        self.assertSequenceEqual(result, {'A': 0, 'B': 0.4, 'C': 0.5})
 
     def test_study_no_resources_logs_and_returns(self):
         logger = logging.getLogger(agents.student.__name__)
@@ -80,8 +74,8 @@ class StudentTests(unittest.TestCase):
             self.assertFalse(resource_choice.called)
 
     def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self):
-        resource1 = Resource('A', {self._to_competency('A'): 0.5, self._to_competency('B'): 0.2})
-        resource2 = Resource('B', {self._to_competency('A'): 0.1, self._to_competency('B'): 0.3})
+        resource1 = Resource('A', {'A': 0.5, 'B': 0.2})
+        resource2 = Resource('B', {'A': 0.1, 'B': 0.3})
         resources = [resource1, resource2]
         self._resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
         self._behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
@@ -92,22 +86,20 @@ class StudentTests(unittest.TestCase):
             patched_study_resource.assert_called_once_with(resource1)
 
     def test_study_resource_updates_student_competencies(self):
-        comp = self._to_competency
-        resource1 = Resource('A', {comp('A'): 0.5, comp('B'): 0.2,  comp('C'): 0.5})
-        self._student._competencies = {comp('A'): 0, comp('B'): 0.4, comp('C'): 0.5}
+        resource1 = Resource('A', {'A': 0.5, 'B': 0.2,  'C': 0.5})
+        self._student._competencies = {'A': 0, 'B': 0.4, 'C': 0.5}
 
         self._student.study_resource(resource1)
 
-        self.assertAlmostEqual(self._student.competencies[comp('A')], 0.5)
-        self.assertAlmostEqual(self._student.competencies[comp('B')], 0.6)
-        self.assertAlmostEqual(self._student.competencies[comp('C')], 1.0)
+        self.assertAlmostEqual(self._student.competencies['A'], 0.5)
+        self.assertAlmostEqual(self._student.competencies['B'], 0.6)
+        self.assertAlmostEqual(self._student.competencies['C'], 1.0)
 
     def test_study_resource_sends_messages(self):
-        comp = self._to_competency
-        resource1 = Resource('A', {comp('A'): 0.5, comp('B'): 0.2,  comp('C'): 0.5, comp('D'): 0.7})
-        self._student._competencies = {comp('A'): 0, comp('B'): 0.3, comp('C'): 0.5, comp('D'): 0.5}
-        expected_snapshot = {comp('A'): 0.5, comp('B'): 0.5, comp('C'): 1.0, comp('D'): 1.0}
-        expected_delta = {comp('A'): 0.5, comp('B'): 0.2, comp('C'): 0.5, comp('D'): 0.3}
+        resource1 = Resource('A', {'A': 0.5, 'B': 0.2,  'C': 0.5, 'D': 0.7})
+        self._student._competencies = {'A': 0, 'B': 0.3, 'C': 0.5, 'D': 0.5}
+        expected_snapshot = {'A': 0.5, 'B': 0.5, 'C': 1.0, 'D': 1.0}
+        expected_delta = {'A': 0.5, 'B': 0.2, 'C': 0.5, 'D': 0.3}
 
         with patch('agents.student.pub', spec=True) as pub_mock:
             self._student.study_resource(resource1)

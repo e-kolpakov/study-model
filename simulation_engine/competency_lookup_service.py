@@ -15,5 +15,6 @@ class CompetencyLookupService:
     def get_competency(self, code):
         """
         :type code: str
+        :rtype: Competency
         """
         return self._competency_lookup.get(code, None)

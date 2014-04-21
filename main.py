@@ -4,6 +4,7 @@ import operator
 
 from agents.behaviors import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
 from agents.behaviors.student.behavior_group import BehaviorGroup
+from agents.behaviors.student.knowledge_acquisition import AllPrerequisitesRequiredKnowledgeAcquisitionBehavior
 from agents.resource import Resource
 from agents.student import Student
 from agents.competency import Competency
@@ -30,9 +31,11 @@ def get_simulation_input():
 
     rational_behavior = BehaviorGroup()
     rational_behavior.resource_choice = RationalResourceChoiceBehavior()
+    rational_behavior.knowledge_acquisition = AllPrerequisitesRequiredKnowledgeAcquisitionBehavior()
 
     random_behavior = BehaviorGroup()
     random_behavior.resource_choice = RationalResourceChoiceBehavior()
+    rational_behavior.knowledge_acquisition = AllPrerequisitesRequiredKnowledgeAcquisitionBehavior()
 
     sim_input.students.append(
         Student("John", zero_knowledge, rational_behavior, agent_id='s1'))

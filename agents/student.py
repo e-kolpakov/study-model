@@ -59,7 +59,7 @@ class Student(BaseAgentWithCompetencies):
 
     def get_knowledge(self, competencies=None):
         """
-        :type competencies: list[str]
+        :type competencies: tuple[str]
         """
         comp = competencies if competencies else self.competencies.keys()
 
@@ -107,6 +107,12 @@ class Student(BaseAgentWithCompetencies):
             merged_comps[comp] = min(student_comps.get(comp, 0) + resource_comps.get(comp, 0), 1.0)
         return 1 if all(value >= 1 for competency, value in merged_comps.items()) else 0
 
+    def _acquire_competencies(self, resource):
+        """
+
+        """
+        return self._behavior.knowledge_acquisition.get_competencies(self, resource)
+
     def study_resource(self, resource):
         """
         :type resource: Resource
@@ -116,12 +122,10 @@ class Student(BaseAgentWithCompetencies):
         logger.debug("Studying resource")
 
         logger.debug("Updating self knowledge")
+        incoming_competencies = self._acquire_competencies(resource)
         new_competencies = {
-            competency: min(
-                self._competencies.get(competency, 0) + value * self.get_value_multiplier(resource, competency),
-                1.0
-            )
-            for competency, value in resource.competencies.items()
+            competency_code: min(value + self.competencies.get(competency_code, 0), 1.0)
+            for competency_code, value in incoming_competencies.items()
         }
 
         logger.debug("Calculating delta")

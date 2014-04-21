@@ -7,7 +7,7 @@ __author__ = 'john'
 class BehaviorGroup:
     def __init__(self):
         self._resource_choice = None
-        self._knowledge_acquisistion = None
+        self._knowledge_acquisition = None
 
     @property
     def resource_choice(self):
@@ -31,7 +31,7 @@ class BehaviorGroup:
         """
         :rtype: BaseKnowledgeAcquisitionBehavior
         """
-        return self._knowledge_acquisistion
+        return self._knowledge_acquisition
 
     @knowledge_acquisition.setter
     def knowledge_acquisition(self, value):
@@ -41,4 +41,4 @@ class BehaviorGroup:
         """
         if not isinstance(value, BaseKnowledgeAcquisitionBehavior):
             raise ValueError
-        self._knowledge_acquisistion = value
+        self._knowledge_acquisition = value

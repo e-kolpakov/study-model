@@ -57,5 +57,5 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
             for competency, value in competencies.items()
         }
         _logger = logging.getLogger(RationalResourceChoiceBehavior.__name__)
-        _logger.debug("Esimated competency delta:\n{0}".format(estimated_competency))
+        _logger.debug("Estimated competency delta:\n{0}".format(estimated_competency))
         return get_competency_delta(estimated_competency, student.competencies)

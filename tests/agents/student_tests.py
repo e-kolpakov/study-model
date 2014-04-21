@@ -2,6 +2,7 @@ import logging
 import unittest
 import agents
 from agents.behaviors.student.behavior_group import BehaviorGroup
+from agents.behaviors.student.knowledge_acquisition import BaseKnowledgeAcquisitionBehavior
 from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
 from agents.competency import Competency
 from agents.resource import Resource
@@ -23,6 +24,7 @@ class StudentTests(unittest.TestCase):
     def setUp(self):
         self._behavior_group = mock.Mock(BehaviorGroup)
         self._behavior_group.resource_choice = mock.Mock(BaseResourceChoiceBehavior)
+        self._behavior_group.knowledge_acquisition = mock.Mock(BaseKnowledgeAcquisitionBehavior)
         self._student = Student("student", {}, self._behavior_group, agent_id='s1')
         """ :type: Student """
         self._competency_lookup = mock.Mock()
@@ -50,7 +52,7 @@ class StudentTests(unittest.TestCase):
     def test_get_knowledge_non_zero_competency(self):
         self._student._competencies = {'A': 0, 'B': 0.4, 'C': 0.5}
 
-        result = self._student.get_knowledge(['A', 'B', 'C'])
+        result = self._student.get_knowledge(tuple(['A', 'B', 'C']))
 
         expected = {'A': 0, 'B': 0.4, 'C': 0.5}
 
@@ -89,6 +91,8 @@ class StudentTests(unittest.TestCase):
         resource1 = Resource('A', {'A': 0.5, 'B': 0.2,  'C': 0.5})
         self._student._competencies = {'A': 0, 'B': 0.4, 'C': 0.5}
 
+        self._behavior_group.knowledge_acquisition.get_competencies = mock.Mock(return_value=resource1.competencies)
+
         self._student.study_resource(resource1)
 
         self.assertAlmostEqual(self._student.competencies['A'], 0.5)
@@ -100,6 +104,8 @@ class StudentTests(unittest.TestCase):
         self._student._competencies = {'A': 0, 'B': 0.3, 'C': 0.5, 'D': 0.5}
         expected_snapshot = {'A': 0.5, 'B': 0.5, 'C': 1.0, 'D': 1.0}
         expected_delta = {'A': 0.5, 'B': 0.2, 'C': 0.5, 'D': 0.3}
+
+        self._behavior_group.knowledge_acquisition.get_competencies = mock.Mock(return_value=resource1.competencies)
 
         with patch('agents.student.pub', spec=True) as pub_mock:
             self._student.study_resource(resource1)

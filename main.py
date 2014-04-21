@@ -2,7 +2,7 @@ import logging
 import logging.config
 import operator
 
-from agents.behaviors import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
+from agents.behaviors import *
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.behaviors.student.knowledge_acquisition import AllPrerequisitesRequiredKnowledgeAcquisitionBehavior
 from agents.resource import Resource
@@ -42,13 +42,16 @@ def get_simulation_input():
     sim_input.students.append(
         Student("Jim", zero_knowledge, rational_behavior, agent_id='s2'))
     sim_input.resources.append(
-        Resource("Resource1", {'algebra': 1.0, 'calculus': 0.2, 'diff_eq': 0, 'trigonometry': 0}, 'basic', agent_id='r1')
+        Resource("Resource1", {'algebra': 1.0, 'calculus': 0.2, 'diff_eq': 0, 'trigonometry': 0}, 'basic',
+                 agent_id='r1')
     )
     sim_input.resources.append(
-        Resource("Resource2", {'algebra': 0.0, 'calculus': 0.8, 'diff_eq': 1.0, 'trigonometry': 0}, 'basic', agent_id='r2')
+        Resource("Resource2", {'algebra': 0.0, 'calculus': 0.8, 'diff_eq': 1.0, 'trigonometry': 0}, 'basic',
+                 agent_id='r2')
     )
     sim_input.resources.append(
-        Resource("Resource3", {'algebra': 0.0, 'calculus': 0.0, 'diff_eq': 0.0, 'trigonometry': 1}, 'basic', agent_id='r3')
+        Resource("Resource3", {'algebra': 0.0, 'calculus': 0.0, 'diff_eq': 0.0, 'trigonometry': 1}, 'basic',
+                 agent_id='r3')
     )
     return sim_input
 
@@ -85,10 +88,11 @@ def output_results(results):
         # for student, snapshot in result.competencies_snapshot.items():
         #     print("Student {name}: {snapshot}".format(name=student, snapshot=snapshot))
         print("===== Delta =====")
-        for student, delta in result.competenices_delta.items():
+        for student, delta in result.competencies_delta.items():
             deltas = [(competency, value) for competency, value in delta.items()]
             deltas.sort(key=operator.itemgetter(0))
-            delta_str = ", ".join("{code}: {value}".format(code=competency, value=value) for competency, value in deltas)
+            delta_str = ", ".join(
+                "{code}: {value}".format(code=competency, value=value) for competency, value in deltas)
             print("Student {name}: {delta}".format(name=student, delta=delta_str))
         print("===== Step {step} End =====".format(step=step))
 

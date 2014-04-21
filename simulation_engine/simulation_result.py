@@ -1,5 +1,4 @@
 from collections import defaultdict
-from decimal import Decimal
 
 from agents.resource import Resource
 
@@ -50,5 +49,5 @@ class SimulationResult(object):
         return self._competencies_snapshot
 
     @property
-    def competenices_delta(self):
+    def competencies_delta(self):
         return self._competencies_delta

@@ -1,6 +1,4 @@
-from agents.base_agent import BaseAgent
 from agents.base_agent_with_competencies import BaseAgentWithCompetencies
-from agents.competency import Competency
 
 __author__ = 'john'
 

@@ -1,5 +1,4 @@
 from agents.student import Student
-from simulation_specification.student_specification import StudentSpecification
 
 __author__ = 'john'
 

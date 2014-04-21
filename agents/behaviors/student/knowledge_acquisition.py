@@ -19,7 +19,7 @@ class BaseKnowledgeAcquisitionBehavior(BaseBehavior):
         """
         :type student: Student
         :type resource: Resource
-        :type prerequisites: list[str]
+        :type prerequisites: tuple[str]
         :rtype: float
         """
         raise NotImplemented

@@ -1,7 +1,6 @@
 from agents.factories.base_factory import BaseFactory
 from agents.resource import Resource
 
-from simulation_specification.resource_specification import ResourceSpecification
 
 __author__ = 'john'
 

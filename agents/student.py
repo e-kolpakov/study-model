@@ -1,11 +1,9 @@
-import copy
 import logging
 
 from pubsub import pub
 
 from agents.base_agent_with_competencies import BaseAgentWithCompetencies
 from agents.resource import Resource
-from agents.competency import Competency
 from simulation_engine.topics import Topics
 from utils.calculations import get_competency_delta
 
@@ -16,7 +14,7 @@ __author__ = 'john'
 class Student(BaseAgentWithCompetencies):
     def __init__(self, name, competencies, behavior, *args, **kwargs):
         """
-        :type competencies: dict[Competency, double]
+        :type competencies: dict[str, double]
         :type behavior: BehaviorGroup
         """
         super().__init__(competencies, *args, **kwargs)
@@ -82,37 +80,6 @@ class Student(BaseAgentWithCompetencies):
 
         self.study_resource(resource_to_study)
 
-    def _choose_resource(self, available_resources):
-        """
-        :type available_resources: tuple[Resource]
-        :rtype: Resource
-        """
-        return self._behavior.resource_choice.choose_resource(self, available_resources)
-
-    def _competency_change(self, resource, competency, value):
-        return self._competencies.get(competency, 0) + value * resource.get_value_multiplier(self, competency)
-
-    def get_value_multiplier(self, resource, competency_code):
-        """
-        :type resource: Resource
-        """
-        competency = self.competency_lookup_service.get_competency(competency_code)
-        deps = competency.dependencies
-        if not deps:
-            return 1
-        student_comps = self.get_knowledge(deps)
-        resource_comps = {dep: resource.competencies.get(dep, 0) for dep in deps}
-        merged_comps = dict()
-        for comp in list(student_comps.keys()) + list(resource_comps.keys()):
-            merged_comps[comp] = min(student_comps.get(comp, 0) + resource_comps.get(comp, 0), 1.0)
-        return 1 if all(value >= 1 for competency, value in merged_comps.items()) else 0
-
-    def _acquire_competencies(self, resource):
-        """
-
-        """
-        return self._behavior.knowledge_acquisition.get_competencies(self, resource)
-
     def study_resource(self, resource):
         """
         :type resource: Resource
@@ -142,3 +109,28 @@ class Student(BaseAgentWithCompetencies):
             name=self.name,
             resource_name=resource.name))
 
+    def get_value_multiplier(self, resource, competency_code):
+        """
+        :type resource: Resource
+        """
+        competency = self.competency_lookup_service.get_competency(competency_code)
+        return self._behavior.knowledge_acquisition.calculate_prerequisites_multiplier(
+            self, resource, competency.dependencies
+        )
+
+    def _choose_resource(self, available_resources):
+        """
+        :type available_resources: tuple[Resource]
+        :rtype: Resource
+        """
+        return self._behavior.resource_choice.choose_resource(self, available_resources)
+
+    def _competency_change(self, resource, competency, value):
+        return self._competencies.get(competency, 0) + value * resource.get_value_multiplier(self, competency)
+
+    def _acquire_competencies(self, resource):
+        """
+        :type resource: Resource
+        :rtype: dict[str, float]
+        """
+        return self._behavior.knowledge_acquisition.get_competencies(self, resource)

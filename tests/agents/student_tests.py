@@ -116,3 +116,16 @@ class StudentTests(unittest.TestCase):
             #     Topics.KNOWLEDGE_SNAPSHOT, student=self._student, resource=expected_snapshot)
             # pub_mock.sendMessage.assert_any_call(
             #     Topics.KNOWLEDGE_DELTA, student=self._student, resource=expected_delta)
+
+    def test_get_value_multiplier_returns_knowledge_acquisition_behavior_result(self):
+        resource1 = Resource('A', {})
+
+        self._behavior_group.knowledge_acquisition.calculate_prerequisites_multiplier = mock.Mock(return_value=0.8)
+
+        result = self._student.get_value_multiplier(resource1, 'A')
+
+        self.assertEqual(result, 0.8)
+
+        self._behavior_group.knowledge_acquisition.calculate_prerequisites_multiplier.assert_called_once_with(
+            self._student, resource1, tuple()
+        )

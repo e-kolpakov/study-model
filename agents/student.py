@@ -112,6 +112,7 @@ class Student(BaseAgentWithCompetencies):
     def get_value_multiplier(self, resource, competency_code):
         """
         :type resource: Resource
+        :rtype: float
         """
         competency = self.competency_lookup_service.get_competency(competency_code)
         return self._behavior.knowledge_acquisition.calculate_prerequisites_multiplier(

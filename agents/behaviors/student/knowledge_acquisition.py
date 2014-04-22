@@ -15,11 +15,11 @@ class BaseKnowledgeAcquisitionBehavior(BaseBehavior):
         """
         raise NotImplemented
 
-    def calculate_prerequisites_multiplier(self, student, resource, prerequisites):
+    def calculate_prerequisites_multiplier(self, student, resource, competency):
         """
         :type student: Student
         :type resource: Resource
-        :type prerequisites: tuple[str]
+        :type competency: Competency
         :rtype: float
         """
         raise NotImplemented
@@ -35,19 +35,20 @@ class AllPrerequisitesRequiredKnowledgeAcquisitionBehavior(BaseKnowledgeAcquisit
         competency_lookup = student.competency_lookup_service
         new_competencies = {
             code: value * self.calculate_prerequisites_multiplier(
-                student, resource, competency_lookup.get_competency(code).dependencies
+                student, resource, competency_lookup.get_competency(code)
             )
             for code, value in resource.competencies.items()
         }
         return new_competencies
 
-    def calculate_prerequisites_multiplier(self, student, resource, prerequisites):
+    def calculate_prerequisites_multiplier(self, student, resource, competency):
         """
         :type student: Student
         :type resource: Resource
-        :type prerequisites: tuple[str]
+        :type competency: Competency
         :rtype: float
         """
+        prerequisites = competency.dependencies
         if not prerequisites:
             return 1
         student_comps = student.get_knowledge(prerequisites)

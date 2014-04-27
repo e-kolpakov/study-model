@@ -90,10 +90,7 @@ class Student(BaseAgentWithCompetencies):
 
         logger.debug("Updating self knowledge")
         incoming_competencies = self._acquire_competencies(resource)
-        new_competencies = {
-            competency_code: min(value + self.competencies.get(competency_code, 0), 1.0)
-            for competency_code, value in incoming_competencies.items()
-        }
+        new_competencies = self.get_new_competencies(incoming_competencies)
 
         logger.debug("Calculating delta")
         competency_delta = get_competency_delta(new_competencies, self.competencies)
@@ -118,6 +115,15 @@ class Student(BaseAgentWithCompetencies):
         return self._behavior.knowledge_acquisition.calculate_prerequisites_multiplier(
             self, resource, competency
         )
+
+    def get_new_competencies(self, incoming_competencies):
+        """
+        :type incoming_competencies: dict[str, double]
+        """
+        return {
+            competency_code: min(value + self.competencies.get(competency_code, 0), 1.0)
+            for competency_code, value in incoming_competencies.items()
+        }
 
     def _choose_resource(self, available_resources):
         """

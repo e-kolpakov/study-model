@@ -127,5 +127,5 @@ class StudentTests(unittest.TestCase):
         self.assertEqual(result, 0.8)
 
         self._behavior_group.knowledge_acquisition.calculate_prerequisites_multiplier.assert_called_once_with(
-            self._student, resource1, tuple()
+            self._student, resource1, self._to_competency('A')
         )

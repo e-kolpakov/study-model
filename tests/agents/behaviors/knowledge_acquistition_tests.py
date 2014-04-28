@@ -1,9 +1,11 @@
 import unittest
 from unittest import mock
+
 from agents.behaviors import AllPrerequisitesRequiredKnowledgeAcquisitionBehavior
-from agents.competency import Competency
+from study_model.competency import Competency
 from agents.resource import Resource
 from agents.student import Student
+
 
 __author__ = 'john'
 

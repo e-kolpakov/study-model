@@ -1,12 +1,11 @@
 import logging
 import random
-from agents.behaviors.base_behavior import BaseBehavior
 from utils.calculations import get_competency_delta, add_competencies
 
 __author__ = 'john'
 
 
-class BaseResourceChoiceBehavior(BaseBehavior):
+class BaseResourceChoiceBehavior:
     def __init__(self):
         super().__init__()
 
@@ -36,28 +35,10 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         :type available_resources: tuple[Resource]
         :rtype: Resource
         """
-        def calculate_absolute_competency_delta(resource):
+        def new_facts_count(resource):
             return sum(
                 delta for delta
                 in self._calculate_competency_delta(student, resource).values()
             )
 
-        return max(available_resources, key=calculate_absolute_competency_delta)
-
-    @staticmethod
-    def _calculate_competency_delta(student, resource):
-        """
-        :type student: Student
-        :type resource: Resource
-        :rtype: dict[str, double]
-        """
-        competencies = resource.competencies
-        new_competencies = {
-            competency: value * student.get_value_multiplier(resource, competency)
-            for competency, value in competencies.items()
-        }
-        _logger = logging.getLogger(RationalResourceChoiceBehavior.__name__)
-        _logger.debug("Acquired competencies:\n{0}".format(new_competencies))
-        estimated_competency = add_competencies(student.competencies, new_competencies)
-        _logger.debug("Estimated new competency:\n{0}".format(estimated_competency))
-        return get_competency_delta(estimated_competency, student.competencies)
+        return max(available_resources, key=new_facts_count)

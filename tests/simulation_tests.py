@@ -1,7 +1,7 @@
 import unittest
-
 from unittest import mock
-from agents.competency import Competency
+
+from study_model.competency import Competency
 from agents.resource import Resource
 
 

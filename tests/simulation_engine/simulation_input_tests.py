@@ -2,7 +2,7 @@ import unittest
 
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.student import Student
-from agents.competency import Competency
+from study_model.competency import Competency
 from simulation_engine.simulation_input import SimulationInput
 
 

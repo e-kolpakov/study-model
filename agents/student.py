@@ -2,7 +2,7 @@ import logging
 
 from pubsub import pub
 
-from agents.base_agent_with_competencies import BaseAgentWithCompetencies
+from agents.intelligent_agent import IntelligentAgent
 from agents.resource import Resource
 from simulation_engine.topics import Topics
 from utils.calculations import get_competency_delta
@@ -11,15 +11,16 @@ from utils.calculations import get_competency_delta
 __author__ = 'john'
 
 
-class Student(BaseAgentWithCompetencies):
-    def __init__(self, name, competencies, behavior, *args, **kwargs):
+class Student(IntelligentAgent):
+    def __init__(self, name, knowledge, behavior, *args, **kwargs):
         """
-        :type competencies: dict[str, double]
+        :type knowledge: list[Fact]
         :type behavior: BehaviorGroup
         """
-        super().__init__(competencies, *args, **kwargs)
+        super(Student, self).__init__()
         self._name = name
         self._behavior = behavior
+        self._knowledge = set(knowledge)
         self._resource_lookup_service = None
         self._competency_lookup_service = None
 
@@ -55,14 +56,6 @@ class Student(BaseAgentWithCompetencies):
         """
         self._competency_lookup_service = value
 
-    def get_knowledge(self, competencies=None):
-        """
-        :type competencies: tuple[str]
-        """
-        comp = competencies if competencies else self.competencies.keys()
-
-        return {competency: self.competencies.get(competency, 0) for competency in comp}
-
     def study(self):
         logger = logging.getLogger(__name__)
         logger.debug("Student {name} study".format(name=self.name))
@@ -89,13 +82,9 @@ class Student(BaseAgentWithCompetencies):
         logger.debug("Studying resource")
 
         logger.debug("Updating self knowledge")
-        incoming_competencies = self._acquire_competencies(resource)
-        new_competencies = self.get_new_competencies(incoming_competencies)
+        incoming_facts = self._acquire_knowledge(resource)
 
-        logger.debug("Calculating delta")
-        competency_delta = get_competency_delta(new_competencies, self.competencies)
-
-        self._competencies.update(new_competencies)
+        self._knowledge = self._knowledge.union(incoming_facts)
 
         logger.debug("Sending messages")
         pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource)
@@ -106,25 +95,6 @@ class Student(BaseAgentWithCompetencies):
             name=self.name,
             resource_name=resource.name))
 
-    def get_value_multiplier(self, resource, competency_code):
-        """
-        :type resource: Resource
-        :rtype: float
-        """
-        competency = self.competency_lookup_service.get_competency(competency_code)
-        return self._behavior.knowledge_acquisition.calculate_prerequisites_multiplier(
-            self, resource, competency
-        )
-
-    def get_new_competencies(self, incoming_competencies):
-        """
-        :type incoming_competencies: dict[str, double]
-        """
-        return {
-            competency_code: min(value + self.competencies.get(competency_code, 0), 1.0)
-            for competency_code, value in incoming_competencies.items()
-        }
-
     def _choose_resource(self, available_resources):
         """
         :type available_resources: tuple[Resource]
@@ -132,12 +102,9 @@ class Student(BaseAgentWithCompetencies):
         """
         return self._behavior.resource_choice.choose_resource(self, available_resources)
 
-    def _competency_change(self, resource, competency, value):
-        return self._competencies.get(competency, 0) + value * resource.get_value_multiplier(self, competency)
-
-    def _acquire_competencies(self, resource):
+    def _acquire_knowledge(self, resource):
         """
         :type resource: Resource
         :rtype: dict[str, float]
         """
-        return self._behavior.knowledge_acquisition.get_competencies(self, resource)
+        return self._behavior.knowledge_acquisition.acquire_facts(self, resource)

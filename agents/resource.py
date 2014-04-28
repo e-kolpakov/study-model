@@ -1,17 +1,18 @@
-from agents.base_agent_with_competencies import BaseAgentWithCompetencies
+from agents.base_agent import BaseAgent
 
 __author__ = 'john'
 
 
-class Resource(BaseAgentWithCompetencies):
-    def __init__(self, name, competencies, behavior=None, *args, **kwargs):
+class Resource(BaseAgent):
+    def __init__(self, name, resource_competencies, behavior=None):
         """
         :type name: str
-        :type competencies: dict[str, double]
+        :type resource_competencies: list[ResourceCompetency]
         """
-        super().__init__(competencies, *args, **kwargs)
+        super(Resource, self).__init__()
         self._name = name
         self._behavior = behavior
+        self._competencies = resource_competencies
 
     @property
     def name(self):
@@ -19,3 +20,10 @@ class Resource(BaseAgentWithCompetencies):
         :rtype: str
         """
         return self._name
+
+    @property
+    def facts(self):
+        """
+        :rtype: list[ResourceFact]
+        """
+        return self._facts

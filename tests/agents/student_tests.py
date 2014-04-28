@@ -1,16 +1,19 @@
 import logging
 import unittest
+from unittest import mock
+from unittest.mock import patch
+
+from nose_parameterized import parameterized
+
 import agents
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.behaviors.student.knowledge_acquisition import BaseKnowledgeAcquisitionBehavior
 from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
-from agents.competency import Competency
+from study_model.competency import Competency
 from agents.resource import Resource
 from agents.student import Student
-from nose_parameterized import parameterized
-from unittest import mock
-from unittest.mock import patch
 from simulation_engine.topics import Topics
+
 
 __author__ = 'john'
 
@@ -91,7 +94,7 @@ class StudentTests(unittest.TestCase):
         resource1 = Resource('A', {'A': 0.5, 'B': 0.2,  'C': 0.5})
         self._student._competencies = {'A': 0, 'B': 0.4, 'C': 0.5}
 
-        self._behavior_group.knowledge_acquisition.get_competencies = mock.Mock(return_value=resource1.competencies)
+        self._behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=resource1.competencies)
 
         self._student.study_resource(resource1)
 
@@ -105,7 +108,7 @@ class StudentTests(unittest.TestCase):
         expected_snapshot = {'A': 0.5, 'B': 0.5, 'C': 1.0, 'D': 1.0}
         expected_delta = {'A': 0.5, 'B': 0.2, 'C': 0.5, 'D': 0.3}
 
-        self._behavior_group.knowledge_acquisition.get_competencies = mock.Mock(return_value=resource1.competencies)
+        self._behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=resource1.competencies)
 
         with patch('agents.student.pub', spec=True) as pub_mock:
             self._student.study_resource(resource1)

@@ -1,59 +1,15 @@
 import logging
 import logging.config
-import operator
 
-from agents.behaviors import *
-from agents.behaviors.student.behavior_group import BehaviorGroup
-from agents.behaviors.student.knowledge_acquisition import AllPrerequisitesRequiredKnowledgeAcquisitionBehavior
-from agents.resource import Resource
 from agents.student import Student
-from agents.competency import Competency
+from study_model.competency import Competency
 import log_config
 from simulation_engine.simulation import Simulation
-from simulation_engine.simulation_input import SimulationInput
+from simulation_input import get_simulation_input
+from simulation_output import output_results
 
 
 __author__ = 'john'
-
-
-def get_simulation_input():
-    """
-    :rtype: SimulationInput
-    """
-    sim_input = SimulationInput()
-    alg = Competency('algebra')
-    calc = Competency('calculus', ['algebra'])
-    diff_eq = Competency('diff_eq', ['algebra', 'calculus'])
-    trigonometry = Competency('trigonometry', ['algebra'])
-    sim_input.competencies.extend([alg, calc, diff_eq, trigonometry])
-
-    zero_knowledge = {competency.code: 0 for competency in sim_input.competencies}
-
-    rational_behavior = BehaviorGroup()
-    rational_behavior.resource_choice = RationalResourceChoiceBehavior()
-    rational_behavior.knowledge_acquisition = AllPrerequisitesRequiredKnowledgeAcquisitionBehavior()
-
-    random_behavior = BehaviorGroup()
-    random_behavior.resource_choice = RationalResourceChoiceBehavior()
-    rational_behavior.knowledge_acquisition = AllPrerequisitesRequiredKnowledgeAcquisitionBehavior()
-
-    sim_input.students.append(
-        Student("John", zero_knowledge, rational_behavior, agent_id='s1'))
-    sim_input.students.append(
-        Student("Jim", zero_knowledge, rational_behavior, agent_id='s2'))
-    sim_input.resources.append(
-        Resource("Resource1", {'algebra': 1.0, 'calculus': 0.2, 'diff_eq': 0, 'trigonometry': 0}, 'basic',
-                 agent_id='r1')
-    )
-    sim_input.resources.append(
-        Resource("Resource2", {'algebra': 0.0, 'calculus': 0.8, 'diff_eq': 1.0, 'trigonometry': 0}, 'basic',
-                 agent_id='r2')
-    )
-    sim_input.resources.append(
-        Resource("Resource3", {'algebra': 0.0, 'calculus': 0.0, 'diff_eq': 0.0, 'trigonometry': 1}, 'basic',
-                 agent_id='r3')
-    )
-    return sim_input
 
 
 def perfect_knowledge_stop_condition(students, competencies):
@@ -74,27 +30,6 @@ def stop_condition(simulation_state):
     :rtype: bool
     """
     return perfect_knowledge_stop_condition(simulation_state.students, simulation_state.competencies)
-
-
-def output_results(results):
-    """
-    :type results: dict[int, SimulationResult]
-    """
-    for step, result in results.items():
-        print("======= Step {step} =======".format(step=step))
-        for resource, usage in result.resource_usage.items():
-            print("Resource {name} used {times} times".format(name=resource, times=usage))
-        # print("=== Snapshots ===")
-        # for student, snapshot in result.competencies_snapshot.items():
-        #     print("Student {name}: {snapshot}".format(name=student, snapshot=snapshot))
-        print("===== Delta =====")
-        for student, delta in result.competencies_delta.items():
-            deltas = [(competency, value) for competency, value in delta.items()]
-            deltas.sort(key=operator.itemgetter(0))
-            delta_str = ", ".join(
-                "{code}: {value}".format(code=competency, value=value) for competency, value in deltas)
-            print("Student {name}: {delta}".format(name=student, delta=delta_str))
-        print("===== Step {step} End =====".format(step=step))
 
 
 if __name__ == "__main__":

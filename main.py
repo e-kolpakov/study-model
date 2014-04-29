@@ -12,16 +12,15 @@ from simulation_output import output_results
 __author__ = 'john'
 
 
-def perfect_knowledge_stop_condition(students, competencies):
+def perfect_knowledge_stop_condition(students, curriculum):
     """
     :type students: tuple[Student]
-    :type competencies: tuple[Competency]
+    :type curriculum: Curriculum
     """
-    competency_codes = [competency.code for competency in competencies]
-    perfect_knowledge = lambda student: all(
-        knowledge >= 1.0 for competency, knowledge in student.get_knowledge(competency_codes).items()
-    )
-    return all(perfect_knowledge(student) for student in students)
+    return all(
+        competency.is_mastered(student.knowledge)
+        for student in students
+        for competency in curriculum.all_competencies())
 
 
 def stop_condition(simulation_state):
@@ -29,7 +28,7 @@ def stop_condition(simulation_state):
     :type simulation_state: SimulationState
     :rtype: bool
     """
-    return perfect_knowledge_stop_condition(simulation_state.students, simulation_state.competencies)
+    return perfect_knowledge_stop_condition(simulation_state.students, simulation_state.curriculum)
 
 
 if __name__ == "__main__":

@@ -15,10 +15,7 @@ def output_results(results):
         # for student, snapshot in result.competencies_snapshot.items():
         #     print("Student {name}: {snapshot}".format(name=student, snapshot=snapshot))
         print("===== Delta =====")
-        for student, delta in result.competencies_delta.items():
-            deltas = [(competency, value) for competency, value in delta.items()]
-            deltas.sort(key=operator.itemgetter(0))
-            delta_str = ", ".join(
-                "{code}: {value}".format(code=competency, value=value) for competency, value in deltas)
+        for student, new_knowledge in result.new_knowledge.items():
+            delta_str = ", ".join(list(map(str,new_knowledge)))
             print("Student {name}: {delta}".format(name=student, delta=delta_str))
         print("===== Step {step} End =====".format(step=step))

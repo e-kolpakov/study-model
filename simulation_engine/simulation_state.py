@@ -2,16 +2,16 @@ __author__ = 'john'
 
 
 class SimulationState(object):
-    def __init__(self, students, resources, competencies):
+    def __init__(self, students, resources, curriculum):
         """
         :type students: tuple[Student]
         :type resources: tuple[Resource]
-        :type competencies: tuple[Competency]
+        :type curriculum: Curriculum
         """
         self._step = 0
         self._students = students
         self._resources = resources
-        self._competencies = competencies
+        self._curriculum = curriculum
 
     @property
     def step(self):
@@ -32,8 +32,8 @@ class SimulationState(object):
         return self._resources
 
     @property
-    def competencies(self):
+    def curriculum(self):
         """
-        :rtype: tuple[Competency]
+        :rtype: Curriculum
         """
-        return self._competencies
+        return self._curriculum

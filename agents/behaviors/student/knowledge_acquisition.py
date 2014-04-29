@@ -21,4 +21,4 @@ class AllPrerequisitesRequiredKnowledgeAcquisitionBehavior(BaseKnowledgeAcquisit
         :type resource: Resource
         :rtype: set[Fact]
         """
-        return set()
+        return set(resource_fact.fact for resource_fact in resource.facts)

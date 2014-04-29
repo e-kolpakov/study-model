@@ -47,3 +47,6 @@ class Curriculum:
         :rtype: Competency
         """
         return self._competency_fact_index.get(fact.code, None)
+
+    def all_competencies(self):
+        return self._competency_index.values()

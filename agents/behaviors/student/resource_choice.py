@@ -36,9 +36,8 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         :rtype: Resource
         """
         def new_facts_count(resource):
-            return sum(
-                delta for delta
-                in self._calculate_competency_delta(student, resource).values()
-            )
+            # TODO: implement competency dependencies
+            facts = set([resource_fact.fact for resource_fact in resource.facts])
+            return len(facts - student.knowledge)
 
         return max(available_resources, key=new_facts_count)

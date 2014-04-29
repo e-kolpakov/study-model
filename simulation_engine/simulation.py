@@ -3,7 +3,6 @@ import logging
 
 from pubsub import pub
 
-from simulation_engine.competency_lookup_service import CompetencyLookupService
 from simulation_engine.simulation_result import SimulationResult
 from agents.resource import Resource
 from simulation_engine.resource_lookup_service import ResourceLookupService
@@ -14,7 +13,7 @@ from simulation_engine.topics import Topics
 __author__ = 'john'
 
 
-class Simulation(ResourceLookupService, CompetencyLookupService):
+class Simulation(ResourceLookupService):
     def __init__(self, simulation_input, *args, **kwargs):
         """
         :type simulation_input: SimulationInput
@@ -25,11 +24,8 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
         """ :type: int """
 
         self._students = simulation_input.students
-        """ :type: list[Student] """
         self._resources = simulation_input.resources
-        """ :type: list[Resource] """
-        self._competencies = simulation_input.competencies
-        """ :type: list[Competency] """
+        self._curriculum = simulation_input.curriculum
 
         self._stop_condition = lambda x: False
         self._lookup_service = None
@@ -38,7 +34,6 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
         self._results = defaultdict(lambda: SimulationResult(self.step))
         """ :type: dict[int, SimulationResult] """
 
-        self._build_competency_lookup(self._competencies)
         self._register_resources(self._resources)
 
     @property
@@ -63,15 +58,15 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
         return tuple(self._resources)
 
     @property
-    def competencies(self):
+    def curriculum(self):
         """
         :rtype: tuple[Competency]
         """
-        return tuple(self._competencies)
+        return self._curriculum
 
     @property
     def state(self):
-        return SimulationState(self.students, self.resources, self.competencies)
+        return SimulationState(self.students, self.resources, self._curriculum)
 
     @property
     def stop_condition(self):
@@ -111,7 +106,7 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
     def knowledge_snapshot_listener(self, student, competencies):
         """
         :type student: Student
-        :type competencies: dict[Competency, double]
+        :type competencies: set[Fact]
         """
         self.current_step_result.register_knowledge_snapshot(student, competencies)
 
@@ -125,10 +120,7 @@ class Simulation(ResourceLookupService, CompetencyLookupService):
     def _initialize(self):
         for student in self._students:
             student.resource_lookup_service = self
-            student.competency_lookup_service = self
-
-        for resource in self._resources:
-            resource.competency_lookup_service = self
+            student.curriculum = self.curriculum
 
         pub.subscribe(self.resource_usage_listener, Topics.RESOURCE_USAGE)
         pub.subscribe(self.knowledge_snapshot_listener, Topics.KNOWLEDGE_SNAPSHOT)

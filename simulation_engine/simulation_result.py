@@ -9,8 +9,8 @@ class SimulationResult(object):
     def __init__(self, simulation_step):
         self._simulation_step = simulation_step
         self._resource_usage = defaultdict(int)
-        self._competencies_snapshot = dict()
-        self._competencies_delta = dict()
+        self._knowledge = dict()
+        self._new_knowledge = dict()
 
     def add_resource_usage(self, resource):
         """
@@ -18,36 +18,28 @@ class SimulationResult(object):
         """
         self._resource_usage[resource.name] += 1
 
-    def register_knowledge_snapshot(self, student, competencies):
+    def register_knowledge_snapshot(self, student, knowledge):
         """
         :type student: Student
-        :type competencies: dict[Competency, double]
+        :type knowledge: set[Fact]
         """
-        self._competencies_snapshot[student.name] = self._prepare_data(competencies)
+        self._knowledge[student.name] = knowledge
 
-    def register_knowledge_delta(self, student, competency_delta):
+    def register_knowledge_delta(self, student, new_knowledge):
         """
         :type student: Student
-        :type competency_delta: dict[Competency, double]
+        :type new_knowledge: set[Fact]
         """
-        self._competencies_delta[student.name] = self._prepare_data(competency_delta)
-
-    @staticmethod
-    def _prepare_data(competency_data):
-        """
-        :type competency_data: dict[Competency, double]
-        :rtype: dict[Competency, double]
-        """
-        return competency_data
+        self._new_knowledge[student.name] = new_knowledge
 
     @property
     def resource_usage(self):
         return self._resource_usage
 
     @property
-    def competencies_snapshot(self):
-        return self._competencies_snapshot
+    def knowledge(self):
+        return self._knowledge
 
     @property
-    def competencies_delta(self):
-        return self._competencies_delta
+    def new_knowledge(self):
+        return self._new_knowledge

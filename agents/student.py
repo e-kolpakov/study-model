@@ -21,8 +21,8 @@ class Student(IntelligentAgent):
         self._name = name
         self._behavior = behavior
         self._knowledge = set(knowledge)
+        self._curriculum = None
         self._resource_lookup_service = None
-        self._competency_lookup_service = None
 
     @property
     def name(self):
@@ -43,18 +43,25 @@ class Student(IntelligentAgent):
         self._resource_lookup_service = value
 
     @property
-    def competency_lookup_service(self):
+    def curriculum(self):
         """
-        :rtype: CompetencyLookupService
+        :rtype: Curriculum
         """
-        return self._competency_lookup_service
+        return self._curriculum
 
-    @competency_lookup_service.setter
-    def competency_lookup_service(self, value):
+    @curriculum.setter
+    def curriculum(self, value):
         """
-        :type value: CompetencyLookupService
+        :type value: Curriculum
         """
-        self._competency_lookup_service = value
+        self._curriculum = value
+
+    @property
+    def knowledge(self):
+        """
+        :rtype: frozenset
+        """
+        return frozenset(self._knowledge)
 
     def study(self):
         logger = logging.getLogger(__name__)
@@ -83,13 +90,14 @@ class Student(IntelligentAgent):
 
         logger.debug("Updating self knowledge")
         incoming_facts = self._acquire_knowledge(resource)
+        new_knowledge = set(incoming_facts) - self._knowledge
 
-        self._knowledge = self._knowledge.union(incoming_facts)
+        self._knowledge = self._knowledge | incoming_facts
 
         logger.debug("Sending messages")
         pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource)
-        pub.sendMessage(Topics.KNOWLEDGE_SNAPSHOT, student=self, competencies=self.competencies)
-        pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, competency_delta=competency_delta)
+        pub.sendMessage(Topics.KNOWLEDGE_SNAPSHOT, student=self, competencies=self.knowledge)
+        pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, competency_delta=new_knowledge)
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(
             name=self.name,

@@ -45,7 +45,7 @@ def build_resources(curriculum):
     return [
         Resource("Resource1", to_resource_facts(['Sum', "Sub", "Mul", "Div", "Lim"]), None, agent_id='r1'),
         Resource("Resource2", to_resource_facts(['Int', "Der", "LinearDE", "SquareDE", "MultipleVarDE"]), None, agent_id='r2'),
-        Resource("Resource3", to_resource_facts(curriculum.find_competency("trigonometry").facts), None, agent_id='r3')
+        Resource("Resource3", [ResourceFact(fact) for fact in curriculum.find_competency("trigonometry").facts], None, agent_id='r3')
     ]
 
 

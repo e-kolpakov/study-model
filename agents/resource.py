@@ -4,15 +4,15 @@ __author__ = 'john'
 
 
 class Resource(BaseAgent):
-    def __init__(self, name, resource_competencies, behavior=None):
+    def __init__(self, name, resource_facts, behavior=None, *args, **kwargs):
         """
         :type name: str
-        :type resource_competencies: list[ResourceCompetency]
+        :type resource_facts: list[ResourceFact]
         """
-        super(Resource, self).__init__()
+        super(Resource, self).__init__(*args, **kwargs)
         self._name = name
         self._behavior = behavior
-        self._competencies = resource_competencies
+        self._facts = resource_facts
 
     @property
     def name(self):

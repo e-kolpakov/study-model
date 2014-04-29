@@ -59,19 +59,3 @@ class Competency:
 
     def __hash__(self):
         return hash(self.code)
-
-
-class ResourceCompetency:
-    def __init__(self, competency, enabled_facts=None, disabled_facts=None):
-        """
-        :param competency: Competency
-        :param enabled_facts: list[str] | None
-        :param disabled_facts: list[str] | None
-        """
-        self._competency = competency
-        self._enabled_facts = enabled_facts
-        self._disabled_facts = disabled_facts
-
-    @property
-    def competency(self):
-        return self._competency

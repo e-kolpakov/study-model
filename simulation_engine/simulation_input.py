@@ -6,6 +6,7 @@ class SimulationInput:
         self._students = []
         self._resources = []
         self._competencies = []
+        self._curriculum = None
 
     @property
     def students(self):
@@ -22,18 +23,15 @@ class SimulationInput:
         return self._resources
 
     @property
-    def competencies(self):
+    def curriculum(self):
         """
-        :rtype: list[Competency]
+        :rtype: Curriculum
         """
-        return self._competencies
+        return self._curriculum
 
-    def _assign_default_competencies(self):
-        for student in self.students:
-            student.competencies.update(
-                {competency.code: 0 for competency in self.competencies if competency.code not in student.competencies}
-            )
-
-    def prepare(self):
-        self._assign_default_competencies()
-
+    @curriculum.setter
+    def curriculum(self, value):
+        """
+        :type value: Curriculum
+        """
+        self._curriculum = value

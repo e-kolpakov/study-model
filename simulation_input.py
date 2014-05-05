@@ -1,6 +1,5 @@
-from agents.behaviors import RationalResourceChoiceBehavior, AllPrerequisitesRequiredKnowledgeAcquisitionBehavior
+from agents.behaviors import RationalResourceChoiceBehavior, GetAllFactsAcquisitionBehavior
 from agents.behaviors.student.behavior_group import BehaviorGroup
-from agents.behaviors.student.resource_choice import RandomResourceChoiceBehavior
 from study_model.competency import Competency
 from agents.resource import Resource
 from agents.student import Student
@@ -52,7 +51,7 @@ def build_resources(curriculum):
 def build_students(curriculum):
     rational_behavior = BehaviorGroup()
     rational_behavior.resource_choice = RationalResourceChoiceBehavior()
-    rational_behavior.knowledge_acquisition = AllPrerequisitesRequiredKnowledgeAcquisitionBehavior()
+    rational_behavior.knowledge_acquisition = GetAllFactsAcquisitionBehavior()
 
     return [
         Student("John", [], rational_behavior, agent_id='s1'),

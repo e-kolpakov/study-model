@@ -1,7 +1,7 @@
 __author__ = 'john'
 
 
-class BaseKnowledgeAcquisitionBehavior:
+class BaseFactsAcquisitionBehavior:
     def __init__(self):
         super().__init__()
 
@@ -14,7 +14,7 @@ class BaseKnowledgeAcquisitionBehavior:
         raise NotImplemented
 
 
-class AllPrerequisitesRequiredKnowledgeAcquisitionBehavior(BaseKnowledgeAcquisitionBehavior):
+class GetAllFactsAcquisitionBehavior(BaseFactsAcquisitionBehavior):
     def acquire_facts(self, student, resource):
         """
         :type student: Student
@@ -22,3 +22,13 @@ class AllPrerequisitesRequiredKnowledgeAcquisitionBehavior(BaseKnowledgeAcquisit
         :rtype: set[Fact]
         """
         return set(resource_fact.fact for resource_fact in resource.facts)
+
+#
+# class AllPrerequisitesRequiredKnowledgeAcquisitionBehavior(BaseFactsAcquisitionBehavior):
+#     def acquire_facts(self, student, resource):
+#         """
+#         :type student: Student
+#         :type resource: Resource
+#         :rtype: set[Fact]
+#         """
+#         return set(resource_fact.fact for resource_fact in resource.facts)

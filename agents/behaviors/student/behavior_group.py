@@ -1,4 +1,4 @@
-from agents.behaviors.student.knowledge_acquisition import BaseKnowledgeAcquisitionBehavior
+from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
 from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
 
 __author__ = 'john'
@@ -29,16 +29,16 @@ class BehaviorGroup:
     @property
     def knowledge_acquisition(self):
         """
-        :rtype: BaseKnowledgeAcquisitionBehavior
+        :rtype: BaseFactsAcquisitionBehavior
         """
         return self._knowledge_acquisition
 
     @knowledge_acquisition.setter
     def knowledge_acquisition(self, value):
         """
-        :type value: BaseKnowledgeAcquisitionBehavior
+        :type value: BaseFactsAcquisitionBehavior
         :rtype: None
         """
-        if not isinstance(value, BaseKnowledgeAcquisitionBehavior):
+        if not isinstance(value, BaseFactsAcquisitionBehavior):
             raise ValueError
         self._knowledge_acquisition = value

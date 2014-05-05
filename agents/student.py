@@ -96,8 +96,8 @@ class Student(IntelligentAgent):
 
         logger.debug("Sending messages")
         pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource)
-        pub.sendMessage(Topics.KNOWLEDGE_SNAPSHOT, student=self, competencies=self.knowledge)
-        pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, competency_delta=new_knowledge)
+        pub.sendMessage(Topics.KNOWLEDGE_SNAPSHOT, student=self, knowledge=self.knowledge)
+        pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, knowledge_delta=new_knowledge)
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(
             name=self.name,

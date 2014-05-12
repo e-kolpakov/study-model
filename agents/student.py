@@ -108,7 +108,7 @@ class Student(IntelligentAgent):
         :type available_resources: tuple[Resource]
         :rtype: Resource
         """
-        return self._behavior.resource_choice.choose_resource(self, available_resources)
+        return self._behavior.resource_choice.choose_resource(self, self.curriculum, available_resources)
 
     def _acquire_knowledge(self, resource):
         """

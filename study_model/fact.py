@@ -2,12 +2,24 @@ __author__ = 'john'
 
 
 class Fact:
-    def __init__(self, code):
+    def __init__(self, code, dependencies=None):
+        """
+        :param code: str
+        :param dependencies: list[str\ | tuple[str] | None
+        """
         self._code = code
+        self._dependencies = frozenset(dependencies if dependencies else [])
 
     @property
     def code(self):
         return self._code
+
+    @property
+    def dependencies(self):
+        return self._dependencies
+
+    def is_available(self, known_facts):
+        return known_facts >= self._dependencies
 
     def __hash__(self):
         return hash(self.code)
@@ -19,11 +31,11 @@ class Fact:
         return "Fact [{0}]".format(self.code)
 
     def __repr__(self):
-        return "Fact [{0}] (id: {1})".format(self.code, id(self))
+        return "Fact [{0}] (id: {1}), dependencies:[{2}]".format(self.code, id(self), self.dependencies)
 
 
 class ResourceFact:
-    def __init__(self, fact, *args, **kwargs):
+    def __init__(self, fact):
         """
         :type fact: Fact
         """

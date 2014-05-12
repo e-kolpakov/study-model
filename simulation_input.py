@@ -26,10 +26,14 @@ def get_simulation_input():
 
 def build_curriculum():
     curriculum = Curriculum()
-    alg = Competency('algebra', [Fact('Sum'), Fact("Sub"), Fact("Mul"), Fact("Div")])
-    calc = Competency("calculus", [Fact("Lim"), Fact("Int"), Fact("Der")], ['algebra'])
-    diff_eq = Competency("diff_eq", [Fact("LinearDE"), Fact("SquareDE"), Fact("MultipleVarDE")], ['algebra', 'calculus'])
-    trig = Competency("trigonometry", [Fact("Sin"), Fact("Cos"), Fact("Tan"), Fact("Ctg"), Fact("SinCos")])
+    alg_fact_codes = ['Sum', "Sub", "Mul", "Div"]
+    calc_fact_codes = ["Lim", "Int", "Der"]
+    diff_eq_fact_codes = ["LinearDE", "SquareDE", "MultipleVarDE"]
+    trig_fact_codes = ["Sin", "Cos", "Tan", "Ctg", "SinCos"]
+    alg = Competency('algebra', [Fact(code) for code in alg_fact_codes])
+    calc = Competency("calculus", [Fact(code, alg_fact_codes) for code in calc_fact_codes])
+    diff_eq = Competency("diff_eq", [Fact(code, alg_fact_codes + calc_fact_codes) for code in diff_eq_fact_codes])
+    trig = Competency("trigonometry", [Fact(code, alg_fact_codes) for code in trig_fact_codes])
 
     curriculum.register_competency(alg)
     curriculum.register_competency(calc)

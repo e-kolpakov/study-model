@@ -2,15 +2,13 @@ __author__ = 'john'
 
 
 class Competency:
-    def __init__(self, code, facts, dependencies=None):
+    def __init__(self, code, facts):
         """
         :type code: str
-        :type dependencies: list[str]
         :type facts: list[Fact]
         """
         self._code = code
         self._facts = frozenset(facts)
-        self._dependencies = set(dependencies if dependencies else [])
 
     @property
     def code(self):
@@ -18,13 +16,6 @@ class Competency:
         :rtype: str
         """
         return self._code
-
-    @property
-    def dependencies(self):
-        """
-        :rtype: frozenset[str]
-        """
-        return self._dependencies
 
     @property
     def facts(self):
@@ -36,9 +27,6 @@ class Competency:
     def is_mastered(self, fact_set):
         return set(fact_set) >= self._facts
 
-    def is_available(self, mastered_competencies):
-        return set(mastered_competencies) >= self._dependencies
-
     def __str__(self):
         return self.code
 
@@ -46,16 +34,13 @@ class Competency:
         return self.code
 
     def __repr__(self):
-        return "{code} <= {dependencies}".format(code=self.code, dependencies=self.dependencies)
+        return "{code} <= {facts}".format(code=self.code, facts=self.facts)
 
     def __eq__(self, other):
         return self.code == other.code
 
     def __lt__(self, other):
         return self.code in other.dependencies
-
-    def __gt__(self, other):
-        return other.code in self.dependencies
 
     def __hash__(self):
         return hash(self.code)

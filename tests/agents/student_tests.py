@@ -1,9 +1,7 @@
 import logging
 import unittest
 from unittest import mock
-from unittest.mock import patch
-
-from nose_parameterized import parameterized
+from unittest.mock import patch, PropertyMock
 
 import agents
 from agents.behaviors.student.behavior_group import BehaviorGroup
@@ -37,6 +35,8 @@ class StudentTests(unittest.TestCase):
 
         self._student.competency_lookup_service = self._competency_lookup
         self._student.resource_lookup_service = self._resource_lookup
+        self._curriculum_mock = PropertyMock()
+        self._student.curriculum = self._curriculum_mock
 
     def _to_competency(self, code):
         return Competency(code)
@@ -60,7 +60,9 @@ class StudentTests(unittest.TestCase):
 
         with patch.object(self._student, 'study_resource') as patched_study_resource:
             self._student.study()
-            self._behavior_group.resource_choice.choose_resource.assert_called_once_with(self._student, resources)
+            self._behavior_group.resource_choice.choose_resource.assert_called_once_with(
+                self._student, self._curriculum_mock, resources
+            )
             patched_study_resource.assert_called_once_with(resource1)
 
     def test_study_resource_updates_student_competencies(self):

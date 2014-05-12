@@ -4,6 +4,7 @@ from nose_parameterized import parameterized
 from agents.behaviors import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
 from agents.resource import Resource
 from agents.student import Student
+from study_model.curriculum import Curriculum
 from study_model.fact import ResourceFact, Fact
 
 __author__ = 'john'
@@ -12,11 +13,12 @@ __author__ = 'john'
 class RandomResourceChoiceBehaviorTests(unittest.TestCase):
     def setUp(self):
         self.student = mock.Mock()
+        self.curriculum = mock.Mock(spec=Curriculum)
         self.behavior = RandomResourceChoiceBehavior()
 
     def test_choose_from_given_resources(self):
         resources = (Resource('r1', [], None), Resource('r2', [], None))
-        chosen = self.behavior.choose_resource(self.student, resources)
+        chosen = self.behavior.choose_resource(self.student, self.curriculum, resources)
 
         self.assertTrue(chosen in resources)
 
@@ -24,6 +26,7 @@ class RandomResourceChoiceBehaviorTests(unittest.TestCase):
 class RationalResourceChoiceBehaviorTests(unittest.TestCase):
     def setUp(self):
         self.student = mock.Mock(spec=Student)
+        self.curriculum = mock.Mock(spec=Curriculum)
         self.behavior = RationalResourceChoiceBehavior()
 
     @parameterized.expand([
@@ -39,7 +42,7 @@ class RationalResourceChoiceBehaviorTests(unittest.TestCase):
         )
 
         self.student.knowledge = set()
-        chosen = self.behavior.choose_resource(self.student, resources)
+        chosen = self.behavior.choose_resource(self.student, self.curriculum, resources)
         self.assertEqual(chosen.name, expected_resource_id)
 
     @parameterized.expand([
@@ -53,5 +56,5 @@ class RationalResourceChoiceBehaviorTests(unittest.TestCase):
             Resource('r2', [ResourceFact(Fact(comp)) for comp in comp2], None, agent_id='r2'),
         )
         self.student.knowledge = set([Fact(comp) for comp in comp_student])
-        chosen = self.behavior.choose_resource(self.student, resources)
+        chosen = self.behavior.choose_resource(self.student, self.curriculum, resources)
         self.assertEqual(chosen.name, expected_resource_id)

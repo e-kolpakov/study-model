@@ -24,6 +24,6 @@ class Resource(BaseAgent):
     @property
     def facts(self):
         """
-        :rtype: list[ResourceFact]
+        :rtype: tuple[ResourceFact]
         """
-        return self._facts
+        return tuple(self._facts)

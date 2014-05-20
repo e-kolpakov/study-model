@@ -5,7 +5,7 @@ class Fact:
     def __init__(self, code, dependencies=None):
         """
         :param code: str
-        :param dependencies: list[str\ | tuple[str] | None
+        :param dependencies: list[str] | tuple[str] | None
         """
         self._code = code
         self._dependencies = frozenset(dependencies if dependencies else [])
@@ -19,7 +19,10 @@ class Fact:
         return self._dependencies
 
     def is_available(self, known_facts):
-        return known_facts >= self._dependencies
+        """
+        :type known_facts: frozenset[Fact]
+        """
+        return set(fact.code for fact in known_facts) >= self._dependencies
 
     def __hash__(self):
         return hash(self.code)

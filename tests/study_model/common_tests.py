@@ -10,19 +10,6 @@ __author__ = 'john'
 class CommonTests(TestCase):
     def setUp(self):
         self._curriculum = mock.Mock(spec=Curriculum)
-        self._curriculum.find_competency_by_fact = mock.Mock(side_effect=self._competency_selector)
-        self._competency1 = self._make_competency_mock("c1", ['A', 'B'])
-        self._competency2 = self._make_competency_mock("c2", ['C', 'D'], ["c1"])
-        self._competency3 = self._make_competency_mock("c3", ['E', 'F'], ["c1", "c2"])
-
-    def _competency_selector(self, fact):
-        if fact in self._competency1.facts:
-            return self._competency1
-        if fact in self._competency2.facts:
-            return self._competency2
-        if fact in self._competency3.facts:
-            return self._competency3
-        return None
 
     def _make_competency_mock(self, code, fact_codes, dependencies=None):
         result = mock.Mock(spec=Competency)
@@ -34,25 +21,37 @@ class CommonTests(TestCase):
     def test_get_available_facts_empty_facts_returns_empty(self):
         facts = set()
         known_facts = frozenset()
-        result = get_available_facts(facts, known_facts, self._curriculum)
+        result = get_available_facts(facts, known_facts)
         self.assertSetEqual(result, set())
 
     def test_get_available_facts_no_dependencies_returns_facts_as_is(self):
         facts = {Fact('A'), Fact('B')}
         known_facts = frozenset()
-        result = get_available_facts(facts, known_facts, self._curriculum)
+        result = get_available_facts(facts, known_facts)
         self.assertSetEqual(result, facts)
 
-    def test_get_available_facts_factc_depends_on_missing_competency(self):
-        self._competency2.dependencies = mock.Mock(return_value=frozenset('c1'))
-        result = get_available_facts({Fact('A'), Fact('C')}, frozenset(), self._curriculum)
+    def test_get_available_facts_factc_depends_on_missing_fact(self):
+        facts = {Fact('A'), Fact('C', ['B'])}
+        result = get_available_facts(facts, frozenset())
         self.assertSetEqual(result, {Fact('A')})
 
     def test_get_available_facts_factb_depends_on_existing_competency(self):
-        self._competency1.is_mastered = mock.Mock(return_value=True)
+        facts = {Fact('B', ['A'])}
+        result = get_available_facts(facts, frozenset([Fact('A')]))
+        self.assertSetEqual(result, facts)
 
-        selector = lambda f: self._competency1 if f == Fact('A') else self._competency2
-        self._curriculum.find_competency_by_fact = mock.Mock(side_effect=selector)
+    def test_get_available_facts_factb_depends_on_fact_in_same_set(self):
+        facts = {Fact('A'), Fact('B', ['A'])}
+        result = get_available_facts(facts, frozenset())
+        self.assertSetEqual(result, facts)
 
-        result = get_available_facts({Fact('A'), Fact('B')}, frozenset(), self._curriculum)
-        self.assertSetEqual(result, {Fact('A'), Fact('B')})
+    def test_get_available_facts_dependency_chain_on_same_set(self):
+        facts = {Fact('A'), Fact('B', ['A']), Fact('C', ['B'])}
+        result = get_available_facts(facts, frozenset())
+        self.assertSetEqual(result, facts)
+
+    def test_get_available_facts_removes_all_known_facts(self):
+        facts = {Fact('A'), Fact('B'), Fact('C'), Fact('D')}
+        known = frozenset([Fact('A'), Fact('B'), Fact('C')])
+        result = get_available_facts(facts, known)
+        self.assertSetEqual(result, {Fact('D')})

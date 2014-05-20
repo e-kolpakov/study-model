@@ -46,9 +46,11 @@ def build_curriculum():
 def build_resources(curriculum):
     to_resource_facts = lambda fact_codes: [ResourceFact(curriculum.find_fact(code)) for code in fact_codes]
     return [
-        Resource("Resource1", to_resource_facts(['Sum', "Sub", "Mul", "Div", "Lim"]), None, agent_id='r1'),
-        Resource("Resource2", to_resource_facts(['Int', "Der", "LinearDE", "SquareDE", "MultipleVarDE"]), None, agent_id='r2'),
-        Resource("Resource3", [ResourceFact(fact) for fact in curriculum.find_competency("trigonometry").facts], None, agent_id='r3')
+        Resource("Resource1", to_resource_facts(['Sum', "Sub", "Mul", "Div"]), None, agent_id='r1'),
+        Resource("Resource2", to_resource_facts(['Lim', "Int"]), None, agent_id='r2'),
+        Resource("Resource3", to_resource_facts(['Lim', 'Int', 'Der']), None, agent_id='r3'),
+        Resource("Resource4", to_resource_facts(['Int', "Der", "LinearDE", "SquareDE", "MultipleVarDE"]), None, agent_id='r4'),
+        Resource("Resource5", to_resource_facts(["Sin", "Cos", "Tan", "Ctg", "SinCos"]), None, agent_id='r5'),
     ]
 
 

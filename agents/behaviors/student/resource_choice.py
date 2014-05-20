@@ -1,5 +1,6 @@
 import logging
 import random
+from study_model.common import get_available_facts
 from utils.calculations import get_competency_delta, add_competencies
 
 __author__ = 'john'
@@ -39,8 +40,8 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         :rtype: Resource
         """
         def new_facts_count(resource):
-            # TODO: implement competency dependencies
             facts = set([resource_fact.fact for resource_fact in resource.facts])
-            return len(facts - student.knowledge)
+            available_facts = get_available_facts(facts, student.knowledge)
+            return len(available_facts)
 
         return max(available_resources, key=new_facts_count)

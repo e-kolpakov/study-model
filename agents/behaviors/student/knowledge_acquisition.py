@@ -1,3 +1,5 @@
+from study_model.common import get_available_facts
+
 __author__ = 'john'
 
 
@@ -21,7 +23,8 @@ class GetAllFactsAcquisitionBehavior(BaseFactsAcquisitionBehavior):
         :type resource: Resource
         :rtype: set[Fact]
         """
-        return set(resource_fact.fact for resource_fact in resource.facts)
+        facts = set(resource_fact.fact for resource_fact in resource.facts)
+        return get_available_facts(facts, student.knowledge)
 
 #
 # class AllPrerequisitesRequiredKnowledgeAcquisitionBehavior(BaseFactsAcquisitionBehavior):

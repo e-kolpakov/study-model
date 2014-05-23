@@ -3,7 +3,7 @@ from unittest import mock
 
 from nose_parameterized import parameterized
 
-from agents.behaviors.student.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
+from behaviors.student.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
 from agents.resource import Resource
 from agents.student import Student
 from study_model.curriculum import Curriculum

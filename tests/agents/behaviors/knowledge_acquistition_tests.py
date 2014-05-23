@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from agents.behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, \
+from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, \
     GetAllFactsAcquisitionBehavior
 from agents.resource import Resource
 from agents.student import Student

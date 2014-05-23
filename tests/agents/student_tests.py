@@ -6,7 +6,7 @@ from unittest.mock import patch, PropertyMock
 import agents
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from behaviors.student.resource_choice import BaseResourceChoiceBehavior
 from study_model.competency import Competency
 from agents.resource import Resource
 from agents.student import Student

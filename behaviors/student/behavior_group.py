@@ -1,5 +1,5 @@
-from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from behaviors.student.resource_choice import BaseResourceChoiceBehavior
 
 __author__ = 'e.kolpakov'
 

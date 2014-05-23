@@ -1,10 +1,12 @@
 from unittest import mock, TestCase
+
 from study_model.common import get_available_facts
 from study_model.competency import Competency
 from study_model.curriculum import Curriculum
 from study_model.fact import Fact
 
-__author__ = 'john'
+
+__author__ = 'e.kolpakov'
 
 
 class CommonTests(TestCase):

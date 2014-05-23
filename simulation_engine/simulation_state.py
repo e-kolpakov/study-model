@@ -1,7 +1,7 @@
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
-class SimulationState(object):
+class SimulationState:
     def __init__(self, students, resources, curriculum):
         """
         :type students: tuple[Student]

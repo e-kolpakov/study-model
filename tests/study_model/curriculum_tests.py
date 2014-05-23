@@ -1,9 +1,11 @@
 import unittest
+
 from study_model.competency import Competency
 from study_model.curriculum import Curriculum
 from study_model.fact import Fact
 
-__author__ = 'john'
+
+__author__ = 'e.kolpakov'
 
 
 class CurriculumTests(unittest.TestCase):

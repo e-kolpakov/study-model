@@ -1,6 +1,6 @@
 from agents.resource import Resource
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 class ResourceLookupService:

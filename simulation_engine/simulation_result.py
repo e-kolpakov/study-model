@@ -2,10 +2,10 @@ from collections import defaultdict
 
 from agents.resource import Resource
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
-class SimulationResult(object):
+class SimulationResult:
     def __init__(self, simulation_step):
         self._simulation_step = simulation_step
         self._resource_usage = defaultdict(int)

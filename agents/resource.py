@@ -1,6 +1,6 @@
 from agents.base_agent import BaseAgent
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 class Resource(BaseAgent):

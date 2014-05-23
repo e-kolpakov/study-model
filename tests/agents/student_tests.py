@@ -14,7 +14,7 @@ from simulation_engine.topics import Topics
 from study_model.fact import Fact
 
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 class StudentTests(unittest.TestCase):

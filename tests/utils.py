@@ -1,4 +1,4 @@
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 def compare_dicts(d1, d2, comparer=None):

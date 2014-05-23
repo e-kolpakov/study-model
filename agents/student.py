@@ -7,7 +7,7 @@ from agents.resource import Resource
 from simulation_engine.topics import Topics
 
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 class Student(IntelligentAgent):

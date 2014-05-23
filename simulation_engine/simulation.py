@@ -10,7 +10,7 @@ from simulation_engine.simulation_state import SimulationState
 from simulation_engine.topics import Topics
 
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 class Simulation(ResourceLookupService):

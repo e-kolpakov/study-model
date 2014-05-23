@@ -1,7 +1,9 @@
 import random
+
 from study_model.common import get_available_facts
 
-__author__ = 'john'
+
+__author__ = 'e.kolpakov'
 
 
 class BaseResourceChoiceBehavior:
@@ -37,6 +39,7 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         :param available_resources: tuple[Resource]
         :rtype: Resource
         """
+
         def new_facts_count(resource):
             facts = set([resource_fact.fact for resource_fact in resource.facts])
             available_facts = get_available_facts(facts, student.knowledge)

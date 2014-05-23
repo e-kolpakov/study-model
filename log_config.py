@@ -1,12 +1,12 @@
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 config = {
-    "version" : 1,
+    "version": 1,
     "formatters": {
         "trace": {
             "format": "%(asctime)s [%(levelname) -8s] at %(module)s(%(lineno)d): %(message)s"
         },
-        "output":{
+        "output": {
             "format": "%(message)s"
         }
     },

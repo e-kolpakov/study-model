@@ -1,14 +1,14 @@
 import logging
 import logging.config
-import log_config
 
+import log_config
 from agents.student import Student
 from simulation_engine.simulation import Simulation
 from simulation_input import get_simulation_input
 from simulation_output import output_results
 
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 def perfect_knowledge_stop_condition(students, curriculum):

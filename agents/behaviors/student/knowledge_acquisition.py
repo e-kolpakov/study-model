@@ -1,6 +1,6 @@
 from study_model.common import get_available_facts
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 class BaseFactsAcquisitionBehavior:

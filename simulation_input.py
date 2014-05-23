@@ -8,7 +8,7 @@ from simulation_engine.simulation_input import SimulationInput
 from study_model.curriculum import Curriculum
 from study_model.fact import Fact, ResourceFact
 
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 
 def get_simulation_input():

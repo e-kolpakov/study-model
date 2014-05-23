@@ -1,12 +1,14 @@
 import unittest
 from unittest import mock
+
 from agents.behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, \
     GetAllFactsAcquisitionBehavior
 from agents.resource import Resource
 from agents.student import Student
 from study_model.fact import Fact, ResourceFact
 
-__author__ = 'john'
+
+__author__ = 'e.kolpakov'
 
 
 def _to_resource_fact(facts):

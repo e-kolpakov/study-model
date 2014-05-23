@@ -1,4 +1,4 @@
-__author__ = 'john'
+__author__ = 'e.kolpakov'
 
 import os
 from logging.handlers import RotatingFileHandler

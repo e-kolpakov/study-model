@@ -1,8 +1,7 @@
 import unittest
+from study_model.knowledge_representation import Competency, Fact
 
-from study_model.competency import Competency
-from study_model.curriculum import Curriculum
-from study_model.fact import Fact
+from study_model.knowledge_representation.curriculum import Curriculum
 
 
 __author__ = 'e.kolpakov'

@@ -1,6 +1,6 @@
 import random
 
-from study_model.common import get_available_facts
+from study_model.knowledge_representation.common import get_available_facts
 
 
 __author__ = 'e.kolpakov'

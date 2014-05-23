@@ -1,11 +1,10 @@
 import unittest
 from unittest import mock
+from study_model.agents import Student, Resource
 
-from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, \
+from study_model.behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, \
     GetAllFactsAcquisitionBehavior
-from agents.resource import Resource
-from agents.student import Student
-from study_model.fact import Fact, ResourceFact
+from study_model.knowledge_representation.fact import Fact, ResourceFact
 
 
 __author__ = 'e.kolpakov'

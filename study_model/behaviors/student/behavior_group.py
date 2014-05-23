@@ -1,5 +1,5 @@
-from behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from study_model.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from study_model.behaviors.student.resource_choice import BaseResourceChoiceBehavior
 
 __author__ = 'e.kolpakov'
 

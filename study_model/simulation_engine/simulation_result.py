@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from agents.resource import Resource
+from study_model.agents.resource import Resource
 
 __author__ = 'e.kolpakov'
 

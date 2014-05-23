@@ -1,9 +1,8 @@
 from unittest import mock, TestCase
+from study_model.knowledge_representation import Competency, Fact, Curriculum
 
-from study_model.common import get_available_facts
-from study_model.competency import Competency
-from study_model.curriculum import Curriculum
-from study_model.fact import Fact
+from study_model.knowledge_representation.common import get_available_facts
+
 
 
 __author__ = 'e.kolpakov'

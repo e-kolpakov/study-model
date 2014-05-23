@@ -1,12 +1,12 @@
-from behaviors.student.behavior_group import BehaviorGroup
-from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
-from behaviors.student.resource_choice import RationalResourceChoiceBehavior
-from study_model.competency import Competency
-from agents.resource import Resource
-from agents.student import Student
-from simulation_engine.simulation_input import SimulationInput
-from study_model.curriculum import Curriculum
-from study_model.fact import Fact, ResourceFact
+from study_model.behaviors.student.behavior_group import BehaviorGroup
+from study_model.behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
+from study_model.behaviors.student.resource_choice import RationalResourceChoiceBehavior
+from study_model.knowledge_representation.competency import Competency
+from study_model.agents.resource import Resource
+from study_model.agents.student import Student
+from study_model.simulation_engine.simulation_input import SimulationInput
+from study_model.knowledge_representation.curriculum import Curriculum
+from study_model.knowledge_representation.fact import Fact, ResourceFact
 
 __author__ = 'e.kolpakov'
 

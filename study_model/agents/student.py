@@ -2,9 +2,8 @@ import logging
 
 from pubsub import pub
 
-from agents.intelligent_agent import IntelligentAgent
-from agents.resource import Resource
-from simulation_engine.topics import Topics
+from study_model.agents.intelligent_agent import IntelligentAgent
+from study_model.simulation_engine.topics import Topics
 
 
 __author__ = 'e.kolpakov'

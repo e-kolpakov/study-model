@@ -2,24 +2,12 @@ import logging
 import logging.config
 
 import log_config
-from agents.student import Student
-from simulation_engine.simulation import Simulation
-from simulation_input import get_simulation_input
+from study_model.simulation_engine import Simulation
+from study_model.simulation_input import get_simulation_input
 from simulation_output import output_results
 
 
 __author__ = 'e.kolpakov'
-
-
-def perfect_knowledge_stop_condition(students, curriculum):
-    """
-    :type students: tuple[Student]
-    :type curriculum: Curriculum
-    """
-    return all(
-        competency.is_mastered(student.knowledge)
-        for student in students
-        for competency in curriculum.all_competencies())
 
 
 def stop_condition(simulation_state):
@@ -27,7 +15,10 @@ def stop_condition(simulation_state):
     :type simulation_state: SimulationState
     :rtype: bool
     """
-    return perfect_knowledge_stop_condition(simulation_state.students, simulation_state.curriculum)
+    return all(
+        competency.is_mastered(student.knowledge)
+        for student in simulation_state.students
+        for competency in simulation_state.curriculum.all_competencies())
 
 
 if __name__ == "__main__":

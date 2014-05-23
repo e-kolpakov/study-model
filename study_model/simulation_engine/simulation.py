@@ -3,11 +3,10 @@ import logging
 
 from pubsub import pub
 
-from simulation_engine.simulation_result import SimulationResult
-from agents.resource import Resource
-from simulation_engine.resource_lookup_service import ResourceLookupService
-from simulation_engine.simulation_state import SimulationState
-from simulation_engine.topics import Topics
+from study_model.simulation_engine.resource_lookup_service import ResourceLookupService
+from study_model.simulation_engine.simulation_result import SimulationResult
+from study_model.simulation_engine.simulation_state import SimulationState
+from study_model.simulation_engine.topics import Topics
 
 
 __author__ = 'e.kolpakov'

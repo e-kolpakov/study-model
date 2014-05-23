@@ -3,15 +3,14 @@ import unittest
 from unittest import mock
 from unittest.mock import patch, PropertyMock
 
-import agents
-from agents.behaviors.student.behavior_group import BehaviorGroup
-from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from behaviors.student.resource_choice import BaseResourceChoiceBehavior
-from study_model.competency import Competency
-from agents.resource import Resource
-from agents.student import Student
-from simulation_engine.topics import Topics
-from study_model.fact import Fact
+import study_model
+from study_model.agents import Student, Resource
+from study_model.behaviors.student.behavior_group import BehaviorGroup
+from study_model.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from study_model.behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from study_model.knowledge_representation.competency import Competency
+from study_model.knowledge_representation.fact import Fact
+from study_model.simulation_engine.topics import Topics
 
 
 __author__ = 'e.kolpakov'
@@ -43,7 +42,7 @@ class StudentTests(unittest.TestCase):
         return Competency(code, eff_facts)
 
     def test_study_no_resources_logs_and_returns(self):
-        logger = logging.getLogger(agents.student.__name__)
+        logger = logging.getLogger(study_model.agents.student.__name__)
         self._resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
         with patch.object(logger, 'warn') as mocked_warn, \
                 patch.object(self._student, '_choose_resource') as resource_choice:
@@ -83,7 +82,7 @@ class StudentTests(unittest.TestCase):
         expected_snapshot = {Fact('A'), Fact('B'), Fact('C'), Fact('D')}
         expected_delta = {Fact('C'), Fact('D')}
 
-        with patch('agents.student.pub', spec=True) as pub_mock:
+        with patch('study_model.agents.student.pub', spec=True) as pub_mock:
             self._student.study_resource(resource1)
 
             pub_mock.sendMessage.assert_any_call(

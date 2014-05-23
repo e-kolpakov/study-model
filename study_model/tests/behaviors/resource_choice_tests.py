@@ -2,12 +2,10 @@ import unittest
 from unittest import mock
 
 from nose_parameterized import parameterized
+from study_model.agents import Resource, Student
 
-from behaviors.student.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
-from agents.resource import Resource
-from agents.student import Student
-from study_model.curriculum import Curriculum
-from study_model.fact import ResourceFact, Fact
+from study_model.behaviors.student.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
+from study_model.knowledge_representation import ResourceFact, Curriculum, Fact
 
 
 __author__ = 'e.kolpakov'

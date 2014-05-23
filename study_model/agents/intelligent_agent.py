@@ -1,4 +1,4 @@
-from agents.base_agent import BaseAgent
+from simulation.agents.base_agent import BaseAgent
 
 __author__ = 'e.kolpakov'
 

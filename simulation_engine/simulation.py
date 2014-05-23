@@ -113,7 +113,7 @@ class Simulation(ResourceLookupService):
     def knowledge_delta_listener(self, student, knowledge_delta):
         """
         :type student: Student
-        :type knowledge_delta: dict[Competency, double]
+        :type knowledge_delta: set[Fact]
         """
         self.current_step_result.register_knowledge_delta(student, knowledge_delta)
 

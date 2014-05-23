@@ -5,7 +5,6 @@ from pubsub import pub
 from agents.intelligent_agent import IntelligentAgent
 from agents.resource import Resource
 from simulation_engine.topics import Topics
-from utils.calculations import get_competency_delta
 
 
 __author__ = 'john'
@@ -17,7 +16,7 @@ class Student(IntelligentAgent):
         :type knowledge: list[Fact]
         :type behavior: BehaviorGroup
         """
-        super(Student, self).__init__()
+        super(Student, self).__init__(*args, **kwargs)
         self._name = name
         self._behavior = behavior
         self._knowledge = set(knowledge)

@@ -38,8 +38,9 @@ class StudentTests(unittest.TestCase):
         self._curriculum_mock = PropertyMock()
         self._student.curriculum = self._curriculum_mock
 
-    def _to_competency(self, code):
-        return Competency(code)
+    def _to_competency(self, code, facts=None):
+        eff_facts = facts if facts else []
+        return Competency(code, eff_facts)
 
     def test_study_no_resources_logs_and_returns(self):
         logger = logging.getLogger(agents.student.__name__)

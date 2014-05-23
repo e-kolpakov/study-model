@@ -1,6 +1,7 @@
 __author__ = 'john'
 from copy import deepcopy
 
+
 def get_available_facts(facts, known_facts):
     """
     :param facts: set[Fact]

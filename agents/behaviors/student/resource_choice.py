@@ -1,7 +1,5 @@
-import logging
 import random
 from study_model.common import get_available_facts
-from utils.calculations import get_competency_delta, add_competencies
 
 __author__ = 'john'
 

@@ -1,6 +1,7 @@
 import unittest
 from unittest import mock
-from study_model.agents import Student, Resource
+from study_model.agents.resource import Resource
+from study_model.agents.student import Student
 
 from study_model.behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, \
     GetAllFactsAcquisitionBehavior

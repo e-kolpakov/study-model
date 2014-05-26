@@ -3,7 +3,7 @@ import logging
 from pubsub import pub
 
 from study_model.agents.intelligent_agent import IntelligentAgent
-from study_model.simulation_engine.topics import Topics
+from study_model.mooc_simulation.simulation import Topics
 
 
 __author__ = 'e.kolpakov'

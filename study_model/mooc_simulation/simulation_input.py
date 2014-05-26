@@ -1,14 +1,49 @@
 from study_model.behaviors.student.behavior_group import BehaviorGroup
 from study_model.behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from study_model.behaviors.student.resource_choice import RationalResourceChoiceBehavior
-from study_model.knowledge_representation.competency import Competency
 from study_model.agents.resource import Resource
 from study_model.agents.student import Student
-from study_model.simulation_engine.simulation_input import SimulationInput
+
+from study_model.knowledge_representation.competency import Competency
 from study_model.knowledge_representation.curriculum import Curriculum
 from study_model.knowledge_representation.fact import Fact, ResourceFact
 
 __author__ = 'e.kolpakov'
+
+
+class SimulationInput:
+    def __init__(self):
+        self._students = []
+        self._resources = []
+        self._curriculum = None
+
+    @property
+    def students(self):
+        """
+        :rtype: list[Student]
+        """
+        return self._students
+
+    @property
+    def resources(self):
+        """
+        :rtype: list[Resource]
+        """
+        return self._resources
+
+    @property
+    def curriculum(self):
+        """
+        :rtype: Curriculum
+        """
+        return self._curriculum
+
+    @curriculum.setter
+    def curriculum(self, value):
+        """
+        :type value: Curriculum
+        """
+        self._curriculum = value
 
 
 def get_simulation_input():
@@ -65,5 +100,3 @@ def build_students(curriculum):
         Student("John", [], rational_behavior, agent_id='s1'),
         Student("Jim", [], rational_behavior, agent_id='s2')
     ]
-
-

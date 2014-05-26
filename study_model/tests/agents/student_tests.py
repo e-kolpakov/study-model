@@ -4,13 +4,14 @@ from unittest import mock
 from unittest.mock import patch, PropertyMock
 
 import study_model
-from study_model.agents import Student, Resource
+from study_model.agents.student import Student
+from study_model.agents.resource import Resource
 from study_model.behaviors.student.behavior_group import BehaviorGroup
 from study_model.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
 from study_model.behaviors.student.resource_choice import BaseResourceChoiceBehavior
 from study_model.knowledge_representation.competency import Competency
 from study_model.knowledge_representation.fact import Fact
-from study_model.simulation_engine.topics import Topics
+from study_model.mooc_simulation.simulation import Topics
 
 
 __author__ = 'e.kolpakov'

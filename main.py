@@ -2,23 +2,12 @@ import logging
 import logging.config
 
 import log_config
-from study_model.simulation_engine import Simulation
-from study_model.simulation_input import get_simulation_input
+from study_model.mooc_simulation.simulation import stop_condition, MoocSimulation
+from study_model.mooc_simulation.simulation_input import get_simulation_input
 from simulation_output import output_results
 
 
 __author__ = 'e.kolpakov'
-
-
-def stop_condition(simulation_state):
-    """
-    :type simulation_state: SimulationState
-    :rtype: bool
-    """
-    return all(
-        competency.is_mastered(student.knowledge)
-        for student in simulation_state.students
-        for competency in simulation_state.curriculum.all_competencies())
 
 
 if __name__ == "__main__":
@@ -29,11 +18,9 @@ if __name__ == "__main__":
     simulation_input = get_simulation_input()
 
     logger.debug("Initializing simulation")
-    simulation = Simulation(simulation_input)
+    simulation = MoocSimulation(simulation_input)
     simulation.stop_condition = stop_condition
 
     logger.debug("Starting simulation")
     simulation.run()
     output_results(simulation.results)
-
-

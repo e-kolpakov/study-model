@@ -1,6 +1,7 @@
 import logging
 
 from pubsub import pub
+from simulation import schedulers
 
 from study_model.agents.intelligent_agent import IntelligentAgent
 from study_model.mooc_simulation.simulation import Topics
@@ -61,6 +62,7 @@ class Student(IntelligentAgent):
         """
         return frozenset(self._knowledge)
 
+    @schedulers.steps()
     def study(self):
         logger = logging.getLogger(__name__)
         logger.debug("Student {name} study".format(name=self.name))

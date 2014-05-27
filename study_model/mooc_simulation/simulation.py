@@ -37,29 +37,32 @@ class MoocSimulation(ResourceLookupService, Simulation):
         self._lookup_service = None
         """ :type: ResourceLookupService | None """
 
-        self._results = defaultdict(lambda: SimulationResult(self.step))
+        self._results = defaultdict(lambda: MoocSimulationResult(self.step))
         """ :type: dict[int, SimulationResult] """
 
         self._register_resources(self._resources)
 
+        self._register_agents(self._students)
+        self._register_agents(self._resources)
+
     @property
     def state(self):
         """
-        :rtype: ЬщщсSimulationState
+        :rtype: MoocSimulationState
         """
         return MoocSimulationState(self._students, self._resources, self._curriculum)
 
     @property
     def current_step_result(self):
         """
-        :rtype: SimulationResult
+        :rtype: MoocSimulationResult
         """
         return self._results[self.step]
 
     @property
     def results(self):
         """
-        :rtype: dict[int, SimulationResult]
+        :rtype: dict[int, MoocSimulationResult]
         """
         return self._results
 
@@ -97,10 +100,6 @@ class MoocSimulation(ResourceLookupService, Simulation):
             for resource in self._resources:
                 self.grant_access(student, resource)
 
-    def _execute_step(self):
-        for student in self._students:
-            student.study()
-
 
 class MoocSimulationState(SimulationState):
     def __init__(self, students, resources, curriculum):
@@ -136,7 +135,7 @@ class MoocSimulationState(SimulationState):
         return self._curriculum
 
 
-class SimulationResult:
+class MoocSimulationResult:
     def __init__(self, simulation_step):
         self._simulation_step = simulation_step
         self._resource_usage = defaultdict(int)

@@ -3,7 +3,7 @@ __author__ = 'e.kolpakov'
 
 def output_results(results):
     """
-    :type results: dict[int, SimulationResult]
+    :type results: dict[int, MoocSimulationResult]
     """
     for step, result in results.items():
         print("======= Step {step} =======".format(step=step))

@@ -73,12 +73,12 @@ class MoocSimulation(ResourceLookupService, Simulation):
         """
         self.current_step_result.add_resource_usage(resource)
 
-    def knowledge_snapshot_listener(self, student, knowledge):
+    def knowledge_snapshot_listener(self, agent, value, step_number):
         """
         :type student: Student
         :type knowledge: set[Fact]
         """
-        self.current_step_result.register_knowledge_snapshot(student, knowledge)
+        self.current_step_result.register_knowledge_snapshot(agent, value)
 
     def knowledge_delta_listener(self, student, knowledge_delta):
         """

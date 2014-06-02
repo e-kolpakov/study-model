@@ -2,6 +2,7 @@ import logging
 
 from pubsub import pub
 from simulation import schedulers
+from simulation.observers import observe
 
 from study_model.agents.intelligent_agent import IntelligentAgent
 from study_model.mooc_simulation.simulation import Topics
@@ -56,6 +57,7 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     @property
+    @observe(Topics.KNOWLEDGE_SNAPSHOT)
     def knowledge(self):
         """
         :rtype: frozenset
@@ -96,7 +98,6 @@ class Student(IntelligentAgent):
 
         logger.debug("Sending messages")
         pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource)
-        pub.sendMessage(Topics.KNOWLEDGE_SNAPSHOT, student=self, knowledge=self.knowledge)
         pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, knowledge_delta=new_knowledge)
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(

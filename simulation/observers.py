@@ -6,21 +6,25 @@ __author__ = 'e.kolpakov'
 
 observer_attr = "observer"
 
-def _set_scheduler(target, observer):
+
+def _append_observer(target, observer):
     """
     :param target: callable
     :param observer: BaseObserver
     """
-    setattr(target, observer_attr, observer)
+    if not hasattr(target, observer_attr):
+        setattr(target, observer_attr, [])
+    observers = getattr(target, observer_attr)
+    observers.append(observer)
 
 
-def get_observer(target):
+def get_observers(target):
     """
     Gets observer attached to callable, if any
     :param target: callable
     :return: BaseObserver
     """
-    return getattr(target, observer_attr) if hasattr(target, observer_attr) else None
+    return getattr(target, observer_attr) if hasattr(target, observer_attr) else []
 
 
 class BaseObserver:
@@ -29,23 +33,31 @@ class BaseObserver:
         self._target = target
         self._converter = converter if converter else lambda x: x
 
-    def observe(self, step_number):
-        agent = self._target.__self__
-        value = self._converter(self._target())
-        pub.sendMessage(self._topic, agent=agent, value=value, step_number=step_number)
+    def observe(self, agent, step_number):
+        pub.sendMessage(self._topic, agent=agent, value=self._get_value(agent), step_number=step_number)
+
+    def _get_value(self, agent):
+        return self._converter(self._target(agent))
 
 
 class DeltaObserver(BaseObserver):
     def __init__(self, topic, target, converter=None, delta_calculator=None):
         super(DeltaObserver, self).__init__(topic, target, converter)
         self._delta_calculator = delta_calculator
-        self._previous = None
+        self._previous = dict()
 
-    def observe(self, step_number):
-        agent = self._target.__self__
-        value = self._converter(self._target())
-        delta = self._delta_calculator(value, self._previous) if self._previous is not None else value
+    def observe(self, agent, step_number):
+        value = self._get_value(agent)
+        previous = self._get_previous_value(agent)
+        delta = self._delta_calculator(value, previous) if previous is not None else value
+        self._set_previous_value(agent, value)
         pub.sendMessage(self._topic, agent=agent, delta=delta, step_number=step_number)
+
+    def _get_previous_value(self, agent):
+        return self._previous[agent] if agent in self._previous else None
+
+    def _set_previous_value(self, agent, value):
+        self._previous[agent] = value
 
 
 def observe(topic, converter=None):
@@ -53,7 +65,7 @@ def observe(topic, converter=None):
         @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
-        _set_scheduler(wrapper, BaseObserver(topic, func, converter))
+        _append_observer(wrapper, BaseObserver(topic, func, converter))
         return wrapper
     return decorator
 
@@ -63,6 +75,6 @@ def observe_delta(topic, converter=None, delta=None):
         @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
-        _set_scheduler(wrapper, DeltaObserver(topic, func, converter, delta))
+        _append_observer(wrapper, DeltaObserver(topic, func, converter, delta))
         return wrapper
     return decorator

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from simulation.observers import get_observer
+from simulation.observers import get_observers
 
 from simulation.schedulers import get_scheduler
 
@@ -34,9 +34,12 @@ class BaseAgent:
                 method()
 
         for observer in self._observers():
-            observer.observe(step_number)
+            observer.observe(self, step_number)
 
     def _get_all_scheduled(self):
+        """
+        :rtype: generator[tuple[callable, BaseScheduler]]
+        """
         for member in self._get_all_callables():
             scheduler = get_scheduler(member)
             if scheduler:
@@ -47,14 +50,25 @@ class BaseAgent:
         :rtype: list[BaseObserver]
         """
         for member in self._get_all_callables():
-            observer = get_observer(member)
-            if observer:
+            observers = get_observers(member)
+            for observer in observers:
+                yield observer
+
+        for member in self._get_all_properties():
+            observers = get_observers(member.fget)
+            for observer in observers:
                 yield observer
 
     def _get_all_callables(self):
-        for member_name in dir(self):
+        for member_name in vars(self.__class__):
             member = getattr(self, member_name)
-            if callable(member) and member.__name__ != '_get_all_callables':
+            if callable(member):
+                yield member
+
+    def _get_all_properties(self):
+        for member_name in vars(self.__class__):
+            member = getattr(self.__class__, member_name)
+            if isinstance(member, property):
                 yield member
 
     def __str__(self):

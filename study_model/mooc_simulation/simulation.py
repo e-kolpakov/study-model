@@ -80,12 +80,15 @@ class MoocSimulation(ResourceLookupService, Simulation):
         """
         self.current_step_result.register_knowledge_snapshot(agent, value)
 
-    def knowledge_delta_listener(self, student, knowledge_delta):
+    def knowledge_delta_listener(self, agent, delta, step_number):
         """
         :type student: Student
         :type knowledge_delta: set[Fact]
         """
-        self.current_step_result.register_knowledge_delta(student, knowledge_delta)
+        self.current_step_result.register_knowledge_delta(agent, delta)
+
+    def plain_func_test_listener(self, agent, value, step_number):
+        print(agent, value, step_number)
 
     def initialize(self):
         for student in self._students:
@@ -95,6 +98,7 @@ class MoocSimulation(ResourceLookupService, Simulation):
         pub.subscribe(self.resource_usage_listener, Topics.RESOURCE_USAGE)
         pub.subscribe(self.knowledge_snapshot_listener, Topics.KNOWLEDGE_SNAPSHOT)
         pub.subscribe(self.knowledge_delta_listener, Topics.KNOWLEDGE_DELTA)
+        pub.subscribe(self.plain_func_test_listener, Topics.TEST)
 
         for student in self._students:
             for resource in self._resources:
@@ -179,3 +183,4 @@ class Topics:
     RESOURCE_USAGE = 'Resource.Usage'
     KNOWLEDGE_SNAPSHOT = 'Knowledge.Snapshot'
     KNOWLEDGE_DELTA = 'Knowledge.Delta'
+    TEST = 'TEST'

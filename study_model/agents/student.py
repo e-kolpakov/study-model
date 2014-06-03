@@ -2,7 +2,7 @@ import logging
 
 from pubsub import pub
 from simulation import schedulers
-from simulation.observers import observe
+from simulation.observers import observe, observe_delta
 
 from study_model.agents.intelligent_agent import IntelligentAgent
 from study_model.mooc_simulation.simulation import Topics
@@ -57,12 +57,17 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     @property
-    @observe(Topics.KNOWLEDGE_SNAPSHOT)
+    @observe_delta(Topics.KNOWLEDGE_DELTA, delta=lambda current, prev: current - prev)
+    @observe(Topics.KNOWLEDGE_SNAPSHOT, converter=len)
     def knowledge(self):
         """
         :rtype: frozenset
         """
         return frozenset(self._knowledge)
+
+    @observe(Topics.TEST)
+    def test(self):
+        return self.name
 
     @schedulers.steps()
     def study(self):
@@ -98,7 +103,6 @@ class Student(IntelligentAgent):
 
         logger.debug("Sending messages")
         pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource)
-        pub.sendMessage(Topics.KNOWLEDGE_DELTA, student=self, knowledge_delta=new_knowledge)
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(
             name=self.name,

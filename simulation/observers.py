@@ -33,11 +33,29 @@ class BaseObserver:
         self._target = target
         self._converter = converter if converter else lambda x: x
 
-    def observe(self, agent, step_number):
-        pub.sendMessage(self._topic, agent=agent, value=self._get_value(agent), step_number=step_number)
+    def inspect(self, agent, step_number):
+        raise NotImplementedError()
 
     def _get_value(self, agent):
         return self._converter(self._target(agent))
+
+
+class Observer(BaseObserver):
+    def __init__(self, topic, target, converter=None):
+        super(Observer, self).__init__(topic, target, converter)
+
+    def inspect(self, agent, step_number):
+        pub.sendMessage(self._topic, agent=agent, value=self._get_value(agent), step_number=step_number)
+
+    @classmethod
+    def observe(cls, topic, converter=None):
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            _append_observer(wrapper, cls(topic, func, converter))
+            return wrapper
+        return decorator
 
 
 class DeltaObserver(BaseObserver):
@@ -46,7 +64,7 @@ class DeltaObserver(BaseObserver):
         self._delta_calculator = delta_calculator
         self._previous = dict()
 
-    def observe(self, agent, step_number):
+    def inspect(self, agent, step_number):
         value = self._get_value(agent)
         previous = self._get_previous_value(agent)
         delta = self._delta_calculator(value, previous) if previous is not None else value
@@ -59,22 +77,12 @@ class DeltaObserver(BaseObserver):
     def _set_previous_value(self, agent, value):
         self._previous[agent] = value
 
-
-def observe(topic, converter=None):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        _append_observer(wrapper, BaseObserver(topic, func, converter))
-        return wrapper
-    return decorator
-
-
-def observe_delta(topic, converter=None, delta=None):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        _append_observer(wrapper, DeltaObserver(topic, func, converter, delta))
-        return wrapper
-    return decorator
+    @classmethod
+    def observe(cls, topic, converter=None, delta=None):
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            _append_observer(wrapper, cls(topic, func, converter, delta))
+            return wrapper
+        return decorator

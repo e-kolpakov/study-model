@@ -35,7 +35,7 @@ class BaseAgent:
                 method()
 
         for observer in self._observers():
-            observer.observe(self, step_number)
+            observer.inspect(self, step_number)
 
     def _get_all_scheduled(self):
         """

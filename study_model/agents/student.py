@@ -2,7 +2,7 @@ import logging
 
 from pubsub import pub
 from simulation import schedulers
-from simulation.observers import observe, observe_delta
+from simulation.observers import Observer, DeltaObserver
 
 from study_model.agents.intelligent_agent import IntelligentAgent
 from study_model.mooc_simulation.simulation import Topics
@@ -57,8 +57,8 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     @property
-    @observe_delta(Topics.KNOWLEDGE_DELTA, delta=lambda current, prev: current - prev)
-    @observe(Topics.KNOWLEDGE_SNAPSHOT, converter=len)
+    @DeltaObserver.observe(Topics.KNOWLEDGE_DELTA, delta=lambda current, prev: current - prev)
+    @Observer.observe(Topics.KNOWLEDGE_SNAPSHOT, converter=len)
     def knowledge(self):
         """
         :rtype: frozenset

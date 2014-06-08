@@ -1,4 +1,5 @@
 from collections import defaultdict
+from itertools import chain
 from simulation.observers import get_observers
 
 from simulation.schedulers import get_scheduler
@@ -49,13 +50,9 @@ class BaseAgent:
         """
         :rtype: list[BaseObserver]
         """
-        for member in self._get_all_callables():
+        candidates = chain(self._get_all_callables(), self._get_all_properties())
+        for member in candidates:
             observers = get_observers(member)
-            for observer in observers:
-                yield observer
-
-        for member in self._get_all_properties():
-            observers = get_observers(member.fget)
             for observer in observers:
                 yield observer
 
@@ -69,7 +66,7 @@ class BaseAgent:
         for member_name in vars(self.__class__):
             member = getattr(self.__class__, member_name)
             if isinstance(member, property):
-                yield member
+                yield member.fget
 
     def __str__(self):
         return "Agent {0}.{1}".format(self.__class__.__name__, self.agent_id)

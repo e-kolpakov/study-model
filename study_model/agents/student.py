@@ -65,10 +65,6 @@ class Student(IntelligentAgent):
         """
         return frozenset(self._knowledge)
 
-    @observe(Topics.TEST)
-    def test(self):
-        return self.name
-
     @schedulers.steps()
     def study(self):
         logger = logging.getLogger(__name__)
@@ -96,10 +92,7 @@ class Student(IntelligentAgent):
         logger.debug("Studying resource")
 
         logger.debug("Updating self knowledge")
-        incoming_facts = self._acquire_knowledge(resource)
-        new_knowledge = set(incoming_facts) - self._knowledge
-
-        self._knowledge = self._knowledge | incoming_facts
+        self._knowledge = self._knowledge | self._acquire_knowledge(resource)
 
         logger.debug("Sending messages")
         pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource)

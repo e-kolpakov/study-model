@@ -8,8 +8,8 @@ class Simulation:
     def __init__(self):
         self._stop_condition = lambda x: False
         self._step = None
-        self._agents = []
-        """ :type: list[BaseAgent] """
+        self._agents = {}
+        """ :type: dict[str, BaseAgent] """
 
     @property
     def step(self):
@@ -36,7 +36,7 @@ class Simulation:
         self._step = 0
 
     def _execute_step(self):
-        for agent in self._agents:
+        for agent_id, agent in self._agents.items():
             agent.execute_step(self.step)
 
     @property
@@ -66,7 +66,11 @@ class Simulation:
                 msg = "Instance of BaseAgent subclass expected, got {0}".format(agent)
                 logger.error(msg)
                 raise ValueError(msg)
-            self._agents.append(agent)
+            if agent.agent_id in self._agents:
+                msg = "Agent with the id {0} already registered".format(agent.id)
+                logger.error(msg)
+                raise ValueError(msg)
+            self._agents[agent.agent_id] = agent
 
 
 class SimulationState:

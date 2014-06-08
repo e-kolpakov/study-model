@@ -75,20 +75,19 @@ class MoocSimulation(ResourceLookupService, Simulation):
 
     def knowledge_snapshot_listener(self, agent, value, step_number):
         """
-        :type student: Student
-        :type knowledge: set[Fact]
+        :type agent: BaseAgent
+        :type value:
+        :type step_number: int
         """
         self.current_step_result.register_knowledge_snapshot(agent, value)
 
     def knowledge_delta_listener(self, agent, delta, step_number):
         """
-        :type student: Student
-        :type knowledge_delta: set[Fact]
+        :type agent: BaseAgent
+        :type delta:
+        :type step_number: int
         """
         self.current_step_result.register_knowledge_delta(agent, delta)
-
-    def plain_func_test_listener(self, agent, value, step_number):
-        print(agent, value, step_number)
 
     def initialize(self):
         for student in self._students:
@@ -98,7 +97,6 @@ class MoocSimulation(ResourceLookupService, Simulation):
         pub.subscribe(self.resource_usage_listener, Topics.RESOURCE_USAGE)
         pub.subscribe(self.knowledge_snapshot_listener, Topics.KNOWLEDGE_SNAPSHOT)
         pub.subscribe(self.knowledge_delta_listener, Topics.KNOWLEDGE_DELTA)
-        pub.subscribe(self.plain_func_test_listener, Topics.TEST)
 
         for student in self._students:
             for resource in self._resources:
@@ -154,17 +152,17 @@ class MoocSimulationResult:
 
     def register_knowledge_snapshot(self, student, knowledge):
         """
-        :type student: Student
+        :type student: BaseAgent
         :type knowledge: set[Fact]
         """
-        self._knowledge[student.name] = knowledge
+        self._knowledge[student.agent_id] = knowledge
 
     def register_knowledge_delta(self, student, new_knowledge):
         """
-        :type student: Student
+        :type student: BaseAgent
         :type new_knowledge: set[Fact]
         """
-        self._new_knowledge[student.name] = new_knowledge
+        self._new_knowledge[student.agent_id] = new_knowledge
 
     @property
     def resource_usage(self):
@@ -183,4 +181,3 @@ class Topics:
     RESOURCE_USAGE = 'Resource.Usage'
     KNOWLEDGE_SNAPSHOT = 'Knowledge.Snapshot'
     KNOWLEDGE_DELTA = 'Knowledge.Delta'
-    TEST = 'TEST'

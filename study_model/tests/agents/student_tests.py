@@ -75,20 +75,20 @@ class StudentTests(unittest.TestCase):
 
         self.assertEqual(self._student.knowledge, {Fact('A'), Fact('B'), Fact('C')})
 
-    def test_study_resource_sends_messages(self):
-        resource1 = Resource('A', [])
-        self._student._knowledge = {Fact('A'), Fact('B')}
-        self._behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('C'), Fact('D')})
-
-        expected_snapshot = {Fact('A'), Fact('B'), Fact('C'), Fact('D')}
-        expected_delta = {Fact('C'), Fact('D')}
-
-        with patch('study_model.agents.student.pub', spec=True) as pub_mock:
-            self._student.study_resource(resource1)
-
-            pub_mock.sendMessage.assert_any_call(
-                Topics.RESOURCE_USAGE, student=self._student, resource=resource1)
-            pub_mock.sendMessage.assert_any_call(
-                Topics.KNOWLEDGE_SNAPSHOT, student=self._student, knowledge=expected_snapshot)
-            pub_mock.sendMessage.assert_any_call(
-                Topics.KNOWLEDGE_DELTA, student=self._student, knowledge_delta=expected_delta)
+    # def test_study_resource_sends_messages(self):
+    #     resource1 = Resource('A', [])
+    #     self._student._knowledge = {Fact('A'), Fact('B')}
+    #     self._behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('C'), Fact('D')})
+    #
+    #     expected_snapshot = {Fact('A'), Fact('B'), Fact('C'), Fact('D')}
+    #     expected_delta = {Fact('C'), Fact('D')}
+    #
+    #     with patch('study_model.agents.student.pub', spec=True) as pub_mock:
+    #         self._student.study_resource(resource1)
+    #
+    #         pub_mock.sendMessage.assert_any_call(
+    #             Topics.RESOURCE_USAGE, student=self._student, resource=resource1)
+    #         pub_mock.sendMessage.assert_any_call(
+    #             Topics.KNOWLEDGE_SNAPSHOT, student=self._student, knowledge=expected_snapshot)
+    #         pub_mock.sendMessage.assert_any_call(
+    #             Topics.KNOWLEDGE_DELTA, student=self._student, knowledge_delta=expected_delta)

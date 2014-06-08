@@ -11,9 +11,7 @@ class ResourceLookupService:
         super(ResourceLookupService, self).__init__(*args, **kwargs)
 
     def _register_resources(self, resources):
-        """
-        :type resources: list[Resource]
-        """
+        """ :type resources: list[Resource] """
         self._resources = resources
 
     def grant_access(self, student, resource):

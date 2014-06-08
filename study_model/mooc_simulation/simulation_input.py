@@ -12,52 +12,31 @@ __author__ = 'e.kolpakov'
 
 
 class SimulationInput:
-    def __init__(self):
-        self._students = []
-        self._resources = []
-        self._curriculum = None
+    def __init__(self, curriculum, resources, students):
+        self._students = students
+        self._resources = resources
+        self._curriculum = curriculum
 
     @property
     def students(self):
-        """
-        :rtype: list[Student]
-        """
+        """ :rtype: list[Student] """
         return self._students
 
     @property
     def resources(self):
-        """
-        :rtype: list[Resource]
-        """
+        """ :rtype: list[Resource] """
         return self._resources
 
     @property
     def curriculum(self):
-        """
-        :rtype: Curriculum
-        """
+        """ :rtype: Curriculum """
         return self._curriculum
-
-    @curriculum.setter
-    def curriculum(self, value):
-        """
-        :type value: Curriculum
-        """
-        self._curriculum = value
 
 
 def get_simulation_input():
-    """
-    :rtype: SimulationInput
-    """
-    sim_input = SimulationInput()
+    """ :rtype: SimulationInput """
     curriculum = build_curriculum()
-
-    sim_input.curriculum = curriculum
-    sim_input.students.extend(build_students(curriculum))
-    sim_input.resources.extend(build_resources(curriculum))
-
-    return sim_input
+    return SimulationInput(curriculum, build_resources(curriculum), build_students(curriculum))
 
 
 def build_curriculum():

@@ -34,9 +34,6 @@ class MoocSimulation(ResourceLookupService, Simulation):
         self._resources = simulation_input.resources
         self._curriculum = simulation_input.curriculum
 
-        self._lookup_service = None
-        """ :type: ResourceLookupService | None """
-
         self._results = defaultdict(lambda: MoocSimulationResult(self.step))
         """ :type: dict[int, SimulationResult] """
 
@@ -47,23 +44,17 @@ class MoocSimulation(ResourceLookupService, Simulation):
 
     @property
     def state(self):
-        """
-        :rtype: MoocSimulationState
-        """
+        """ :rtype: MoocSimulationState """
         return MoocSimulationState(self._students, self._resources, self._curriculum)
 
     @property
     def current_step_result(self):
-        """
-        :rtype: MoocSimulationResult
-        """
+        """ :rtype: MoocSimulationResult """
         return self._results[self.step]
 
     @property
     def results(self):
-        """
-        :rtype: dict[int, MoocSimulationResult]
-        """
+        """ :rtype: dict[int, MoocSimulationResult] """
         return self._results
 
     def resource_usage_listener(self, agent, step_number, args, kwargs):
@@ -85,6 +76,11 @@ class MoocSimulation(ResourceLookupService, Simulation):
         """
         self.current_step_result.register_knowledge_delta(agent, delta)
 
+    def _grant_initial_access_permissions(self):
+        for student in self._students:
+            for resource in self._resources:
+                self.grant_access(student, resource)
+
     def initialize(self):
         for student in self._students:
             student.resource_lookup_service = self
@@ -94,9 +90,7 @@ class MoocSimulation(ResourceLookupService, Simulation):
         pub.subscribe(self.knowledge_snapshot_listener, Topics.KNOWLEDGE_SNAPSHOT)
         pub.subscribe(self.knowledge_delta_listener, Topics.KNOWLEDGE_DELTA)
 
-        for student in self._students:
-            for resource in self._resources:
-                self.grant_access(student, resource)
+        self._grant_initial_access_permissions()
 
 
 class MoocSimulationState(SimulationState):
@@ -113,23 +107,17 @@ class MoocSimulationState(SimulationState):
 
     @property
     def students(self):
-        """
-        :rtype: tuple(Student)
-        """
+        """ :rtype: tuple(Student) """
         return tuple(self._students)
 
     @property
     def resources(self):
-        """
-        :rtype: tuple[Resource]
-        """
+        """ :rtype: tuple[Resource] """
         return tuple(self._resources)
 
     @property
     def curriculum(self):
-        """
-        :rtype: Curriculum
-        """
+        """ :rtype: Curriculum """
         return self._curriculum
 
 
@@ -141,9 +129,7 @@ class MoocSimulationResult:
         self._new_knowledge = dict()
 
     def add_resource_usage(self, resource):
-        """
-        :type resource: Resource
-        """
+        """ :type resource: Resource """
         self._resource_usage[resource.name] += 1
 
     def register_knowledge_snapshot(self, student, knowledge):

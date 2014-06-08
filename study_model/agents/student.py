@@ -1,8 +1,7 @@
 import logging
 
-from pubsub import pub
 from simulation import schedulers
-from simulation.observers import Observer, DeltaObserver
+from simulation.observers import Observer, DeltaObserver, AgentCallObserver
 
 from study_model.agents.intelligent_agent import IntelligentAgent
 from study_model.mooc_simulation.simulation import Topics
@@ -83,6 +82,7 @@ class Student(IntelligentAgent):
 
         self.study_resource(resource_to_study)
 
+    @AgentCallObserver.observe(Topics.RESOURCE_USAGE)
     def study_resource(self, resource):
         """
         :type resource: Resource
@@ -93,9 +93,6 @@ class Student(IntelligentAgent):
 
         logger.debug("Updating self knowledge")
         self._knowledge = self._knowledge | self._acquire_knowledge(resource)
-
-        logger.debug("Sending messages")
-        pub.sendMessage(Topics.RESOURCE_USAGE, student=self, resource=resource)
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(
             name=self.name,

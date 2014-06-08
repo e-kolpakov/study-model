@@ -66,12 +66,8 @@ class MoocSimulation(ResourceLookupService, Simulation):
         """
         return self._results
 
-    def resource_usage_listener(self, student, resource):
-        """
-        :type student: Student
-        :type resource: Resource
-        """
-        self.current_step_result.add_resource_usage(resource)
+    def resource_usage_listener(self, agent, step_number, args, kwargs):
+        self.current_step_result.add_resource_usage(args[0])
 
     def knowledge_snapshot_listener(self, agent, value, step_number):
         """

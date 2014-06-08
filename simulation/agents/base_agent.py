@@ -15,9 +15,15 @@ class BaseAgent:
         self.__scheduled = None
         self.__observables = None
 
+        self.__step_number = 0
+
     @property
     def agent_id(self):
         return self._agent_id
+
+    @property
+    def step_number(self):
+        return self.__step_number
 
     def _scheduled(self):
         if self.__scheduled is None:
@@ -30,6 +36,7 @@ class BaseAgent:
         return self.__observables
 
     def execute_step(self, step_number):
+        self.__step_number = step_number
         for method, scheduler in self._scheduled():
             if scheduler.check_execution_condition(step_number):
                 method()

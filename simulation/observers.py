@@ -41,7 +41,7 @@ class Observer(BaseObserver):
         self._converter = converter if converter else lambda x: x
 
     def inspect(self, agent, step_number):
-        pub.sendMessage(self._topic, agent=agent, value=self._get_value(agent), step_number=step_number)
+        pub.sendMessage(self._topic, agent=agent, step_number=step_number, value=self._get_value(agent))
 
     def _get_value(self, agent):
         return self._converter(self._target(agent))
@@ -68,7 +68,7 @@ class DeltaObserver(Observer):
         previous = self._get_previous_value(agent)
         delta = self._delta_calculator(value, previous) if previous is not None else value
         self._set_previous_value(agent, value)
-        pub.sendMessage(self._topic, agent=agent, delta=delta, step_number=step_number)
+        pub.sendMessage(self._topic, agent=agent, step_number=step_number, delta=delta)
 
     def _get_previous_value(self, agent):
         return self._previous[agent] if agent in self._previous else None

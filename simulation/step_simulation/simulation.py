@@ -83,3 +83,4 @@ class SimulationState:
         :rtype: int
         """
         return self._step
+

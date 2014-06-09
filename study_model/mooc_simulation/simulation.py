@@ -1,8 +1,5 @@
-from collections import defaultdict
-
-from pubsub import pub
-
-from simulation.step_simulation import Simulation, SimulationState
+from simulation.step_simulation.simulation import Simulation, SimulationState
+from simulation.step_simulation.result import SimulationResult, SimulationResultItem
 from study_model.mooc_simulation.resource_lookup_service import ResourceLookupService
 
 
@@ -34,9 +31,6 @@ class MoocSimulation(ResourceLookupService, Simulation):
         self._resources = simulation_input.resources
         self._curriculum = simulation_input.curriculum
 
-        self._results = defaultdict(lambda: MoocSimulationResult(self.step))
-        """ :type: dict[int, SimulationResult] """
-
         self._register_resources(self._resources)
 
         self._register_agents(self._students)
@@ -47,35 +41,6 @@ class MoocSimulation(ResourceLookupService, Simulation):
         """ :rtype: MoocSimulationState """
         return MoocSimulationState(self._students, self._resources, self._curriculum)
 
-    @property
-    def current_step_result(self):
-        """ :rtype: MoocSimulationResult """
-        return self._results[self.step]
-
-    @property
-    def results(self):
-        """ :rtype: dict[int, MoocSimulationResult] """
-        return self._results
-
-    def resource_usage_listener(self, agent, step_number, args, kwargs):
-        self.current_step_result.add_resource_usage(args[0])
-
-    def knowledge_snapshot_listener(self, agent, value, step_number):
-        """
-        :type agent: BaseAgent
-        :type value:
-        :type step_number: int
-        """
-        self.current_step_result.register_knowledge_snapshot(agent, value)
-
-    def knowledge_delta_listener(self, agent, delta, step_number):
-        """
-        :type agent: BaseAgent
-        :type delta:
-        :type step_number: int
-        """
-        self.current_step_result.register_knowledge_delta(agent, delta)
-
     def _grant_initial_access_permissions(self):
         for student in self._students:
             for resource in self._resources:
@@ -85,10 +50,6 @@ class MoocSimulation(ResourceLookupService, Simulation):
         for student in self._students:
             student.resource_lookup_service = self
             student.curriculum = self._curriculum
-
-        pub.subscribe(self.resource_usage_listener, Topics.RESOURCE_USAGE)
-        pub.subscribe(self.knowledge_snapshot_listener, Topics.KNOWLEDGE_SNAPSHOT)
-        pub.subscribe(self.knowledge_delta_listener, Topics.KNOWLEDGE_DELTA)
 
         self._grant_initial_access_permissions()
 
@@ -121,45 +82,44 @@ class MoocSimulationState(SimulationState):
         return self._curriculum
 
 
-class MoocSimulationResult:
-    def __init__(self, simulation_step):
-        self._simulation_step = simulation_step
-        self._resource_usage = defaultdict(int)
-        self._knowledge = dict()
-        self._new_knowledge = dict()
+class MoocSimulationResult(SimulationResult):
+    def __init__(self):
+        super(MoocSimulationResult, self).__init__()
+        self._register_result_handler(self.resource_usage_listener, Parameters.RESOURCE_USAGE)
+        self._register_result_handler(self.knowledge_snapshot_listener, Parameters.KNOWLEDGE_SNAPSHOT)
+        self._register_result_handler(self.knowledge_delta_listener, Parameters.KNOWLEDGE_DELTA)
 
-    def add_resource_usage(self, resource):
-        """ :type resource: Resource """
-        self._resource_usage[resource.name] += 1
-
-    def register_knowledge_snapshot(self, student, knowledge):
+    def resource_usage_listener(self, agent, step_number, args, kwargs):
         """
-        :type student: BaseAgent
-        :type knowledge: set[Fact]
+        :param agent: BaseAgent
+        :param step_number: int
+        :param args: list[Any]
+        :param kwargs: dict[str, Any]
+        :return:
         """
-        self._knowledge[student.agent_id] = knowledge
+        result = SimulationResultItem(agent, Parameters.RESOURCE_USAGE, step_number, args[1])
+        self.register_result(result)
 
-    def register_knowledge_delta(self, student, new_knowledge):
+    def knowledge_snapshot_listener(self, agent, step_number, value):
         """
-        :type student: BaseAgent
-        :type new_knowledge: set[Fact]
+        :type agent: BaseAgent
+        :type step_number: int
+        :type value:
         """
-        self._new_knowledge[student.agent_id] = new_knowledge
+        result = SimulationResultItem(agent, Parameters.KNOWLEDGE_SNAPSHOT, step_number, value)
+        self.register_result(result)
 
-    @property
-    def resource_usage(self):
-        return self._resource_usage
-
-    @property
-    def knowledge(self):
-        return self._knowledge
-
-    @property
-    def new_knowledge(self):
-        return self._new_knowledge
+    def knowledge_delta_listener(self, agent, step_number, delta):
+        """
+        :type agent: BaseAgent
+        :type delta:
+        :type step_number: int
+        """
+        result = SimulationResultItem(agent, Parameters.KNOWLEDGE_DELTA, step_number, delta)
+        self.register_result(result)
 
 
-class Topics:
+class Parameters:
     RESOURCE_USAGE = 'Resource.Usage'
     KNOWLEDGE_SNAPSHOT = 'Knowledge.Snapshot'
     KNOWLEDGE_DELTA = 'Knowledge.Delta'

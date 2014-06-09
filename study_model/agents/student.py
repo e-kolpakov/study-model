@@ -4,7 +4,7 @@ from simulation import schedulers
 from simulation.observers import Observer, DeltaObserver, AgentCallObserver
 
 from study_model.agents.intelligent_agent import IntelligentAgent
-from study_model.mooc_simulation.simulation import Topics
+from study_model.mooc_simulation.simulation import Parameters
 
 
 __author__ = 'e.kolpakov'
@@ -56,8 +56,8 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     @property
-    @DeltaObserver.observe(Topics.KNOWLEDGE_DELTA, delta=lambda current, prev: current - prev)
-    @Observer.observe(Topics.KNOWLEDGE_SNAPSHOT, converter=len)
+    @DeltaObserver.observe(Parameters.KNOWLEDGE_DELTA, delta=lambda current, prev: current - prev)
+    @Observer.observe(Parameters.KNOWLEDGE_SNAPSHOT)
     def knowledge(self):
         """
         :rtype: frozenset
@@ -82,7 +82,7 @@ class Student(IntelligentAgent):
 
         self.study_resource(resource_to_study)
 
-    @AgentCallObserver.observe(Topics.RESOURCE_USAGE)
+    @AgentCallObserver.observe(Parameters.RESOURCE_USAGE)
     def study_resource(self, resource):
         """
         :type resource: Resource

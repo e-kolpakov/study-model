@@ -11,7 +11,7 @@ from study_model.behaviors.student.knowledge_acquisition import BaseFactsAcquisi
 from study_model.behaviors.student.resource_choice import BaseResourceChoiceBehavior
 from study_model.knowledge_representation.competency import Competency
 from study_model.knowledge_representation.fact import Fact
-from study_model.mooc_simulation.simulation import Topics
+from study_model.mooc_simulation.simulation import Parameters
 
 
 __author__ = 'e.kolpakov'

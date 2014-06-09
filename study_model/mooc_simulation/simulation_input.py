@@ -1,6 +1,6 @@
 from study_model.behaviors.student.behavior_group import BehaviorGroup
 from study_model.behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
-from study_model.behaviors.student.resource_choice import RationalResourceChoiceBehavior
+from study_model.behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
 from study_model.agents.resource import Resource
 from study_model.agents.student import Student
 
@@ -75,7 +75,11 @@ def build_students(curriculum):
     rational_behavior.resource_choice = RationalResourceChoiceBehavior()
     rational_behavior.knowledge_acquisition = AllDependenciesAcquisitionBehavior()
 
+    random_behavior = BehaviorGroup()
+    random_behavior.resource_choice = RandomResourceChoiceBehavior()
+    random_behavior.knowledge_acquisition = AllDependenciesAcquisitionBehavior()
+
     return [
         Student("John", [], rational_behavior, agent_id='s1'),
-        Student("Jim", [], rational_behavior, agent_id='s2')
+        Student("Jim", [], random_behavior, agent_id='s2')
     ]

@@ -1,8 +1,10 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
+
 from nose_parameterized import parameterized
 
 from simulation.observers import Observer, get_observers, BaseObserver
+
 
 __author__ = 'e.kolpakov'
 
@@ -16,7 +18,7 @@ class CommonObserverTests(TestCase):
     @parameterized.expand([
         (123,),
         ("123",),
-        ([1,2,3,4,5,6],),
+        ([1, 2, 3, 4, 5, 6],),
         ([Observer("", ""), Observer("", ""), Observer("", "")],)
     ])
     def test_get_observers_attr_exists_returns_attr_value(self, value):
@@ -56,7 +58,7 @@ class ObserverTests(TestCase):
 
     @parameterized.expand([
         ("SomeTopic", "Smith", 1, None, 1),
-        ("OtherTopic", "Carter", 2, lambda x: x**2, 15),
+        ("OtherTopic", "Carter", 2, lambda x: x ** 2, 15),
         ("YetAnotherTopic", "Fury", 3, lambda x: x.upper(), "qwe"),
     ])
     def test_inspect_sends_message(self, topic, agent, step_number, converter, value):

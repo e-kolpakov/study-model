@@ -108,7 +108,7 @@ class CallObserver(BaseObserver):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 value = func(*args, **kwargs)
-                pub.sendMessage(topic, arguments=args, kwargs=kwargs)
+                pub.sendMessage(topic, args=args, kwargs=kwargs)
                 return value
             return wrapper
         return decorator
@@ -127,7 +127,7 @@ class AgentCallObserver(BaseObserver):
                 if not isinstance(agent, BaseAgent):
                     raise ValueError("Base agent expected, got {0}", agent)
                 step_number = agent.step_number
-                pub.sendMessage(topic, agent=agent, step_number=step_number, args=args, kwargs=kwargs)
+                pub.sendMessage(topic, agent=agent, step_number=step_number, args=args[1:], kwargs=kwargs)
                 return value
             return wrapper
         return decorator

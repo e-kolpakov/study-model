@@ -2,8 +2,9 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 from nose_parameterized import parameterized
+from simulation.agents.base_agent import BaseAgent
 
-from simulation.observers import get_observers, Observer, BaseObserver, DeltaObserver
+from simulation.observers import get_observers, Observer, BaseObserver, DeltaObserver, CallObserver, AgentCallObserver
 
 
 __author__ = 'e.kolpakov'
@@ -130,3 +131,34 @@ class DeltaObserverTests(TestCase):
 
             observer.inspect(agent, step_number)
             pub_mock.assert_called_with(topic, agent=agent, step_number=step_number, delta=expected_delta2)
+
+
+class CallObserverTests(TestCase):
+    @parameterized.expand([
+        ("Topic1", tuple(), dict()),
+        ("Topic2", (1,), dict()),
+        ("Topic3", (1, 2, 3), {"kwarg1": 1, "kwarg2": 2}),
+    ])
+    def test_observe_sends_message_on_target_call(self, topic, args, kwargs):  # not a typo, actual list and dict
+        target = Mock()
+        decorated = CallObserver.observe(topic)(target)
+        with patch('simulation.observers.pub.sendMessage', spec=True) as pub_mock:
+            decorated(*args, **kwargs)
+            pub_mock.assert_called_with(topic, args=args, kwargs=kwargs)
+
+
+class AgentCallObserverTest(TestCase):
+    @parameterized.expand([
+        ("Topic1", 1, tuple(), dict()),
+        ("Topic2", 2,  (1,), dict()),
+        ("Topic3", 3, (1, 2, 3), {"kwarg1": 1, "kwarg2": 2}),
+    ])
+    def test_observe_sends_message_on_target_call(self, topic, step_number, args, kwargs):  # not a typo, actual list and dict
+        target = Mock()
+        agent_mock = Mock(spec=BaseAgent)
+        agent_mock.step_number = step_number
+        decorated = AgentCallObserver.observe(topic)(target)
+        actual_args = tuple([agent_mock] + list(args))
+        with patch('simulation.observers.pub.sendMessage', spec=True) as pub_mock:
+            decorated(*actual_args, **kwargs)
+            pub_mock.assert_called_with(topic, agent=agent_mock, step_number=step_number, args=args, kwargs=kwargs)

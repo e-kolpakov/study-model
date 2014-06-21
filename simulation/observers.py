@@ -55,6 +55,9 @@ class Observer(BaseObserver):
 
     @classmethod
     def observe(cls, topic, converter=None):
+        if not topic:
+            raise ValueError("Non-empty topic expected, got {0}".format(topic))
+
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -65,7 +68,7 @@ class Observer(BaseObserver):
 
 
 class DeltaObserver(Observer):
-    def __init__(self, topic, target, converter=None, delta_calculator=None):
+    def __init__(self, topic, target, delta_calculator, converter=None):
         super(DeltaObserver, self).__init__(topic, target, converter)
         self._delta_calculator = delta_calculator
         self._previous = dict()
@@ -85,11 +88,15 @@ class DeltaObserver(Observer):
 
     @classmethod
     def observe(cls, topic, converter=None, delta=None):
+        if not topic:
+            raise ValueError("Non-empty topic expected, got {0}".format(topic))
+        if not delta or not callable(delta):
+            raise ValueError("Callable delta expected, got {0}".format(delta))
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)
-            cls._append_observer(wrapper, cls(topic, func, converter, delta))
+            cls._append_observer(wrapper, cls(topic, func, delta, converter))
             return wrapper
         return decorator
 

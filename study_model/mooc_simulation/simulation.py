@@ -41,6 +41,7 @@ class MoocSimulation(ResourceLookupService, Simulation):
         """ :rtype: MoocSimulationState """
         return MoocSimulationState(self._students, self._resources, self._curriculum)
 
+
     def _grant_initial_access_permissions(self):
         for student in self._students:
             for resource in self._resources:

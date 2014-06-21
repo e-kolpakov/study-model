@@ -46,6 +46,13 @@ class Observer(BaseObserver):
     def _get_value(self, agent):
         return self._converter(self._target(agent))
 
+    @property
+    def topic(self):
+        """
+        :return: str
+        """
+        return self._topic
+
     @classmethod
     def observe(cls, topic, converter=None):
         def decorator(func):

@@ -27,6 +27,14 @@ class Competency:
     def is_mastered(self, fact_set):
         return set(fact_set) >= self._facts
 
+    def mastered_ratio(self, knowledge):
+        """
+        Calculates known facts to all facts ratio as number in interval [0, 1]
+        :param knowledge: set[Fact] | frozenset[Fact]
+        :return: double
+        """
+        return len(knowledge & self._facts) / len(self._facts)
+
     def __str__(self):
         return self.code
 

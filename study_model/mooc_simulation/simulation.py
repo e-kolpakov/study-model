@@ -41,7 +41,6 @@ class MoocSimulation(ResourceLookupService, Simulation):
         """ :rtype: MoocSimulationState """
         return MoocSimulationState(self._students, self._resources, self._curriculum)
 
-
     def _grant_initial_access_permissions(self):
         for student in self._students:
             for resource in self._resources:
@@ -98,7 +97,7 @@ class MoocSimulationResult(SimulationResult):
         :param kwargs: dict[str, Any]
         :return:
         """
-        result = SimulationResultItem(agent, Parameters.RESOURCE_USAGE, step_number, args[1])
+        result = SimulationResultItem(agent, Parameters.RESOURCE_USAGE, step_number, args[0])
         self.register_result(result)
 
     def knowledge_snapshot_listener(self, agent, step_number, value):

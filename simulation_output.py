@@ -11,7 +11,7 @@ def output_results(results):
     """
     :type results: MoocSimulationResult
     """
-    for step in range(1, results.max_step):
+    for step in range(1, results.max_step+1):
         print("======= Step {step} =======".format(step=step))
         print_resource_usages(results, step)
         if snapshots:

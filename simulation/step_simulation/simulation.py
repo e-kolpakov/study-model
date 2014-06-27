@@ -50,8 +50,8 @@ class Simulation:
         self.initialize()
         logger = logging.getLogger(__name__)
         while not self.stop_condition(self.state):
-            logger.info("Starting step {step_no}".format(step_no=self._step))
             self._step += 1
+            logger.info("Starting step {step_no}".format(step_no=self._step))
             self._execute_step()
             logger.info("Finalizing step {step_no}".format(step_no=self._step))
 
@@ -67,7 +67,7 @@ class Simulation:
                 logger.error(msg)
                 raise ValueError(msg)
             if agent.agent_id in self._agents:
-                msg = "Agent with the id {0} already registered".format(agent.id)
+                msg = "Agent with the id {0} already registered".format(agent.agent_id)
                 logger.error(msg)
                 raise ValueError(msg)
             self._agents[agent.agent_id] = agent

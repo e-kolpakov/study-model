@@ -1,18 +1,46 @@
 import logging
-
-from pysimagents import schedulers
-from pysimagents.observers import Observer, DeltaObserver, AgentCallObserver
-from agents.intelligent_agent import IntelligentAgent
 from mooc_simulation.simulation import Parameters
-
+from pysimagents import schedulers
+from pysimagents.agents.base_agent import BaseAgent
+from pysimagents.observers import DeltaObserver, Observer, AgentCallObserver
 
 __author__ = 'e.kolpakov'
+
+
+class Resource(BaseAgent):
+    def __init__(self, name, resource_facts, behavior=None, *args, **kwargs):
+        """
+        :type name: str
+        :type resource_facts: list[knowledge_representation.ResourceFact]
+        """
+        super(Resource, self).__init__(*args, **kwargs)
+        self._name = name
+        self._behavior = behavior
+        self._facts = resource_facts
+
+    @property
+    def name(self):
+        """
+        :rtype: str
+        """
+        return self._name
+
+    @property
+    def facts(self):
+        """
+        :rtype: tuple[knowledge_representation.ResourceFact]
+        """
+        return tuple(self._facts)
+
+
+class IntelligentAgent(BaseAgent):
+    pass
 
 
 class Student(IntelligentAgent):
     def __init__(self, name, knowledge, behavior, *args, **kwargs):
         """
-        :type knowledge: list[Fact]
+        :type knowledge: list[knowledge_representation.Fact]
         :type behavior: BehaviorGroup
         """
         super(Student, self).__init__(*args, **kwargs)
@@ -43,14 +71,14 @@ class Student(IntelligentAgent):
     @property
     def curriculum(self):
         """
-        :rtype: Curriculum
+        :rtype: knowledge_representation.Curriculum
         """
         return self._curriculum
 
     @curriculum.setter
     def curriculum(self, value):
         """
-        :type value: Curriculum
+        :type value: knowledge_representation.Curriculum
         """
         self._curriculum = value
 

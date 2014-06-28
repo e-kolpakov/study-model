@@ -57,9 +57,9 @@ class MoocSimulation(ResourceLookupService, Simulation):
 class MoocSimulationState(SimulationState):
     def __init__(self, students, resources, curriculum):
         """
-        :type students: tuple[Student] | list[Student]
+        :type students: tuple[agents.Student] | list[agents.Student]
         :type resources: tuple[Resource] | list[Resource]
-        :type curriculum: Curriculum
+        :type curriculum: knowledge_representation.Curriculum
         """
         super(MoocSimulationState, self).__init__()
         self._students = students
@@ -78,7 +78,7 @@ class MoocSimulationState(SimulationState):
 
     @property
     def curriculum(self):
-        """ :rtype: Curriculum """
+        """ :rtype: knowledge_representation.Curriculum """
         return self._curriculum
 
 

@@ -1,13 +1,10 @@
 from itertools import chain
+from agents import Resource, Student
 
 from behaviors.student.behavior_group import BehaviorGroup
 from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
-from agents.resource import Resource
-from agents.student import Student
-from knowledge_representation.competency import Competency
-from knowledge_representation.curriculum import Curriculum
-from knowledge_representation.fact import Fact, ResourceFact
+from knowledge_representation import Competency, Fact, ResourceFact, Curriculum
 
 __author__ = 'e.kolpakov'
 
@@ -27,17 +24,17 @@ class SimulationInput:
 
     @property
     def students(self):
-        """ :rtype: list[Student] """
+        """ :rtype: list[agents.Student] """
         return self._students
 
     @property
     def resources(self):
-        """ :rtype: list[Resource] """
+        """ :rtype: list[agents.Resource] """
         return self._resources
 
     @property
     def curriculum(self):
-        """ :rtype: Curriculum """
+        """ :rtype: knowledge_representation.Curriculum """
         return self._curriculum
 
 

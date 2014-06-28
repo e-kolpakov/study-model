@@ -1,7 +1,6 @@
 from unittest import mock, TestCase
 
-from knowledge_representation import Competency, Fact, Curriculum
-from knowledge_representation.common import get_available_facts
+from knowledge_representation import Competency, Fact, Curriculum, get_available_facts
 
 
 __author__ = 'e.kolpakov'

@@ -1,5 +1,3 @@
-from agents.resource import Resource
-
 __author__ = 'e.kolpakov'
 
 
@@ -11,13 +9,13 @@ class ResourceLookupService:
         super(ResourceLookupService, self).__init__(*args, **kwargs)
 
     def _register_resources(self, resources):
-        """ :type resources: list[Resource] """
+        """ :type resources: list[agents.Resource] """
         self._resources = resources
 
     def grant_access(self, student, resource):
         """
-        :type student: Student
-        :type resource: Resource
+        :type student: agents.Student
+        :type resource: agents.Resource
         """
         if student.name not in self._access_privileges:
             self._access_privileges[student.name] = dict()
@@ -25,8 +23,8 @@ class ResourceLookupService:
 
     def check_access(self, student, resource):
         """
-        :type student: Student
-        :type resource: Resource
+        :type student: agents.Student
+        :type resource: agents.Resource
         :rtype: bool
         """
         if student.name in self._access_privileges:
@@ -36,7 +34,7 @@ class ResourceLookupService:
 
     def get_accessible_resources(self, student):
         """
-        :type student: Student
-        :rtype: tuple[Resource]
+        :type student: agents.Student
+        :rtype: tuple[agents.Resource]
         """
         return tuple([resource for resource in self._resources if self.check_access(student, resource)])

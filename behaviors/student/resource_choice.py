@@ -1,6 +1,5 @@
 import random
-
-from knowledge_representation.common import get_available_facts
+from knowledge_representation import get_available_facts
 
 
 __author__ = 'e.kolpakov'

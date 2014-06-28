@@ -3,13 +3,12 @@ import unittest
 from unittest import mock
 from unittest.mock import patch, PropertyMock
 
-from study_model.agents.student import Student
-from study_model.agents.resource import Resource
-from study_model.behaviors.student.behavior_group import BehaviorGroup
+import agents
+from agents import Resource, Student
+from behaviors.student.behavior_group import BehaviorGroup
 from behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from study_model.behaviors.student.resource_choice import BaseResourceChoiceBehavior
-from study_model.knowledge_representation.competency import Competency
-from study_model.knowledge_representation.fact import Fact
+from behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from knowledge_representation import Competency, Fact
 
 
 __author__ = 'e.kolpakov'
@@ -41,7 +40,7 @@ class StudentTests(unittest.TestCase):
         return Competency(code, eff_facts)
 
     def test_study_no_resources_logs_and_returns(self):
-        logger = logging.getLogger(agents.student.__name__)
+        logger = logging.getLogger(agents.__name__)
         self._resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
         with patch.object(logger, 'warn') as mocked_warn, \
                 patch.object(self._student, '_choose_resource') as resource_choice:

@@ -1,9 +1,8 @@
-import unittest
+import pytest
 from unittest import mock
 from agents import Resource, Student
 
-from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, \
-    GetAllFactsAcquisitionBehavior
+from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, GetAllFactsAcquisitionBehavior
 from knowledge_representation import Fact, ResourceFact
 
 
@@ -14,8 +13,8 @@ def _to_resource_fact(facts):
     return tuple([ResourceFact(fact) for fact in facts])
 
 
-class GetAllFactsAcquisitionBehaviorTests(unittest.TestCase):
-    def setUp(self):
+class TestGetAllFactsAcquisitionBehavior:
+    def setup_method(self, method):
         self._behavior = GetAllFactsAcquisitionBehavior()
         self._student = mock.MagicMock(spec=Student)
         self._resource = mock.MagicMock(spec=Resource)
@@ -27,7 +26,7 @@ class GetAllFactsAcquisitionBehaviorTests(unittest.TestCase):
 
         result = self._behavior.acquire_facts(self._student, self._resource)
 
-        self.assertSetEqual(result, set())
+        assert result == set()
 
     def test_turns_resource_facts_into_facts(self):
         facts = {Fact('A'), Fact('B'), Fact('C')}
@@ -35,7 +34,7 @@ class GetAllFactsAcquisitionBehaviorTests(unittest.TestCase):
 
         result = self._behavior.acquire_facts(self._student, self._resource)
 
-        self.assertSetEqual(result, facts)
+        assert result == facts
 
 
 class AllDependenciesAcquisitionBehaviorTests(unittest.TestCase):

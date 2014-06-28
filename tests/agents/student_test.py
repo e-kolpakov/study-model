@@ -1,5 +1,6 @@
 import logging
-import unittest
+
+import pytest
 from unittest import mock
 from unittest.mock import patch, PropertyMock
 
@@ -14,13 +15,13 @@ from knowledge_representation import Competency, Fact
 __author__ = 'e.kolpakov'
 
 
-class StudentTests(unittest.TestCase):
+class TestStudent:
     _student = None
     _resource_lookup = None
     _competency_lookup = None
     _behavior_group = None
 
-    def setUp(self):
+    def setup_method(self, method):
         self._behavior_group = mock.Mock(BehaviorGroup)
         self._behavior_group.resource_choice = mock.Mock(BaseResourceChoiceBehavior)
         self._behavior_group.knowledge_acquisition = mock.Mock(BaseFactsAcquisitionBehavior)
@@ -46,8 +47,8 @@ class StudentTests(unittest.TestCase):
                 patch.object(self._student, '_choose_resource') as resource_choice:
             self._student.study()
             mocked_warn.assert_called_once_with("No resources available")
-            self.assertSequenceEqual(resource_choice.call_args_list, [])
-            self.assertFalse(resource_choice.called)
+            assert resource_choice.call_args_list == []
+            assert not resource_choice.called
 
     def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self):
         resource1 = Resource('A', [])
@@ -70,7 +71,7 @@ class StudentTests(unittest.TestCase):
 
         self._student.study_resource(resource1)
 
-        self.assertEqual(self._student.knowledge, {Fact('A'), Fact('B'), Fact('C')})
+        assert self._student.knowledge == {Fact('A'), Fact('B'), Fact('C')}
 
     # def test_study_resource_sends_messages(self):
     #     resource1 = Resource('A', [])

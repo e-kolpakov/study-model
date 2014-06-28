@@ -1,5 +1,5 @@
-from simulation.step_simulation.simulation import Simulation, SimulationState
-from simulation.step_simulation.result import SimulationResult, SimulationResultItem
+from pysimagents.step_simulation.simulation import Simulation, SimulationState
+from pysimagents.step_simulation.result import SimulationResult, SimulationResultItem
 from mooc_simulation.resource_lookup_service import ResourceLookupService
 
 

@@ -1,6 +1,6 @@
 __author__ = 'e.kolpakov'
 
-config = {
+log_config = {
     "version": 1,
     "formatters": {
         "trace": {

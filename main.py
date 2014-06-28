@@ -1,7 +1,7 @@
 import logging
 import logging.config
 
-import log_config
+from log_config import log_config
 from simulation_output import output_results
 from mooc_simulation.simulation import stop_condition, MoocSimulation, MoocSimulationResult
 from mooc_simulation.simulation_input import get_simulation_input
@@ -11,7 +11,7 @@ __author__ = 'e.kolpakov'
 
 
 if __name__ == "__main__":
-    logging.config.dictConfig(log_config.config)
+    logging.config.dictConfig(log_config)
     logger = logging.getLogger(__name__)
     logger.debug("Starting...")
 

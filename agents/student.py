@@ -1,8 +1,8 @@
 import logging
 
-from simulation import schedulers
-from simulation.observers import Observer, DeltaObserver, AgentCallObserver
-from study_model.agents.intelligent_agent import IntelligentAgent
+from pysimagents import schedulers
+from pysimagents.observers import Observer, DeltaObserver, AgentCallObserver
+from agents.intelligent_agent import IntelligentAgent
 from mooc_simulation.simulation import Parameters
 
 

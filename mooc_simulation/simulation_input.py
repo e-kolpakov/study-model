@@ -1,13 +1,13 @@
 from itertools import chain
 
-from study_model.behaviors.student.behavior_group import BehaviorGroup
+from behaviors.student.behavior_group import BehaviorGroup
 from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
-from study_model.behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
-from study_model.agents.resource import Resource
-from study_model.agents.student import Student
-from study_model.knowledge_representation.competency import Competency
-from study_model.knowledge_representation.curriculum import Curriculum
-from study_model.knowledge_representation.fact import Fact, ResourceFact
+from behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
+from agents.resource import Resource
+from agents.student import Student
+from knowledge_representation.competency import Competency
+from knowledge_representation.curriculum import Curriculum
+from knowledge_representation.fact import Fact, ResourceFact
 
 __author__ = 'e.kolpakov'
 

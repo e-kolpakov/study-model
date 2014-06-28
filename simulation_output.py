@@ -1,5 +1,7 @@
 from itertools import groupby
-from study_model.mooc_simulation.simulation import Parameters
+
+from mooc_simulation.simulation import Parameters
+
 
 __author__ = 'e.kolpakov'
 

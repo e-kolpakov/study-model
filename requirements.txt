@@ -1,3 +1,4 @@
+simpy
 PyPubSub==3.3.0
 colorama==0.3.1
 py==1.4.20

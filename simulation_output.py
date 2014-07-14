@@ -1,6 +1,6 @@
 from itertools import groupby
 
-from mooc_simulation.simulation import Parameters
+from simulation.simulation import Parameters
 
 
 __author__ = 'e.kolpakov'
@@ -11,16 +11,17 @@ deltas = True
 
 def output_results(results):
     """
-    :type results: MoocSimulationResult
+    :type results: SimulationResult
     """
-    for step in range(1, results.max_step+1):
-        print("======= Step {step} =======".format(step=step))
-        print_resource_usages(results, step)
-        if snapshots:
-            print_snapshots(results, step)
-        if deltas:
-            print_deltas(results, step)
-        print("===== Step {step} End =====".format(step=step))
+    pass
+    # for step in range(1, results.max_step+1):
+    #     print("======= Step {step} =======".format(step=step))
+    #     print_resource_usages(results, step)
+    #     if snapshots:
+    #         print_snapshots(results, step)
+    #     if deltas:
+    #         print_deltas(results, step)
+    #     print("===== Step {step} End =====".format(step=step))
 
 
 def print_resource_usages(results, step):

@@ -1,6 +1,5 @@
-from pysimagents.step_simulation.simulation import Simulation, SimulationState
-from pysimagents.step_simulation.result import SimulationResult, SimulationResultItem
-from mooc_simulation.resource_lookup_service import ResourceLookupService
+from simulation.resource_lookup_service import ResourceLookupService
+from simpy import Environment
 
 
 __author__ = 'e.kolpakov'
@@ -8,7 +7,7 @@ __author__ = 'e.kolpakov'
 
 def stop_condition(simulation_state):
     """
-    :type simulation_state: MoocSimulationState
+    :type simulation_state: SimulationState
     :rtype: bool
     """
     return all(
@@ -17,15 +16,17 @@ def stop_condition(simulation_state):
         for competency in simulation_state.curriculum.all_competencies())
 
 
-class MoocSimulation(ResourceLookupService, Simulation):
+class Simulation(ResourceLookupService):
     def __init__(self, simulation_input, *args, **kwargs):
         """
-        :type simulation_input: study_model.mooc_simulation.simulation_input.SimulationInput
+        :type simulation_input: study_model.simulation.simulation_input.SimulationInput
         """
-        super(MoocSimulation, self).__init__(*args, **kwargs)
+        super(Simulation, self).__init__(*args, **kwargs)
 
         self._step = 0
         """ :type: int """
+
+        self._environment = Environment()
 
         self._students = simulation_input.students
         self._resources = simulation_input.resources
@@ -33,35 +34,38 @@ class MoocSimulation(ResourceLookupService, Simulation):
 
         self._register_resources(self._resources)
 
-        self._register_agents(self._students)
-        self._register_agents(self._resources)
-
     @property
     def state(self):
-        """ :rtype: MoocSimulationState """
-        return MoocSimulationState(self._students, self._resources, self._curriculum)
+        """ :rtype: SimulationState """
+        return SimulationState(self._students, self._resources, self._curriculum)
 
     def _grant_initial_access_permissions(self):
         for student in self._students:
             for resource in self._resources:
                 self.grant_access(student, resource)
 
-    def initialize(self):
+    def run(self):
+        student_stop_conditions = []
         for student in self._students:
             student.resource_lookup_service = self
             student.curriculum = self._curriculum
+            student.env = self._environment
+            self._environment.process(student.study())
+            student_stop_conditions.append(student.stop_participation_event)
 
         self._grant_initial_access_permissions()
 
+        self._environment.run(self._environment.all_of(student_stop_conditions))
 
-class MoocSimulationState(SimulationState):
+
+class SimulationState():
     def __init__(self, students, resources, curriculum):
         """
         :type students: tuple[agents.Student] | list[agents.Student]
         :type resources: tuple[Resource] | list[Resource]
         :type curriculum: knowledge_representation.Curriculum
         """
-        super(MoocSimulationState, self).__init__()
+        super(SimulationState, self).__init__()
         self._students = students
         self._resources = resources
         self._curriculum = curriculum
@@ -82,12 +86,9 @@ class MoocSimulationState(SimulationState):
         return self._curriculum
 
 
-class MoocSimulationResult(SimulationResult):
+class SimulationResult():
     def __init__(self):
-        super(MoocSimulationResult, self).__init__()
-        self._register_result_handler(self.resource_usage_listener, Parameters.RESOURCE_USAGE)
-        self._register_result_handler(self.knowledge_snapshot_listener, Parameters.KNOWLEDGE_SNAPSHOT)
-        self._register_result_handler(self.knowledge_delta_listener, Parameters.KNOWLEDGE_DELTA)
+        super(SimulationResult, self).__init__()
 
     def resource_usage_listener(self, agent, step_number, args, kwargs):
         """
@@ -97,8 +98,7 @@ class MoocSimulationResult(SimulationResult):
         :param kwargs: dict[str, Any]
         :return:
         """
-        result = SimulationResultItem(agent, Parameters.RESOURCE_USAGE, step_number, args[0])
-        self.register_result(result)
+        pass
 
     def knowledge_snapshot_listener(self, agent, step_number, value):
         """
@@ -106,8 +106,7 @@ class MoocSimulationResult(SimulationResult):
         :type step_number: int
         :type value:
         """
-        result = SimulationResultItem(agent, Parameters.KNOWLEDGE_SNAPSHOT, step_number, value)
-        self.register_result(result)
+        pass
 
     def knowledge_delta_listener(self, agent, step_number, delta):
         """
@@ -115,8 +114,7 @@ class MoocSimulationResult(SimulationResult):
         :type delta:
         :type step_number: int
         """
-        result = SimulationResultItem(agent, Parameters.KNOWLEDGE_DELTA, step_number, delta)
-        self.register_result(result)
+        pass
 
 
 class Parameters:

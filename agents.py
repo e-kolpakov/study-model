@@ -1,5 +1,8 @@
 from collections import defaultdict
+from infrastructure.observers import Observer, DeltaObserver, AgentCallObserver
+
 import logging
+from simulation.simulation import Parameters
 
 __author__ = 'e.kolpakov'
 
@@ -111,6 +114,8 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     @property
+    @Observer.observe(topic=Parameters.KNOWLEDGE_SNAPSHOT)
+    @DeltaObserver.observe(topic=Parameters.KNOWLEDGE_SNAPSHOT, delta=lambda x, y: x-y)
     def knowledge(self):
         """
         :rtype: frozenset
@@ -145,6 +150,7 @@ class Student(IntelligentAgent):
         else:
             self.stop_participation_event.succeed()
 
+    @AgentCallObserver.observe(topic=Parameters.RESOURCE_USAGE)
     def study_resource(self, resource):
         """
         :type resource: Resource

@@ -90,6 +90,13 @@ class SimulationResult():
     def __init__(self):
         super(SimulationResult, self).__init__()
 
+    def __init__(self):
+        pass
+        # super(MoocSimulationResult, self).__init__()
+        # self._register_result_handler(self.resource_usage_listener, Parameters.RESOURCE_USAGE)
+        # self._register_result_handler(self.knowledge_snapshot_listener, Parameters.KNOWLEDGE_SNAPSHOT)
+        # self._register_result_handler(self.knowledge_delta_listener, Parameters.KNOWLEDGE_DELTA)
+
     def resource_usage_listener(self, agent, step_number, args, kwargs):
         """
         :param agent: BaseAgent

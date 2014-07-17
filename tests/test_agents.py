@@ -14,6 +14,7 @@ from knowledge_representation import Competency, Fact
 
 __author__ = 'e.kolpakov'
 
+
 @pytest.fixture
 def resource_lookup():
     return mock.Mock()

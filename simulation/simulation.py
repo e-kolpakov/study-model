@@ -1,3 +1,4 @@
+from pubsub import pub
 from simulation.resource_lookup_service import ResourceLookupService
 from simpy import Environment
 
@@ -86,45 +87,3 @@ class SimulationState():
         return self._curriculum
 
 
-class SimulationResult():
-    def __init__(self):
-        super(SimulationResult, self).__init__()
-
-    def __init__(self):
-        pass
-        # super(MoocSimulationResult, self).__init__()
-        # self._register_result_handler(self.resource_usage_listener, Parameters.RESOURCE_USAGE)
-        # self._register_result_handler(self.knowledge_snapshot_listener, Parameters.KNOWLEDGE_SNAPSHOT)
-        # self._register_result_handler(self.knowledge_delta_listener, Parameters.KNOWLEDGE_DELTA)
-
-    def resource_usage_listener(self, agent, step_number, args, kwargs):
-        """
-        :param agent: BaseAgent
-        :param step_number: int
-        :param args: list[Any]
-        :param kwargs: dict[str, Any]
-        :return:
-        """
-        pass
-
-    def knowledge_snapshot_listener(self, agent, step_number, value):
-        """
-        :type agent: BaseAgent
-        :type step_number: int
-        :type value:
-        """
-        pass
-
-    def knowledge_delta_listener(self, agent, step_number, delta):
-        """
-        :type agent: BaseAgent
-        :type delta:
-        :type step_number: int
-        """
-        pass
-
-
-class Parameters:
-    RESOURCE_USAGE = 'Resource.Usage'
-    KNOWLEDGE_SNAPSHOT = 'Knowledge.Snapshot'
-    KNOWLEDGE_DELTA = 'Knowledge.Delta'

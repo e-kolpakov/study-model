@@ -15,6 +15,24 @@ def get_observers(target):
     return getattr(target, BaseObserver.OBSERVER_ATTRIBUTE) if hasattr(target, BaseObserver.OBSERVER_ATTRIBUTE) else []
 
 
+def get_agent_for_class_method(args):
+    from agents import BaseAgent
+    agent = args[0]
+    if not isinstance(agent, BaseAgent):
+        raise ValueError("Base agent expected, got {0}", agent)
+    return agent
+
+
+def observer_trigger(target):
+    @wraps(target)
+    def wrapper(*args, **kwargs):
+        agent = get_agent_for_class_method(args)
+        result = target(*args, **kwargs)
+        agent.observe()
+        return result
+    return wrapper
+
+
 class BaseObserver:
     OBSERVER_ATTRIBUTE = "observer"
 
@@ -43,7 +61,7 @@ class Observer(BaseObserver):
         self._converter = converter if converter else lambda x: x
 
     def inspect(self, agent):
-        pub.sendMessage(self._topic, agent=agent, value=self._get_value(agent))
+        pub.sendMessage(self._topic, agent=agent, time=agent.time, value=self._get_value(agent))
 
     def _get_value(self, agent):
         return self._converter(self._target(agent))
@@ -80,7 +98,7 @@ class DeltaObserver(Observer):
         previous = self._get_previous_value(agent)
         delta = self._delta_calculator(value, previous) if previous is not None else value
         self._set_previous_value(agent, value)
-        pub.sendMessage(self._topic, agent=agent, delta=delta)
+        pub.sendMessage(self._topic, agent=agent, time=agent.time, delta=delta)
 
     def _get_previous_value(self, agent):
         return self._previous[agent] if agent in self._previous else None
@@ -126,10 +144,10 @@ class AgentCallObserver(BaseObserver):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 value = func(*args, **kwargs)
-                agent = args[0]
+                agent = get_agent_for_class_method(args)
                 if not isinstance(agent, BaseAgent):
                     raise ValueError("Base agent expected, got {0}", agent)
-                pub.sendMessage(topic, agent=agent, args=args[1:], kwargs=kwargs)
+                pub.sendMessage(topic, agent=agent, time=agent.time, args=args[1:], kwargs=kwargs)
                 return value
             return wrapper
         return decorator

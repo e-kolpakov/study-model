@@ -1,8 +1,9 @@
 from collections import defaultdict
-from infrastructure.observers import Observer, DeltaObserver, AgentCallObserver
+from itertools import chain
+from infrastructure.observers import Observer, DeltaObserver, AgentCallObserver, observer_trigger, get_observers
 
 import logging
-from simulation.simulation import Parameters
+from simulation.result import ResultTopics
 
 __author__ = 'e.kolpakov'
 
@@ -16,6 +17,7 @@ class BaseAgent:
         self.agent_count_by_type[actual_type] += 1
         self._agent_id = agent_id if agent_id else actual_type.__name__ + str(self.agent_count_by_type[actual_type])
         self._env = None
+        self._observers = {}
 
     @property
     def agent_id(self):
@@ -34,6 +36,36 @@ class BaseAgent:
         :param value: simpy.Environment
         """
         self._env = value
+
+    @property
+    def time(self):
+        return self.env.now
+
+    def observe(self):
+        for observer in self._get_all_observables():
+            observer.inspect(self)
+
+    def _get_all_observables(self):
+        """
+        :rtype: list[BaseObserver]
+        """
+        candidates = chain(self._get_all_callables(), self._get_all_properties())
+        for member in candidates:
+            observers = get_observers(member)
+            for observer in observers:
+                yield observer
+
+    def _get_all_callables(self):
+        for member_name in vars(self.__class__):
+            member = getattr(self, member_name)
+            if callable(member):
+                yield member
+
+    def _get_all_properties(self):
+        for member_name in vars(self.__class__):
+            member = getattr(self.__class__, member_name)
+            if isinstance(member, property):
+                yield member.fget
 
 
 class Resource(BaseAgent):
@@ -114,8 +146,8 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     @property
-    @Observer.observe(topic=Parameters.KNOWLEDGE_SNAPSHOT)
-    @DeltaObserver.observe(topic=Parameters.KNOWLEDGE_SNAPSHOT, delta=lambda x, y: x-y)
+    @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
+    @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x-y)
     def knowledge(self):
         """
         :rtype: frozenset
@@ -128,6 +160,7 @@ class Student(IntelligentAgent):
             self._stop_participation_event = self.env.event()
         return self._stop_participation_event
 
+    @observer_trigger
     def study(self):
         logger = logging.getLogger(__name__)
         logger.debug("Student {name} study".format(name=self.name))
@@ -150,7 +183,7 @@ class Student(IntelligentAgent):
         else:
             self.stop_participation_event.succeed()
 
-    @AgentCallObserver.observe(topic=Parameters.RESOURCE_USAGE)
+    @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
     def study_resource(self, resource):
         """
         :type resource: Resource

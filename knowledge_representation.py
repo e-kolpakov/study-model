@@ -184,3 +184,6 @@ class Curriculum:
 
     def all_competencies(self):
         return self._competency_index.values()
+
+    def all_facts(self):
+        return self._fact_index.values()

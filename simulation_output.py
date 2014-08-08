@@ -1,6 +1,6 @@
 from itertools import groupby
 
-from mooc_simulation.simulation import Parameters
+from simulation.result import ResultTopics
 
 
 __author__ = 'e.kolpakov'
@@ -11,37 +11,38 @@ deltas = True
 
 def output_results(results):
     """
-    :type results: MoocSimulationResult
+    :type results: SimulationResult
     """
-    for step in range(1, results.max_step+1):
-        print("======= Step {step} =======".format(step=step))
-        print_resource_usages(results, step)
-        if snapshots:
-            print_snapshots(results, step)
-        if deltas:
-            print_deltas(results, step)
-        print("===== Step {step} End =====".format(step=step))
+    #pass
+    print_resource_usages(results)
+    if snapshots:
+        print_snapshots(results)
+    if deltas:
+        print_deltas(results)
 
 
-def print_resource_usages(results, step):
-    print("=== Resources ===")
-    resource_usages = results.get_time_slice(Parameters.RESOURCE_USAGE, step)
-    for resource, group in groupby(resource_usages, key=lambda item: item.value):
+def print_resource_usages(results):
+    print("=== Resources START ===")
+    resource_usages = results.get_parameter(ResultTopics.RESOURCE_USAGE)
+    for (resource, time), group in groupby(resource_usages, key=lambda item: (item.value, item.time)):
         used_by = ", ".join(map(lambda item: item.agent.name, group))
-        print("Resource {name} used by {used_by}".format(name=resource.name, used_by=used_by))
+        print("Resource {name} used by {used_by} at {time}".format(name=resource.name, used_by=used_by, time=time))
+    print("==== Resources END ====")
 
 
-def print_snapshots(results, step):
-    print("=== Snapshots ===")
-    snaps = results.get_time_slice(Parameters.KNOWLEDGE_SNAPSHOT, step)
+def print_snapshots(results):
+    print("=== Snapshots START ===")
+    snaps = results.get_parameter(ResultTopics.KNOWLEDGE_SNAPSHOT)
     for item in snaps:
         snapshot_str = ", ".join(list(map(str, item.value)))
-        print("Student {name}: {snapshot}".format(name=item.agent.name, snapshot=snapshot_str))
+        print("Student {name} at {time}: {snapshot}".format(name=item.agent.name, snapshot=snapshot_str, time=item.time))
+    print("==== Snapshots END ====")
 
 
-def print_deltas(results, step):
-    print("===== Delta =====")
-    delta = results.get_time_slice(Parameters.KNOWLEDGE_DELTA, step)
+def print_deltas(results):
+    print("===== Delta START =====")
+    delta = results.get_parameter(ResultTopics.KNOWLEDGE_DELTA)
     for item in delta:
         delta_str = ", ".join(list(map(str, item.value)))
-        print("Student {name}: {delta}".format(name=item.agent.name, delta=delta_str))
+        print("Student {name} at {time}: {delta}".format(name=item.agent.name, delta=delta_str, time=item.time))
+    print("====== Delta END ======")

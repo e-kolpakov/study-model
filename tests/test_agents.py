@@ -15,63 +15,72 @@ from knowledge_representation import Competency, Fact
 __author__ = 'e.kolpakov'
 
 
+@pytest.fixture
+def resource_lookup():
+    return mock.Mock()
+
+
+@pytest.fixture
+def behavior_group():
+    bhg = mock.Mock(BehaviorGroup)
+    bhg.resource_choice = mock.Mock(BaseResourceChoiceBehavior)
+    bhg.knowledge_acquisition = mock.Mock(BaseFactsAcquisitionBehavior)
+    return bhg
+
+
+@pytest.fixture
+def student(behavior_group, curriculum, resource_lookup):
+    """
+    :rtype: Student
+    """
+    result = Student("student", [], behavior_group, agent_id='s1')
+    result.resource_lookup_service = resource_lookup
+    result.curriculum = curriculum
+    result.env = mock.Mock()
+    return result
+
+
+@pytest.fixture
+def curriculum():
+    return PropertyMock()
+
+
 class TestStudent:
-    _student = None
-    _resource_lookup = None
-    _competency_lookup = None
-    _behavior_group = None
-
-    def setup_method(self, method):
-        self._behavior_group = mock.Mock(BehaviorGroup)
-        self._behavior_group.resource_choice = mock.Mock(BaseResourceChoiceBehavior)
-        self._behavior_group.knowledge_acquisition = mock.Mock(BaseFactsAcquisitionBehavior)
-        self._student = Student("student", [], self._behavior_group, agent_id='s1')
-        """ :type: Student """
-        self._competency_lookup = mock.Mock()
-        self._resource_lookup = mock.Mock()
-        self._competency_lookup.get_competency = mock.Mock(side_effect=self._to_competency)
-
-        self._student.competency_lookup_service = self._competency_lookup
-        self._student.resource_lookup_service = self._resource_lookup
-        self._curriculum_mock = PropertyMock()
-        self._student.curriculum = self._curriculum_mock
-
-    def _to_competency(self, code, facts=None):
-        eff_facts = facts if facts else []
-        return Competency(code, eff_facts)
-
-    def test_study_no_resources_logs_and_returns(self):
+    def test_study_no_resources_logs_and_returns(self, student, resource_lookup):
         logger = logging.getLogger(agents.__name__)
-        self._resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
-        with patch.object(logger, 'warn') as mocked_warn, \
-                patch.object(self._student, '_choose_resource') as resource_choice:
-            self._student.study()
+        resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
+        with patch.object(logger, 'warn') as mocked_warn, patch.object(student, '_choose_resource') as resource_choice:
+            study_gen = student.study()
+            try:
+                next(study_gen)
+            except StopIteration:
+                pass
             mocked_warn.assert_called_once_with("No resources available")
             assert resource_choice.call_args_list == []
             assert not resource_choice.called
 
-    def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self):
+    def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self, student, behavior_group, resource_lookup, curriculum):
         resource1 = Resource('A', [])
         resource2 = Resource('B', [])
         resources = [resource1, resource2]
-        self._resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
-        self._behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
+        resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
+        behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
 
-        with patch.object(self._student, 'study_resource') as patched_study_resource:
-            self._student.study()
-            self._behavior_group.resource_choice.choose_resource.assert_called_once_with(
-                self._student, self._curriculum_mock, resources
-            )
+        with patch.object(student, 'study_resource') as patched_study_resource:
+            study_gen = student.study()
+            next(study_gen)
+            behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
             patched_study_resource.assert_called_once_with(resource1)
 
-    def test_study_resource_updates_student_competencies(self):
+    def test_study_resource_updates_student_competencies(self, student, behavior_group):
         resource1 = Resource('A', [])
-        self._student._knowledge = {Fact('A'), Fact('C')}
-        self._behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('A'), Fact('B')})
+        student._knowledge = {Fact('A'), Fact('C')}
+        behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('A'), Fact('B')})
 
-        self._student.study_resource(resource1)
+        student.study()
+        student.study_resource(resource1)
 
-        assert self._student.knowledge == {Fact('A'), Fact('B'), Fact('C')}
+        assert student.knowledge == {Fact('A'), Fact('B'), Fact('C')}
 
     # def test_study_resource_sends_messages(self):
     #     resource1 = Resource('A', [])

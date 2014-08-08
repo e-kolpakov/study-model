@@ -1,10 +1,71 @@
+from collections import defaultdict
+from itertools import chain
+from infrastructure.observers import Observer, DeltaObserver, AgentCallObserver, observer_trigger, get_observers
+
 import logging
-from mooc_simulation.simulation import Parameters
-from pysimagents import schedulers
-from pysimagents.agents.base_agent import BaseAgent
-from pysimagents.observers import DeltaObserver, Observer, AgentCallObserver
+from simulation.result import ResultTopics
 
 __author__ = 'e.kolpakov'
+
+
+class BaseAgent:
+
+    agent_count_by_type = defaultdict(int)
+
+    def __init__(self, agent_id=None):
+        actual_type = type(self)
+        self.agent_count_by_type[actual_type] += 1
+        self._agent_id = agent_id if agent_id else actual_type.__name__ + str(self.agent_count_by_type[actual_type])
+        self._env = None
+        self._observers = {}
+
+    @property
+    def agent_id(self):
+        return self._agent_id
+
+    @property
+    def env(self):
+        """
+        :rtype: simpy.Environment
+        """
+        return self._env
+
+    @env.setter
+    def env(self, value):
+        """
+        :param value: simpy.Environment
+        """
+        self._env = value
+
+    @property
+    def time(self):
+        return self.env.now
+
+    def observe(self):
+        for observer in self._get_all_observables():
+            observer.inspect(self)
+
+    def _get_all_observables(self):
+        """
+        :rtype: list[BaseObserver]
+        """
+        candidates = chain(self._get_all_callables(), self._get_all_properties())
+        for member in candidates:
+            observers = get_observers(member)
+            for observer in observers:
+                yield observer
+
+    def _get_all_callables(self):
+        for member_name in vars(self.__class__):
+            member = getattr(self, member_name)
+            if callable(member):
+                yield member
+
+    def _get_all_properties(self):
+        for member_name in vars(self.__class__):
+            member = getattr(self.__class__, member_name)
+            if isinstance(member, property):
+                yield member.fget
 
 
 class Resource(BaseAgent):
@@ -50,6 +111,8 @@ class Student(IntelligentAgent):
         self._curriculum = None
         self._resource_lookup_service = None
 
+        self._stop_participation_event = None
+
     @property
     def name(self):
         return self._name
@@ -83,15 +146,21 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     @property
-    @DeltaObserver.observe(Parameters.KNOWLEDGE_DELTA, delta=lambda current, prev: current - prev)
-    @Observer.observe(Parameters.KNOWLEDGE_SNAPSHOT)
+    @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
+    @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x-y)
     def knowledge(self):
         """
         :rtype: frozenset
         """
         return frozenset(self._knowledge)
 
-    @schedulers.steps()
+    @property
+    def stop_participation_event(self):
+        if not self._stop_participation_event:
+            self._stop_participation_event = self.env.event()
+        return self._stop_participation_event
+
+    @observer_trigger
     def study(self):
         logger = logging.getLogger(__name__)
         logger.debug("Student {name} study".format(name=self.name))
@@ -108,8 +177,13 @@ class Student(IntelligentAgent):
         ))
 
         self.study_resource(resource_to_study)
+        yield self.env.timeout(1)
+        if not self._stop_participation(available_resources):
+            yield self.env.process(self.study())
+        else:
+            self.stop_participation_event.succeed()
 
-    @AgentCallObserver.observe(Parameters.RESOURCE_USAGE)
+    @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
     def study_resource(self, resource):
         """
         :type resource: Resource
@@ -138,3 +212,10 @@ class Student(IntelligentAgent):
         :rtype: dict[str, float]
         """
         return self._behavior.knowledge_acquisition.acquire_facts(self, resource)
+
+    def _stop_participation(self, available_resources):
+        """
+        :type available_resources: tuple[Resource]
+        :rtype: bool
+        """
+        return self._behavior.stop_participation.stop_participation(self, self.curriculum, available_resources)

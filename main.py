@@ -3,8 +3,9 @@ import logging.config
 
 from log_config import log_config
 from simulation_output import output_results
-from mooc_simulation.simulation import stop_condition, MoocSimulation, MoocSimulationResult
-from mooc_simulation.simulation_input import get_simulation_input
+from simulation.simulation import Simulation
+from simulation.result import SimulationResult
+from simulation.simulation_input import get_simulation_input
 
 
 __author__ = 'e.kolpakov'
@@ -18,11 +19,10 @@ if __name__ == "__main__":
     simulation_input = get_simulation_input()
 
     logger.debug("Initializing simulation")
-    simulation = MoocSimulation(simulation_input)
-    simulation.stop_condition = stop_condition
+    simulation = Simulation(simulation_input)
 
     logger.debug("Initializing result collector")
-    result = MoocSimulationResult()
+    result = SimulationResult()
 
     logger.debug("Starting simulation")
     simulation.run()

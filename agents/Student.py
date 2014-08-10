@@ -12,18 +12,22 @@ __author__ = 'e.kolpakov'
 
 
 class Student(IntelligentAgent):
-    def __init__(self, name, knowledge, behavior, **kwargs):
+    def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
         """
+        :type name: str
         :type knowledge: list[knowledge_representation.Fact]
         :type behavior: BehaviorGroup
+        :type skill: double
         """
         super(Student, self).__init__(**kwargs)
         self._name = name
         self._behavior = behavior
         self._knowledge = set(knowledge)
+        self._skill = skill if skill else 0
+
+        # injected properties
         self._curriculum = None
         self._resource_lookup_service = None
-
         self._stop_participation_event = None
 
     @property
@@ -31,11 +35,31 @@ class Student(IntelligentAgent):
         return self._name
 
     @property
+    @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
+    @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x - y)
+    def knowledge(self):
+        """
+        :rtype: frozenset
+        """
+        return frozenset(self._knowledge)
+
+    @property
     def resource_lookup_service(self):
         """
         :rtype: ResourceLookupService
         """
         return self._resource_lookup_service
+
+    @property
+    def stop_participation_event(self):
+        if not self._stop_participation_event:
+            self._stop_participation_event = self.env.event()
+        return self._stop_participation_event
+
+    @property
+    def skill(self):
+        """ :return: double """
+        return self._skill
 
     @resource_lookup_service.setter
     def resource_lookup_service(self, value):
@@ -57,21 +81,6 @@ class Student(IntelligentAgent):
         :type value: knowledge_representation.Curriculum
         """
         self._curriculum = value
-
-    @property
-    @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
-    @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x - y)
-    def knowledge(self):
-        """
-        :rtype: frozenset
-        """
-        return frozenset(self._knowledge)
-
-    @property
-    def stop_participation_event(self):
-        if not self._stop_participation_event:
-            self._stop_participation_event = self.env.event()
-        return self._stop_participation_event
 
     @observer_trigger
     def study(self):

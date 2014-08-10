@@ -80,17 +80,24 @@ class Competency:
 
 
 class Fact:
-    def __init__(self, code, dependencies=None):
+    def __init__(self, code, dependencies=None, complexity=1.0):
         """
         :param code: str
         :param dependencies: list[str] | tuple[str] | None
         """
         self._code = code
+        self._complexity = complexity
         self._dependencies = frozenset(dependencies if dependencies else [])
 
     @property
     def code(self):
+        """ :return: str """
         return self._code
+
+    @property
+    def complexity(self):
+        """ :return: double """
+        return self._complexity
 
     @property
     def dependencies(self):
@@ -116,11 +123,12 @@ class Fact:
 
 
 class ResourceFact:
-    def __init__(self, fact):
+    def __init__(self, fact, complexity_multiplier=1.0):
         """
         :type fact: knowledge_representation.Fact
         """
         self._fact = fact
+        self._complexity_multiplier = complexity_multiplier
 
     @property
     def fact(self):
@@ -128,6 +136,13 @@ class ResourceFact:
         :rtype: knowledge_representation.Fact
         """
         return self._fact
+
+    @property
+    def complexity_multiplier(self):
+        """
+        :return: double
+        """
+        return self._complexity_multiplier
 
     def __str__(self):
         return "ResourceFact [{0}]".format(self.fact.code)

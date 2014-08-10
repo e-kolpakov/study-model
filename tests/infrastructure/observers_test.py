@@ -158,10 +158,10 @@ class TestAgentCallObserver:
         ("Topic3", 3, (1, 2, 3), {"kwarg1": 1, "kwarg2": 2}),
     ])
     # not a typo, args should not be *args, kwargs should not be **kwargs
-    def test_observe_sends_message_on_target_call(self, topic, step_number, args, kwargs):
+    def test_observe_sends_message_on_target_call(self, topic, time, args, kwargs):
         target = Mock()
         agent_mock = Mock(spec=BaseAgent)
-        agent_mock.step_number = step_number
+        agent_mock.time = time
         decorated = AgentCallObserver.observe(topic)(target)
         actual_args = tuple([agent_mock] + list(args))
         with patch('pysimagents.observers.pub.sendMessage', spec=True) as pub_mock:

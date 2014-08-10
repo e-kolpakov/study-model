@@ -49,7 +49,10 @@ class TestStudent:
     def test_study_no_resources_logs_and_returns(self, student, resource_lookup):
         logger = logging.getLogger(agents.__name__)
         resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
-        with patch.object(logger, 'warn') as mocked_warn, patch.object(student, '_choose_resource') as resource_choice:
+        with \
+            patch.object(logger, 'warn') as mocked_warn, \
+            patch.object(student, '_choose_resource') as resource_choice, \
+            patch.object(student, 'observe'):
             study_gen = student.study()
             try:
                 next(study_gen)
@@ -66,7 +69,8 @@ class TestStudent:
         resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
         behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
 
-        with patch.object(student, 'study_resource') as patched_study_resource:
+        with patch.object(student, 'study_resource') as patched_study_resource, \
+             patch.object(student, 'observe'):
             study_gen = student.study()
             next(study_gen)
             behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
@@ -77,25 +81,13 @@ class TestStudent:
         student._knowledge = {Fact('A'), Fact('C')}
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('A'), Fact('B')})
 
-        student.study()
-        student.study_resource(resource1)
+        with patch.object(student, 'observe') as observe_mock:
+            student.study()
+            student.study_resource(resource1)
 
         assert student.knowledge == {Fact('A'), Fact('B'), Fact('C')}
 
-    # def test_study_resource_sends_messages(self):
-    #     resource1 = Resource('A', [])
-    #     self._student._knowledge = {Fact('A'), Fact('B')}
-    #     self._behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('C'), Fact('D')})
-    #
-    #     expected_snapshot = {Fact('A'), Fact('B'), Fact('C'), Fact('D')}
-    #     expected_delta = {Fact('C'), Fact('D')}
-    #
-    #     with patch('study_model.agents.student.pub', spec=True) as pub_mock:
-    #         self._student.study_resource(resource1)
-    #
-    #         pub_mock.sendMessage.assert_any_call(
-    #             Topics.RESOURCE_USAGE, student=self._student, resource=resource1)
-    #         pub_mock.sendMessage.assert_any_call(
-    #             Topics.KNOWLEDGE_SNAPSHOT, student=self._student, knowledge=expected_snapshot)
-    #         pub_mock.sendMessage.assert_any_call(
-    #             Topics.KNOWLEDGE_DELTA, student=self._student, knowledge_delta=expected_delta)
+    def test_study_triggers_observe(self, student):
+        with patch.object(student, 'observe') as observe_mock:
+            student.study()
+            observe_mock.assert_called_once_with()

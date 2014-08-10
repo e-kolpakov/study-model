@@ -9,7 +9,7 @@ class BaseFactsAcquisitionBehavior:
 
     def acquire_facts(self, student, resource):
         """
-        :type student: agents.Student
+        :type student: agents.student
         :type resource: Resource
         :rtype: set[knowledge_representation.Fact]
         """
@@ -19,7 +19,7 @@ class BaseFactsAcquisitionBehavior:
 class GetAllFactsAcquisitionBehavior(BaseFactsAcquisitionBehavior):
     def acquire_facts(self, student, resource):
         """
-        :type student: agents.Student
+        :type student: agents.student
         :type resource: Resource
         :rtype: set[knowledge_representation.Fact]
         """
@@ -29,7 +29,7 @@ class GetAllFactsAcquisitionBehavior(BaseFactsAcquisitionBehavior):
 class AllDependenciesAcquisitionBehavior(BaseFactsAcquisitionBehavior):
     def acquire_facts(self, student, resource):
         """
-        :type student: agents.Student
+        :type student: agents.student
         :type resource: Resource
         :rtype: set[knowledge_representation.Fact]
         """

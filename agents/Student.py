@@ -1,101 +1,10 @@
-from collections import defaultdict
-from itertools import chain
 import logging
 
-from infrastructure.observers import Observer, DeltaObserver, AgentCallObserver, observer_trigger, get_observers
+from .base_agents import IntelligentAgent
+from infrastructure.observers import Observer, DeltaObserver, observer_trigger, AgentCallObserver
 from simulation.result import ResultTopics
 
-
 __author__ = 'e.kolpakov'
-
-
-class BaseAgent:
-    agent_count_by_type = defaultdict(int)
-
-    def __init__(self, agent_id=None):
-        actual_type = type(self)
-        self.agent_count_by_type[actual_type] += 1
-        self._agent_id = agent_id if agent_id else actual_type.__name__ + str(self.agent_count_by_type[actual_type])
-        self._env = None
-        self._observers = {}
-
-    @property
-    def agent_id(self):
-        return self._agent_id
-
-    @property
-    def env(self):
-        """
-        :rtype: simpy.Environment
-        """
-        return self._env
-
-    @env.setter
-    def env(self, value):
-        """
-        :param value: simpy.Environment
-        """
-        self._env = value
-
-    @property
-    def time(self):
-        return self.env.now
-
-    def observe(self):
-        for observer in self._get_all_observables():
-            observer.inspect(self)
-
-    def _get_all_observables(self):
-        """
-        :rtype: list[BaseObserver]
-        """
-        candidates = chain(self._get_all_callables(), self._get_all_properties())
-        for member in candidates:
-            observers = get_observers(member)
-            for observer in observers:
-                yield observer
-
-    def _get_all_callables(self):
-        for member_name in vars(self.__class__):
-            member = getattr(self, member_name)
-            if callable(member):
-                yield member
-
-    def _get_all_properties(self):
-        for member_name in vars(self.__class__):
-            member = getattr(self.__class__, member_name)
-            if isinstance(member, property):
-                yield member.fget
-
-
-class Resource(BaseAgent):
-    def __init__(self, name, resource_facts, behavior=None, *args, **kwargs):
-        """
-        :type name: str
-        :type resource_facts: list[knowledge_representation.ResourceFact]
-        """
-        super(Resource, self).__init__(*args, **kwargs)
-        self._name = name
-        self._behavior = behavior
-        self._facts = resource_facts
-
-    @property
-    def name(self):
-        """
-        :rtype: str
-        """
-        return self._name
-
-    @property
-    def facts(self):
-        """
-        :rtype: tuple[knowledge_representation.ResourceFact]
-        """
-        return tuple(self._facts)
-
-
-class IntelligentAgent(BaseAgent):
-    pass
 
 
 class Student(IntelligentAgent):

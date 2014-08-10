@@ -76,9 +76,9 @@ class SimulationResultBase:
 class SimulationResult(SimulationResultBase):
     def __init__(self):
         super(SimulationResult, self).__init__()
-        pub.subscribe(self.resource_usage_listener, ResultTopics.RESOURCE_USAGE)
-        pub.subscribe(self.knowledge_snapshot_listener, ResultTopics.KNOWLEDGE_SNAPSHOT)
-        pub.subscribe(self.knowledge_delta_listener, ResultTopics.KNOWLEDGE_DELTA)
+        self._register_result_handler(self.resource_usage_listener, ResultTopics.RESOURCE_USAGE)
+        self._register_result_handler(self.knowledge_snapshot_listener, ResultTopics.KNOWLEDGE_SNAPSHOT)
+        self._register_result_handler(self.knowledge_delta_listener, ResultTopics.KNOWLEDGE_DELTA)
 
     def resource_usage_listener(self, agent, time, args, kwargs):
         """

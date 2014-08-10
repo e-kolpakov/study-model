@@ -1,23 +1,12 @@
 from functools import wraps
-
 from pubsub import pub
 
 
 __author__ = 'e.kolpakov'
 
 
-def get_observers(target):
-    """
-    Gets observer attached to callable, if any
-    :param target: callable
-    :return: BaseObserver
-    """
-    return getattr(target, BaseObserver.OBSERVER_ATTRIBUTE) if hasattr(target, BaseObserver.OBSERVER_ATTRIBUTE) else []
-
-
 def get_agent_for_class_method(args):
-    from agents import BaseAgent
-
+    from agents.base_agents import BaseAgent
     agent = args[0]
     if not isinstance(agent, BaseAgent):
         raise ValueError("Base agent expected, got {0}", agent)
@@ -146,15 +135,11 @@ class CallObserver(BaseObserver):
 class AgentCallObserver(BaseObserver):
     @classmethod
     def observe(cls, topic):
-        from agents import BaseAgent
-
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 value = func(*args, **kwargs)
                 agent = get_agent_for_class_method(args)
-                if not isinstance(agent, BaseAgent):
-                    raise ValueError("Base agent expected, got {0}", agent)
                 pub.sendMessage(topic, agent=agent, time=agent.time, args=args[1:], kwargs=kwargs)
                 return value
 

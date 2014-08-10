@@ -1,6 +1,7 @@
 from itertools import chain
 
-from agents import Resource, Student
+from agents.resource import Resource
+from agents.student import Student
 from behaviors.student.behavior_group import BehaviorGroup
 from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
@@ -26,7 +27,7 @@ class SimulationInput:
 
     @property
     def students(self):
-        """ :rtype: list[agents.Student] """
+        """ :rtype: list[agents.student] """
         return self._students
 
     @property

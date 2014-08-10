@@ -2,7 +2,8 @@ from unittest import mock
 
 import pytest
 
-from agents import Resource, Student
+from agents.resource import Resource
+from agents.student import Student
 from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, GetAllFactsAcquisitionBehavior
 from knowledge_representation import Fact, ResourceFact
 
@@ -16,7 +17,7 @@ def _to_resource_fact(facts):
 
 @pytest.fixture
 def student(knowledge_mock):
-    s = mock.MagicMock(spec=Student)
+    s = mock.MagicMock(spec=student)
     type(s).knowledge = knowledge_mock
     return s
 

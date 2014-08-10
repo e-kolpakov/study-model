@@ -6,17 +6,6 @@ from simulation.resource_lookup_service import ResourceLookupService
 __author__ = 'e.kolpakov'
 
 
-def stop_condition(simulation_state):
-    """
-    :type simulation_state: SimulationState
-    :rtype: bool
-    """
-    return all(
-        competency.is_mastered(student.knowledge)
-        for student in simulation_state.students
-        for competency in simulation_state.curriculum.all_competencies())
-
-
 class Simulation(ResourceLookupService):
     def __init__(self, simulation_input, *args, **kwargs):
         """
@@ -62,7 +51,7 @@ class Simulation(ResourceLookupService):
 class SimulationState():
     def __init__(self, students, resources, curriculum):
         """
-        :type students: tuple[agents.Student] | list[agents.Student]
+        :type students: tuple[agents.student] | list[agents.student]
         :type resources: tuple[Resource] | list[Resource]
         :type curriculum: knowledge_representation.Curriculum
         """

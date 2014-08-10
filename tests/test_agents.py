@@ -5,7 +5,7 @@ from unittest.mock import patch, PropertyMock
 import pytest
 
 import agents
-from agents import Resource, Student
+from agents import Resource, student
 from behaviors.student.behavior_group import BehaviorGroup
 from behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
 from behaviors.student.resource_choice import BaseResourceChoiceBehavior
@@ -31,9 +31,9 @@ def behavior_group():
 @pytest.fixture
 def student(behavior_group, curriculum, resource_lookup):
     """
-    :rtype: Student
+    :rtype: student
     """
-    result = Student("student", [], behavior_group, agent_id='s1')
+    result = student("student", [], behavior_group, agent_id='s1')
     result.resource_lookup_service = resource_lookup
     result.curriculum = curriculum
     result.env = mock.Mock()

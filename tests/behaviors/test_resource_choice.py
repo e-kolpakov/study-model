@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from agents import Resource, Student
+from agents.resource import Resource
 from behaviors.student.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
 from knowledge_representation import Fact, ResourceFact, Curriculum
 
@@ -12,7 +12,7 @@ __author__ = 'e.kolpakov'
 
 @pytest.fixture
 def student():
-    return mock.Mock(spec=Student)
+    return mock.Mock(spec=student)
 
 
 @pytest.fixture

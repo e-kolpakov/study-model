@@ -123,7 +123,7 @@ class TestDeltaObserver:
         mock = Mock(return_value=value1)
         decorated = DeltaObserver.observe(topic, converter=converter, delta=delta)(mock)
         observer = get_observers(decorated)[0]
-        with patch('pysimagents.observers.pub.sendMessage', spec=True) as pub_mock:
+        with patch('infrastructure.observers.pub.sendMessage', spec=True) as pub_mock:
             expected_delta1 = eff_converter(value1)
 
             observer.inspect(agent)
@@ -145,7 +145,7 @@ class TestCallObserverTest:
     def test_observe_sends_message_on_target_call(self, topic, args, kwargs):  # not a typo, actual list and dict
         target = Mock()
         decorated = CallObserver.observe(topic)(target)
-        with patch('pysimagents.observers.pub.sendMessage', spec=True) as pub_mock:
+        with patch('infrastructure.observers.pub.sendMessage', spec=True) as pub_mock:
             decorated(*args, **kwargs)
             pub_mock.assert_called_with(topic, args=args, kwargs=kwargs)
 
@@ -163,6 +163,6 @@ class TestAgentCallObserver:
         agent_mock.time = time
         decorated = AgentCallObserver.observe(topic)(target)
         actual_args = tuple([agent_mock] + list(args))
-        with patch('pysimagents.observers.pub.sendMessage', spec=True) as pub_mock:
+        with patch('infrastructure.observers.pub.sendMessage', spec=True) as pub_mock:
             decorated(*actual_args, **kwargs)
             pub_mock.assert_called_with(topic, agent=agent_mock, args=args, kwargs=kwargs)

@@ -32,12 +32,12 @@ class TestRandomResourceChoiceBehavior:
         assert chosen in resources
 
 
-class RationalResourceChoiceBehaviorTests:
+class TestRationalResourceChoiceBehavior:
     @pytest.fixture
     def behavior(self):
         return RationalResourceChoiceBehavior()
 
-    @pytest.mark.parameterized("comp1, comp2, exp_res_id", [
+    @pytest.mark.parametrize("comp1, comp2, exp_res_id", [
         (['A', 'B', 'C'], ['A', 'B'], 'r1'),
         (['A', 'C'], ['A', 'B', 'C'], 'r2'),
         (['A', 'D'], ['B'], 'r1'),
@@ -53,7 +53,7 @@ class RationalResourceChoiceBehaviorTests:
         chosen = behavior.choose_resource(student, curriculum, resources)
         assert chosen.name == exp_res_id
 
-    @pytest.mark.parameterized("student_know, comp1, comp2, exp_res_id", [
+    @pytest.mark.parametrize("student_know, comp1, comp2, exp_res_id", [
         (['A'], ['A', 'B'], ['A', 'B', 'C'], 'r2'),
         (['A', 'B'], ['A', 'C'], ['B'], 'r1'),
         (['A', 'C'], ['A', 'C'], ['B'], 'r2'),

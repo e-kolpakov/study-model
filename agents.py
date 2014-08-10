@@ -1,15 +1,15 @@
 from collections import defaultdict
 from itertools import chain
-from infrastructure.observers import Observer, DeltaObserver, AgentCallObserver, observer_trigger, get_observers
-
 import logging
+
+from infrastructure.observers import Observer, DeltaObserver, AgentCallObserver, observer_trigger, get_observers
 from simulation.result import ResultTopics
+
 
 __author__ = 'e.kolpakov'
 
 
 class BaseAgent:
-
     agent_count_by_type = defaultdict(int)
 
     def __init__(self, agent_id=None):
@@ -147,7 +147,7 @@ class Student(IntelligentAgent):
 
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
-    @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x-y)
+    @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x - y)
     def knowledge(self):
         """
         :rtype: frozenset

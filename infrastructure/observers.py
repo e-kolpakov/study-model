@@ -17,6 +17,7 @@ def get_observers(target):
 
 def get_agent_for_class_method(args):
     from agents import BaseAgent
+
     agent = args[0]
     if not isinstance(agent, BaseAgent):
         raise ValueError("Base agent expected, got {0}", agent)
@@ -30,6 +31,7 @@ def observer_trigger(target):
         result = target(*args, **kwargs)
         agent.observe()
         return result
+
     return wrapper
 
 
@@ -82,8 +84,10 @@ class Observer(BaseObserver):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)
+
             cls._append_observer(wrapper, cls(topic, func, converter))
             return wrapper
+
         return decorator
 
 
@@ -117,8 +121,10 @@ class DeltaObserver(Observer):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)
+
             cls._append_observer(wrapper, cls(topic, func, delta, converter))
             return wrapper
+
         return decorator
 
 
@@ -131,7 +137,9 @@ class CallObserver(BaseObserver):
                 value = func(*args, **kwargs)
                 pub.sendMessage(topic, args=args, kwargs=kwargs)
                 return value
+
             return wrapper
+
         return decorator
 
 
@@ -149,5 +157,7 @@ class AgentCallObserver(BaseObserver):
                     raise ValueError("Base agent expected, got {0}", agent)
                 pub.sendMessage(topic, agent=agent, time=agent.time, args=args[1:], kwargs=kwargs)
                 return value
+
             return wrapper
+
         return decorator

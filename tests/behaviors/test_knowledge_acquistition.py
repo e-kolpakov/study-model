@@ -1,7 +1,8 @@
-import pytest
 from unittest import mock
-from agents import Resource, Student
 
+import pytest
+
+from agents import Resource, Student
 from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, GetAllFactsAcquisitionBehavior
 from knowledge_representation import Fact, ResourceFact
 

@@ -41,7 +41,7 @@ class TestObserver:
         decorated = decorator(mock)
         assert hasattr(decorated, Observer.OBSERVER_ATTRIBUTE)
         observers = getattr(decorated, Observer.OBSERVER_ATTRIBUTE)
-        assert type(observers) ==  list
+        assert type(observers) == list
         assert len(observers) == 1
         observer = observers[0]
         assert type(observer) == Observer
@@ -89,7 +89,7 @@ class TestDeltaObserver:
 
     def test_observe_registers_observer(self):
         mock = Mock()
-        decorator = DeltaObserver.observe("Topic", delta=lambda x, y: x-y)
+        decorator = DeltaObserver.observe("Topic", delta=lambda x, y: x - y)
         decorated = decorator(mock)
         assert hasattr(decorated, Observer.OBSERVER_ATTRIBUTE)
         observers = getattr(decorated, Observer.OBSERVER_ATTRIBUTE)
@@ -101,8 +101,8 @@ class TestDeltaObserver:
 
     def test_observe_keeps_existing_observers(self):
         mock = Mock()
-        decorator1 = DeltaObserver.observe("Topic1", delta=lambda x, y: x-y)
-        decorator2 = DeltaObserver.observe("Topic2", delta=lambda x, y: x-y)
+        decorator1 = DeltaObserver.observe("Topic1", delta=lambda x, y: x - y)
+        decorator2 = DeltaObserver.observe("Topic2", delta=lambda x, y: x - y)
         decorated = decorator1(mock)
         decorated = decorator2(decorated)
         observers = getattr(decorated, Observer.OBSERVER_ATTRIBUTE)
@@ -115,9 +115,9 @@ class TestDeltaObserver:
         assert observer2.topic == "Topic2"
 
     @pytest.mark.parametrize("topic, agent, step_number, converter, delta, value1, value2", [
-        ("SomeTopic", "Smith", None, lambda x, y: x-y, 10, 20),  # 20-10
-        ("OtherTopic", "Carter", lambda x: x ** 2, lambda x, y: x+y, 15, 16),  # 15**2+16**2
-        ("YetAnotherTopic", "Fury", lambda x: x.upper(), lambda x, y: x+y, "qwe", "asd"),  # "qwe"+"asd"
+        ("SomeTopic", "Smith", None, lambda x, y: x - y, 10, 20),  # 20-10
+        ("OtherTopic", "Carter", lambda x: x ** 2, lambda x, y: x + y, 15, 16),  # 15**2+16**2
+        ("YetAnotherTopic", "Fury", lambda x: x.upper(), lambda x, y: x + y, "qwe", "asd"),  # "qwe"+"asd"
     ])
     def test_inspect_sends_message(self, topic, agent, converter, delta, value1, value2):
         eff_converter = converter if converter else lambda x: x
@@ -154,7 +154,7 @@ class TestCallObserverTest:
 class TestAgentCallObserver:
     @pytest.mark.parametrize("topic, step_number, args, kwargs", [
         ("Topic1", 1, tuple(), dict()),
-        ("Topic2", 2,  (1,), dict()),
+        ("Topic2", 2, (1,), dict()),
         ("Topic3", 3, (1, 2, 3), {"kwarg1": 1, "kwarg2": 2}),
     ])
     # not a typo, args should not be *args, kwargs should not be **kwargs

@@ -1,4 +1,5 @@
 import random
+
 from knowledge_representation import get_available_facts
 
 

@@ -13,7 +13,7 @@ def output_results(results):
     """
     :type results: SimulationResult
     """
-    #pass
+    # pass
     print_resource_usages(results)
     if snapshots:
         print_snapshots(results)
@@ -35,7 +35,8 @@ def print_snapshots(results):
     snaps = results.get_parameter(ResultTopics.KNOWLEDGE_SNAPSHOT)
     for item in snaps:
         snapshot_str = ", ".join(list(map(str, item.value)))
-        print("Student {name} at {time}: {snapshot}".format(name=item.agent.name, snapshot=snapshot_str, time=item.time))
+        print(
+            "Student {name} at {time}: {snapshot}".format(name=item.agent.name, snapshot=snapshot_str, time=item.time))
     print("==== Snapshots END ====")
 
 

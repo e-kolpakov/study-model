@@ -1,8 +1,8 @@
-import pytest
 from unittest import mock
 
-from agents import Resource, Student
+import pytest
 
+from agents import Resource, Student
 from behaviors.student.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
 from knowledge_representation import Fact, ResourceFact, Curriculum
 
@@ -17,7 +17,7 @@ def student():
 
 @pytest.fixture
 def curriculum():
-    return  mock.Mock(spec=Curriculum)
+    return mock.Mock(spec=Curriculum)
 
 
 class TestRandomResourceChoiceBehavior:
@@ -58,7 +58,7 @@ class RationalResourceChoiceBehaviorTests:
         (['A', 'B'], ['A', 'C'], ['B'], 'r1'),
         (['A', 'C'], ['A', 'C'], ['B'], 'r2'),
     ])
-    def test_nonzero_student_knowledge(self,  student, curriculum, behavior, student_know, comp1, comp2, exp_res_id):
+    def test_nonzero_student_knowledge(self, student, curriculum, behavior, student_know, comp1, comp2, exp_res_id):
         resources = (
             Resource('r1', [ResourceFact(Fact(comp)) for comp in comp1], None, agent_id='r1'),
             Resource('r2', [ResourceFact(Fact(comp)) for comp in comp2], None, agent_id='r2'),

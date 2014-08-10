@@ -1,6 +1,6 @@
-from pubsub import pub
-from simulation.resource_lookup_service import ResourceLookupService
 from simpy import Environment
+
+from simulation.resource_lookup_service import ResourceLookupService
 
 
 __author__ = 'e.kolpakov'

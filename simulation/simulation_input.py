@@ -1,11 +1,12 @@
 from itertools import chain
-from agents import Resource, Student
 
+from agents import Resource, Student
 from behaviors.student.behavior_group import BehaviorGroup
 from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
 from behaviors.student.stop_participation import CourseCompleteStopParticipationBehavior
 from knowledge_representation import Competency, Fact, ResourceFact, Curriculum
+
 
 __author__ = 'e.kolpakov'
 
@@ -60,7 +61,6 @@ class SimulationInputBuilder:
         calc_facts = [Fact(code, self.alg_fact_codes) for code in self.calc_fact_codes]
         diff_eq_facts = [Fact(code, self.alg_fact_codes + self.calc_fact_codes) for code in self.diff_eq_fact_codes]
         trig_facts = [Fact(code, self.alg_fact_codes) for code in self.trig_fact_codes]
-
 
         all_facts = chain(alg_facts, calc_facts, diff_eq_facts, trig_facts)
         for fact in all_facts:

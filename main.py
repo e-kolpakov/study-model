@@ -10,7 +10,6 @@ from simulation.simulation_input import get_simulation_input
 
 __author__ = 'e.kolpakov'
 
-
 if __name__ == "__main__":
     logging.config.dictConfig(log_config)
     logger = logging.getLogger(__name__)

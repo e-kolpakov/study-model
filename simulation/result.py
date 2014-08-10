@@ -76,9 +76,6 @@ class SimulationResultBase:
 class SimulationResult(SimulationResultBase):
     def __init__(self):
         super(SimulationResult, self).__init__()
-
-    def __init__(self):
-        super(SimulationResult, self).__init__()
         pub.subscribe(self.resource_usage_listener, ResultTopics.RESOURCE_USAGE)
         pub.subscribe(self.knowledge_snapshot_listener, ResultTopics.KNOWLEDGE_SNAPSHOT)
         pub.subscribe(self.knowledge_delta_listener, ResultTopics.KNOWLEDGE_DELTA)
@@ -86,18 +83,17 @@ class SimulationResult(SimulationResultBase):
     def resource_usage_listener(self, agent, time, args, kwargs):
         """
         :param agent: BaseAgent
-        :param step_number: int
+        :param time: int
         :param args: list[Any]
         :param kwargs: dict[str, Any]
         :return:
         """
         self.register_result(SimulationResultItem(agent, ResultTopics.RESOURCE_USAGE, time, args[0]))
 
-
     def knowledge_snapshot_listener(self, agent, time, value):
         """
         :type agent: BaseAgent
-        :type step_number: int
+        :type time: int
         :type value:
         """
         self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_SNAPSHOT, time, value))
@@ -106,7 +102,7 @@ class SimulationResult(SimulationResultBase):
         """
         :type agent: BaseAgent
         :type delta:
-        :type step_number: int
+        :type time: int
         """
         self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_DELTA, time, delta))
 

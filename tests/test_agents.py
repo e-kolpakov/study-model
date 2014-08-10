@@ -49,6 +49,11 @@ def curriculum():
     return PropertyMock()
 
 
+@pytest.fixture
+def resource():
+    return mock.Mock(spec=Resource)
+
+
 class TestStudent:
     def test_study_no_resources_logs_and_returns(self, student, resource_lookup, behavior_group):
         logger = logging.getLogger(agents.student.__name__)
@@ -89,7 +94,8 @@ class TestStudent:
 
         assert student.knowledge == {Fact('A'), Fact('B'), Fact('C')}
 
-    def test_study_triggers_observe(self, student):
+    def test_study_resource_triggers_observe(self, student, behavior_group, resource):
+        behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=set())
         with patch.object(student, 'observe') as observe_mock:
-            student.study()
+            student.study_resource(resource)
             observe_mock.assert_called_once_with()

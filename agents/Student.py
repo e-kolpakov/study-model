@@ -82,7 +82,6 @@ class Student(IntelligentAgent):
         """
         self._curriculum = value
 
-    @observer_trigger
     def study(self):
         logger = logging.getLogger(__name__)
         logger.debug("Student {name} study".format(name=self.name))
@@ -105,6 +104,7 @@ class Student(IntelligentAgent):
         else:
             self.stop_participation_event.succeed()
 
+    @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
     def study_resource(self, resource):
         """
@@ -114,7 +114,7 @@ class Student(IntelligentAgent):
         logger = logging.getLogger(__name__)
         logger.debug("Studying resource")
 
-        logger.debug("Updating self knowledge")
+        logger.debug("Updating knowledge")
         self._knowledge = self._knowledge | self._acquire_knowledge(resource)
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(

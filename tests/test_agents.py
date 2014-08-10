@@ -5,11 +5,14 @@ from unittest.mock import patch, PropertyMock
 import pytest
 
 import agents
-from agents import Resource, student
+from agents.resource import Resource
+from agents.student import Student
 from behaviors.student.behavior_group import BehaviorGroup
 from behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
 from behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from behaviors.student.stop_participation import BaseStopParticipationBehavior
 from knowledge_representation import Fact
+from tests.utils import iterate_event_generator
 
 
 __author__ = 'e.kolpakov'
@@ -25,6 +28,7 @@ def behavior_group():
     bhg = mock.Mock(BehaviorGroup)
     bhg.resource_choice = mock.Mock(BaseResourceChoiceBehavior)
     bhg.knowledge_acquisition = mock.Mock(BaseFactsAcquisitionBehavior)
+    bhg.stop_participation = mock.Mock(BaseStopParticipationBehavior)
     return bhg
 
 
@@ -33,7 +37,7 @@ def student(behavior_group, curriculum, resource_lookup):
     """
     :rtype: student
     """
-    result = student("student", [], behavior_group, agent_id='s1')
+    result = Student("student", [], behavior_group, agent_id='s1')
     result.resource_lookup_service = resource_lookup
     result.curriculum = curriculum
     result.env = mock.Mock()
@@ -46,17 +50,15 @@ def curriculum():
 
 
 class TestStudent:
-    def test_study_no_resources_logs_and_returns(self, student, resource_lookup):
-        logger = logging.getLogger(agents.__name__)
+    def test_study_no_resources_logs_and_returns(self, student, resource_lookup, behavior_group):
+        logger = logging.getLogger(agents.student.__name__)
         resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
+        behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
         with patch.object(logger, 'warn') as mocked_warn, \
                 patch.object(student, '_choose_resource') as resource_choice, \
                 patch.object(student, 'observe'):
             study_gen = student.study()
-            try:
-                next(study_gen)
-            except StopIteration:
-                pass
+            iterate_event_generator(study_gen)
             mocked_warn.assert_called_once_with("No resources available")
             assert resource_choice.call_args_list == []
             assert not resource_choice.called
@@ -68,10 +70,11 @@ class TestStudent:
         resources = [resource1, resource2]
         resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
         behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
+        behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
 
         with patch.object(student, 'study_resource') as patched_study_resource, patch.object(student, 'observe'):
             study_gen = student.study()
-            next(study_gen)
+            iterate_event_generator(study_gen)
             behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
             patched_study_resource.assert_called_once_with(resource1)
 

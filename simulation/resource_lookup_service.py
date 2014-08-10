@@ -14,8 +14,8 @@ class ResourceLookupService:
 
     def grant_access(self, student, resource):
         """
-        :type student: agents.student
-        :type resource: agents.Resource
+        :type student: agents.student.Student
+        :type resource: agents.resource.Resource
         """
         if student.name not in self._access_privileges:
             self._access_privileges[student.name] = dict()
@@ -23,8 +23,8 @@ class ResourceLookupService:
 
     def check_access(self, student, resource):
         """
-        :type student: agents.student
-        :type resource: agents.Resource
+        :type student: agents.student.Student
+        :type resource: agents.resource.Resource
         :rtype: bool
         """
         if student.name in self._access_privileges:
@@ -34,7 +34,7 @@ class ResourceLookupService:
 
     def get_accessible_resources(self, student):
         """
-        :type student: agents.student
-        :rtype: tuple[agents.Resource]
+        :type student: agents.student.Student
+        :rtype: tuple[agents.resource.Resource]
         """
         return tuple([resource for resource in self._resources if self.check_access(student, resource)])

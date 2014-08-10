@@ -1,6 +1,10 @@
 import logging
 
 from .base_agents import IntelligentAgent
+from behaviors.student.behavior_group import BehaviorGroup
+from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
+from behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
+from behaviors.student.stop_participation import CourseCompleteStopParticipationBehavior
 from infrastructure.observers import Observer, DeltaObserver, observer_trigger, AgentCallObserver
 from simulation.result import ResultTopics
 
@@ -8,12 +12,12 @@ __author__ = 'e.kolpakov'
 
 
 class Student(IntelligentAgent):
-    def __init__(self, name, knowledge, behavior, *args, **kwargs):
+    def __init__(self, name, knowledge, behavior, **kwargs):
         """
         :type knowledge: list[knowledge_representation.Fact]
         :type behavior: BehaviorGroup
         """
-        super(Student, self).__init__(*args, **kwargs)
+        super(Student, self).__init__(**kwargs)
         self._name = name
         self._behavior = behavior
         self._knowledge = set(knowledge)
@@ -85,8 +89,8 @@ class Student(IntelligentAgent):
             resource_name=resource_to_study.name, resource_id=resource_to_study.agent_id
         ))
 
-        self.study_resource(resource_to_study)
         yield self.env.timeout(1)
+        self.study_resource(resource_to_study)
         if not self._stop_participation(available_resources):
             yield self.env.process(self.study())
         else:
@@ -128,3 +132,23 @@ class Student(IntelligentAgent):
         :rtype: bool
         """
         return self._behavior.stop_participation.stop_participation(self, self.curriculum, available_resources)
+
+
+class RationalStudent(Student):
+    def __init__(self, name, knowledge, **kwargs):
+        behavior = BehaviorGroup.make_group(
+            resource_choice=RationalResourceChoiceBehavior(),
+            knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
+            stop_participation=CourseCompleteStopParticipationBehavior(),
+        )
+        super(RationalStudent, self).__init__(name, knowledge, behavior, **kwargs)
+
+
+class RandomStudent(Student):
+    def __init__(self, name, knowledge, **kwargs):
+        behavior = BehaviorGroup.make_group(
+            resource_choice=RandomResourceChoiceBehavior(),
+            knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
+            stop_participation=CourseCompleteStopParticipationBehavior(),
+        )
+        super(RandomStudent, self).__init__(name, knowledge, behavior, **kwargs)

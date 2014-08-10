@@ -7,9 +7,6 @@ __author__ = 'e.kolpakov'
 
 
 class BaseResourceChoiceBehavior:
-    def __init__(self):
-        super().__init__()
-
     def choose_resource(self, student, curriculum, available_resources):
         """
         :param student: Student

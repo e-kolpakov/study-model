@@ -1,11 +1,7 @@
 from itertools import chain
 
 from agents.resource import Resource
-from agents.student import Student
-from behaviors.student.behavior_group import BehaviorGroup
-from behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
-from behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
-from behaviors.student.stop_participation import CourseCompleteStopParticipationBehavior
+from agents.student import RationalStudent, RandomStudent
 from knowledge_representation import Competency, Fact, ResourceFact, Curriculum
 
 
@@ -88,17 +84,7 @@ class SimulationInputBuilder:
 
     @staticmethod
     def build_students(curriculum):
-        rational_behavior = BehaviorGroup()
-        rational_behavior.resource_choice = RationalResourceChoiceBehavior()
-        rational_behavior.knowledge_acquisition = AllDependenciesAcquisitionBehavior()
-        rational_behavior.stop_participation = CourseCompleteStopParticipationBehavior()
-
-        random_behavior = BehaviorGroup()
-        random_behavior.resource_choice = RandomResourceChoiceBehavior()
-        random_behavior.knowledge_acquisition = AllDependenciesAcquisitionBehavior()
-        random_behavior.stop_participation = CourseCompleteStopParticipationBehavior()
-
         return [
-            Student("John", [], rational_behavior, agent_id='s1'),
-            Student("Jim", [], rational_behavior, agent_id='s2')
+            RationalStudent("John", [], agent_id='s1'),
+            RandomStudent("Jim", [], agent_id='s2')
         ]

@@ -7,10 +7,10 @@ import pytest
 import agents
 from agents.resource import Resource
 from agents.student import Student
-from behaviors.student.behavior_group import BehaviorGroup
-from behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from behaviors.student.resource_choice import BaseResourceChoiceBehavior
-from behaviors.student.stop_participation import BaseStopParticipationBehavior
+from agents.behaviors.student.behavior_group import BehaviorGroup
+from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from agents.behaviors.student.stop_participation import BaseStopParticipationBehavior
 from knowledge_representation import Fact
 from tests.utils import iterate_event_generator
 

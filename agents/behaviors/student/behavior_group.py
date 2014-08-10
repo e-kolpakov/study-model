@@ -1,7 +1,9 @@
 from weakref import WeakKeyDictionary
-from behaviors.student.stop_participation import BaseStopParticipationBehavior
-from behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from behaviors.student.resource_choice import BaseResourceChoiceBehavior
+
+from agents.behaviors.student.stop_participation import BaseStopParticipationBehavior
+from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
+
 
 __author__ = 'e.kolpakov'
 

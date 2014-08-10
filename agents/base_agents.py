@@ -1,7 +1,7 @@
 from collections import defaultdict
 from itertools import chain
 
-from infrastructure.observers import BaseObserver
+from infrastructure.observers import BaseObserver, get_observers
 
 
 __author__ = 'e.kolpakov'
@@ -51,7 +51,7 @@ class BaseAgent:
             self._observers_cache = []
             candidates = chain(self._get_all_callables(), self._get_all_properties())
             for member in candidates:
-                observers = self.get_observers(member)
+                observers = get_observers(member)
                 for observer in observers:
                     self._observers_cache.append(observer)
         return self._observers_cache
@@ -67,15 +67,6 @@ class BaseAgent:
             member = getattr(self.__class__, member_name)
             if isinstance(member, property):
                 yield member.fget
-
-    @staticmethod
-    def get_observers(target):
-        """
-        Gets observer attached to callable, if any
-        :param target: callable
-        :return: BaseObserver
-        """
-        return getattr(target, BaseObserver.OBSERVER_ATTRIBUTE) if hasattr(target, BaseObserver.OBSERVER_ATTRIBUTE) else []
 
 
 class IntelligentAgent(BaseAgent):

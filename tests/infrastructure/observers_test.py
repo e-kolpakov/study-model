@@ -3,12 +3,30 @@ from unittest.mock import Mock, patch
 import pytest
 
 from agents.base_agents import BaseAgent
-from infrastructure.observers import Observer, BaseObserver, DeltaObserver, CallObserver, AgentCallObserver
+from infrastructure.observers import Observer, DeltaObserver, CallObserver, AgentCallObserver, get_observers, \
+    BaseObserver
 
 
 __author__ = 'e.kolpakov'
 
 
+class TestCommonObserver:
+    def test_get_observers_attr_missing_returns_empty(self):
+        target = Mock(spec="spec that does not have OBSERVER_ATTRIBUTE to prevent creating another mock on access")
+        observers = get_observers(target)
+        assert observers == []
+
+    @pytest.mark.parametrize("value", [
+        (123,),
+        ("123",),
+        ([1, 2, 3, 4, 5, 6],),
+        ([Observer("", ""), Observer("", ""), Observer("", "")],)
+    ])
+    def test_get_observers_attr_exists_returns_attr_value(self, value):
+        target = Mock()
+        setattr(target, BaseObserver.OBSERVER_ATTRIBUTE, value)
+        observers = get_observers(target)
+        assert observers == value
 
 
 class TestObserver:
@@ -43,7 +61,7 @@ class TestObserver:
         assert type(observer2) == Observer
         assert observer2.topic == "Topic2"
 
-    @pytest.mark.parametrize("topic, agent, step_number, converter, value", [
+    @pytest.mark.parametrize("topic, agent, converter, value", [
         ("SomeTopic", "Smith", None, 1),
         ("OtherTopic", "Carter", lambda x: x ** 2, 15),
         ("YetAnotherTopic", "Fury", lambda x: x.upper(), "qwe"),
@@ -95,7 +113,7 @@ class TestDeltaObserver:
         assert type(observer2) == DeltaObserver
         assert observer2.topic == "Topic2"
 
-    @pytest.mark.parametrize("topic, agent, step_number, converter, delta, value1, value2", [
+    @pytest.mark.parametrize("topic, agent, converter, delta, value1, value2", [
         ("SomeTopic", "Smith", None, lambda x, y: x - y, 10, 20),  # 20-10
         ("OtherTopic", "Carter", lambda x: x ** 2, lambda x, y: x + y, 15, 16),  # 15**2+16**2
         ("YetAnotherTopic", "Fury", lambda x: x.upper(), lambda x, y: x + y, "qwe", "asd"),  # "qwe"+"asd"
@@ -133,7 +151,7 @@ class TestCallObserverTest:
 
 
 class TestAgentCallObserver:
-    @pytest.mark.parametrize("topic, step_number, args, kwargs", [
+    @pytest.mark.parametrize("topic, time, args, kwargs", [
         ("Topic1", 1, tuple(), dict()),
         ("Topic2", 2, (1,), dict()),
         ("Topic3", 3, (1, 2, 3), {"kwarg1": 1, "kwarg2": 2}),

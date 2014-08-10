@@ -80,31 +80,28 @@ class SimulationResult(SimulationResultBase):
         self._register_result_handler(self.knowledge_snapshot_listener, ResultTopics.KNOWLEDGE_SNAPSHOT)
         self._register_result_handler(self.knowledge_delta_listener, ResultTopics.KNOWLEDGE_DELTA)
 
-    def resource_usage_listener(self, agent, time, args, kwargs):
+    def resource_usage_listener(self, agent, args, kwargs):
         """
         :param agent: BaseAgent
-        :param time: int
         :param args: list[Any]
         :param kwargs: dict[str, Any]
         :return:
         """
-        self.register_result(SimulationResultItem(agent, ResultTopics.RESOURCE_USAGE, time, args[0]))
+        self.register_result(SimulationResultItem(agent, ResultTopics.RESOURCE_USAGE, agent.time, args[0]))
 
-    def knowledge_snapshot_listener(self, agent, time, value):
+    def knowledge_snapshot_listener(self, agent, value):
         """
         :type agent: BaseAgent
-        :type time: int
         :type value:
         """
-        self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_SNAPSHOT, time, value))
+        self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_SNAPSHOT, agent.time, value))
 
-    def knowledge_delta_listener(self, agent, time, delta):
+    def knowledge_delta_listener(self, agent, delta):
         """
         :type agent: BaseAgent
         :type delta:
-        :type time: int
         """
-        self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_DELTA, time, delta))
+        self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_DELTA, agent.time, delta))
 
 
 class ResultTopics:

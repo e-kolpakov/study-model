@@ -8,7 +8,7 @@ class BaseFactsAcquisitionBehavior:
         """
         :type student: Student
         :type resource: Resource
-        :rtype: set[knowledge_representation.Fact]
+        :rtype: frozenset[knowledge_representation.Fact]
         """
         raise NotImplemented
 
@@ -18,9 +18,9 @@ class GetAllFactsAcquisitionBehavior(BaseFactsAcquisitionBehavior):
         """
         :type student: agents.student.Student
         :type resource: Resource
-        :rtype: set[knowledge_representation.Fact]
+        :rtype: frozenset[knowledge_representation.Fact]
         """
-        return set(resource_fact.fact for resource_fact in resource.facts)
+        return frozenset(resource_fact.fact for resource_fact in resource.facts)
 
 
 class AllDependenciesAcquisitionBehavior(BaseFactsAcquisitionBehavior):
@@ -28,7 +28,7 @@ class AllDependenciesAcquisitionBehavior(BaseFactsAcquisitionBehavior):
         """
         :type student: Student
         :type resource: Resource
-        :rtype: set[knowledge_representation.Fact]
+        :rtype: frozenset[knowledge_representation.Fact]
         """
         facts = set(resource_fact.fact for resource_fact in resource.facts)
         return get_available_facts(facts, student.knowledge)

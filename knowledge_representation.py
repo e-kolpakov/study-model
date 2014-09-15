@@ -8,7 +8,7 @@ def get_available_facts(facts, known_facts):
     """
     :param facts: set[Fact]
     :param known_facts: frozenset[Fact]
-    :rtype: set[Fact]
+    :rtype: frozenset[Fact]
     """
     # TODO: this resembles connected-component search.
     # Might be a good idea to rewrite using connected-component algorithm
@@ -23,7 +23,7 @@ def get_available_facts(facts, known_facts):
         to_check -= new_available
         new_available = set(fact for fact in to_check if fact.is_available(available))
 
-    return available & facts - known_facts
+    return frozenset(available & facts - known_facts)
 
 
 class Competency:
@@ -123,12 +123,11 @@ class Fact:
 
 
 class ResourceFact:
-    def __init__(self, fact, complexity_multiplier=1.0):
+    def __init__(self, fact):
         """
         :type fact: knowledge_representation.Fact
         """
         self._fact = fact
-        self._complexity_multiplier = complexity_multiplier
 
     @property
     def fact(self):
@@ -136,13 +135,6 @@ class ResourceFact:
         :rtype: knowledge_representation.Fact
         """
         return self._fact
-
-    @property
-    def complexity_multiplier(self):
-        """
-        :return: double
-        """
-        return self._complexity_multiplier
 
     def __str__(self):
         return "ResourceFact [{0}]".format(self.fact.code)

@@ -89,7 +89,7 @@ class TestStudent:
 
         with patch.object(student, 'observe'):
             student.study()
-            student.study_resource(resource1)
+            iterate_event_generator(student.study_resource(resource1))
 
         assert student.knowledge == {Fact('A'), Fact('B'), Fact('C')}
 

@@ -85,6 +85,6 @@ class SimulationInputBuilder:
     @staticmethod
     def build_students(curriculum):
         return [
-            RationalStudent("John", [], agent_id='s1'),
-            RationalStudent("Jim", [], agent_id='s2')
+            RationalStudent("John", [], agent_id='s1', skill=2.0),
+            RationalStudent("Jim", [], agent_id='s2', skill=0.5)
         ]

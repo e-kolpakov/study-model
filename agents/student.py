@@ -23,7 +23,7 @@ class Student(IntelligentAgent):
         self._name = name
         self._behavior = behavior
         self._knowledge = set(knowledge)
-        self._skill = skill if skill else 0
+        self._skill = skill if skill else 1
 
         # injected properties
         self._curriculum = None
@@ -97,8 +97,8 @@ class Student(IntelligentAgent):
             resource_name=resource_to_study.name, resource_id=resource_to_study.agent_id
         ))
 
-        yield self.env.timeout(1)
-        self.study_resource(resource_to_study)
+        yield self.env.process(self.study_resource(resource_to_study))
+
         if not self._stop_participation(available_resources):
             yield self.env.process(self.study())
         else:
@@ -115,11 +115,22 @@ class Student(IntelligentAgent):
         logger.debug("Studying resource")
 
         logger.debug("Updating knowledge")
-        self._knowledge = self._knowledge | self._acquire_knowledge(resource)
+        knowledge_to_acquire = self._acquire_knowledge(resource)
+        time_to_study = self._get_time_to_study(knowledge_to_acquire)
+        yield self.env.timeout(time_to_study)
+        self._knowledge = self._knowledge | knowledge_to_acquire
 
         logger.debug("Student {name}: Studying resource {resource_name} done".format(
             name=self.name,
             resource_name=resource.name))
+
+    def _get_time_to_study(self, facts):
+        """
+        Calculates time required to study a set of facts
+        :param facts: frozenset[knowledge_representation.Fact]
+        :return: double
+        """
+        return sum(fact.complexity for fact in facts) / self.skill
 
     def _choose_resource(self, available_resources):
         """
@@ -131,7 +142,7 @@ class Student(IntelligentAgent):
     def _acquire_knowledge(self, resource):
         """
         :type resource: Resource
-        :rtype: dict[str, float]
+        :rtype: frozenset[knowledge_representation.Fact]
         """
         return self._behavior.knowledge_acquisition.acquire_facts(self, resource)
 

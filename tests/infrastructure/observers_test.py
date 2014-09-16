@@ -17,10 +17,8 @@ class TestCommonObserver:
         assert observers == []
 
     @pytest.mark.parametrize("value", [
-        (123,),
-        ("123",),
-        ([1, 2, 3, 4, 5, 6],),
-        ([Observer("", ""), Observer("", ""), Observer("", "")],)
+        ([Observer("", ""), DeltaObserver("", "", "")]),
+        ([Observer("", ""), Observer("", ""), Observer("", "")])
     ])
     def test_get_observers_attr_exists_returns_attr_value(self, value):
         target = Mock()

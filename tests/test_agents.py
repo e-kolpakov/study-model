@@ -1,7 +1,8 @@
 import logging
+import pytest
+from simpy import Environment
 from unittest import mock
 from unittest.mock import patch, PropertyMock
-import pytest
 
 import agents
 from agents.resource import Resource
@@ -15,6 +16,10 @@ from tests.utils import iterate_event_generator
 
 
 __author__ = 'e.kolpakov'
+
+@pytest.fixture
+def env():
+    return mock.Mock(spec_set=Environment)
 
 
 @pytest.fixture
@@ -32,14 +37,14 @@ def behavior_group():
 
 
 @pytest.fixture
-def student(behavior_group, curriculum, resource_lookup):
+def student(behavior_group, curriculum, resource_lookup, env):
     """
     :rtype: student
     """
     result = Student("student", [], behavior_group, agent_id='s1')
     result.resource_lookup_service = resource_lookup
     result.curriculum = curriculum
-    result.env = mock.Mock()
+    result.env = env
     return result
 
 
@@ -82,7 +87,7 @@ class TestStudent:
             behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
             patched_study_resource.assert_called_once_with(resource1)
 
-    def test_study_resource_updates_student_competencies(self, student, behavior_group):
+    def test_study_updates_student_competencies(self, student, behavior_group):
         resource1 = Resource('A', [])
         student._knowledge = {Fact('A'), Fact('C')}
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('A'), Fact('B')})
@@ -98,3 +103,20 @@ class TestStudent:
         with patch.object(student, 'observe') as observe_mock:
             student.study_resource(resource)
             observe_mock.assert_called_once_with()
+
+    @pytest.mark.parametrize("skill, facts", [
+        (1, [Fact("A", complexity=1)]),
+        (2, [Fact("A", complexity=1)]),
+        (1, [Fact("A", complexity=1), Fact('B', complexity=2)]),
+        (6, [Fact("A", complexity=1), Fact('B', complexity=2)]),
+    ])
+    def test_study_resource_yields_timeout_for_duration_of_study(self, student, behavior_group, resource, env, skill, facts):
+        behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=set(facts))
+        env.timeout = mock.Mock(return_value=5)
+        student._skill = skill
+        expected_timeout = sum(fact.complexity for fact in facts) / skill
+
+        events = iterate_event_generator(student.study_resource(resource))
+        assert len(events) == 1
+        assert events[0] == 5
+        env.timeout.assert_called_once_with(expected_timeout)

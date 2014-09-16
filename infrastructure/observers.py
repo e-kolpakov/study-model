@@ -11,7 +11,11 @@ def get_observers(target):
     :param target: callable
     :return: BaseObserver
     """
-    return getattr(target, BaseObserver.OBSERVER_ATTRIBUTE) if hasattr(target, BaseObserver.OBSERVER_ATTRIBUTE) else []
+    raw = getattr(target, BaseObserver.OBSERVER_ATTRIBUTE) if hasattr(target, BaseObserver.OBSERVER_ATTRIBUTE) else []
+    try:
+        return [observer for observer in raw if isinstance(observer, BaseObserver)]
+    except TypeError:
+        return []
 
 
 def get_agent_for_class_method(args):

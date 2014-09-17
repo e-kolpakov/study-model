@@ -1,6 +1,7 @@
 from agents.behaviors.student.stop_participation import BaseStopParticipationBehavior
 from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
 from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from agents.behaviors.student.study_period import BaseStudyPeriodBehavior
 
 
 __author__ = 'e.kolpakov'
@@ -31,6 +32,7 @@ class BehaviorGroup:
     resource_choice = BehaviorDescriptor(BaseResourceChoiceBehavior, 'resource_choice')
     knowledge_acquisition = BehaviorDescriptor(BaseFactsAcquisitionBehavior, 'knowledge_acquisition')
     stop_participation = BehaviorDescriptor(BaseStopParticipationBehavior, 'stop_participation')
+    study_period = BehaviorDescriptor(BaseStudyPeriodBehavior, 'study_period')
 
     @classmethod
     def make_group(cls, **kwargs):

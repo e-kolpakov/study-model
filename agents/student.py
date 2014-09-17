@@ -5,6 +5,7 @@ from .behaviors.student.behavior_group import BehaviorGroup
 from .behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from .behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
 from .behaviors.student.stop_participation import CourseCompleteStopParticipationBehavior
+from agents.behaviors.student.study_period import RandomStudyPeriodBehavior, FixedStudyPeriodBehavior
 from infrastructure.observers import Observer, DeltaObserver, observer_trigger, AgentCallObserver
 from simulation.result import ResultTopics
 
@@ -83,6 +84,9 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     def study(self):
+        yield self.env.process(self.study_session(10))
+
+    def study_session(self, study_period):
         logger = logging.getLogger(__name__)
         logger.debug("Student {name} study".format(name=self.name))
         available_resources = self.resource_lookup_service.get_accessible_resources(self)
@@ -103,6 +107,7 @@ class Student(IntelligentAgent):
             yield self.env.process(self.study())
         else:
             self.stop_participation_event.succeed()
+
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
@@ -160,6 +165,7 @@ class RationalStudent(Student):
             resource_choice=RationalResourceChoiceBehavior(),
             knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
             stop_participation=CourseCompleteStopParticipationBehavior(),
+            study_period=FixedStudyPeriodBehavior(kwargs.get('study_period', 10), kwargs.get('idle_period', 20))
         )
         super(RationalStudent, self).__init__(name, knowledge, behavior, **kwargs)
 
@@ -170,5 +176,6 @@ class RandomStudent(Student):
             resource_choice=RandomResourceChoiceBehavior(),
             knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
             stop_participation=CourseCompleteStopParticipationBehavior(),
+            study_period=RandomStudyPeriodBehavior(kwargs.get('study_period', 10), kwargs.get('idle_period', 20))
         )
         super(RandomStudent, self).__init__(name, knowledge, behavior, **kwargs)

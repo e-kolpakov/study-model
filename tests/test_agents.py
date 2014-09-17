@@ -19,7 +19,7 @@ __author__ = 'e.kolpakov'
 
 @pytest.fixture
 def env():
-    return mock.Mock(spec_set=Environment)
+    return Environment()
 
 
 @pytest.fixture
@@ -59,21 +59,21 @@ def resource():
 
 
 class TestStudent:
-    def test_study_no_resources_logs_and_returns(self, student, resource_lookup, behavior_group):
+    def test_study_no_resources_logs_and_returns(self, student, resource_lookup, behavior_group, env):
         logger = logging.getLogger(agents.student.__name__)
         resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
         behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
         with patch.object(logger, 'warn') as mocked_warn, \
                 patch.object(student, '_choose_resource') as resource_choice, \
                 patch.object(student, 'observe'):
-            study_gen = student.study()
-            iterate_event_generator(study_gen)
+            env.process(student.study())
+            env.run()
             mocked_warn.assert_called_once_with("No resources available")
             assert resource_choice.call_args_list == []
             assert not resource_choice.called
 
     def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self, student, behavior_group, resource_lookup,
-                                                                        curriculum):
+                                                                        curriculum, env):
         resource1 = Resource('A', [])
         resource2 = Resource('B', [])
         resources = [resource1, resource2]
@@ -82,19 +82,21 @@ class TestStudent:
         behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
 
         with patch.object(student, 'study_resource') as patched_study_resource, patch.object(student, 'observe'):
-            study_gen = student.study()
-            iterate_event_generator(study_gen)
+            patched_study_resource.return_value = (env.timeout(i) for i in range(1))
+            env.process(student.study())
+            env.run()
             behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
             patched_study_resource.assert_called_once_with(resource1)
 
-    def test_study_updates_student_competencies(self, student, behavior_group):
+    def test_study_updates_student_competencies(self, student, behavior_group, env):
         resource1 = Resource('A', [])
         student._knowledge = {Fact('A'), Fact('C')}
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('A'), Fact('B')})
 
         with patch.object(student, 'observe'):
             student.study()
-            iterate_event_generator(student.study_resource(resource1))
+            env.process(student.study_resource(resource1))
+            env.run()
 
         assert student.knowledge == {Fact('A'), Fact('B'), Fact('C')}
 
@@ -112,11 +114,16 @@ class TestStudent:
     ])
     def test_study_resource_yields_timeout_for_duration_of_study(self, student, behavior_group, resource, env, skill, facts):
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=set(facts))
-        env.timeout = mock.Mock(return_value=5)
         student._skill = skill
         expected_timeout = sum(fact.complexity for fact in facts) / skill
 
-        events = iterate_event_generator(student.study_resource(resource))
-        assert len(events) == 1
-        assert events[0] == 5
-        env.timeout.assert_called_once_with(expected_timeout)
+        timeout_catcher = []
+        old_timeout = env.timeout
+
+        def env_timeout_override(t):
+            timeout_catcher.append(t)
+            return old_timeout(t)
+        with patch.object(env, 'timeout', env_timeout_override):
+            env.process(student.study_resource(resource))
+            env.run()
+        assert timeout_catcher == [expected_timeout]

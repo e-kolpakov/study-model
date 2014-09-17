@@ -12,7 +12,7 @@ class BaseStudyPeriodBehavior:
         """
         raise NotImplemented()
 
-    def get_pause_period(self, student, current_time):
+    def get_idle_period(self, student, current_time):
         """
         Gets time span between study serssions
         :param student:
@@ -22,14 +22,14 @@ class BaseStudyPeriodBehavior:
 
 
 class FixedStudyPeriodBehavior(BaseStudyPeriodBehavior):
-    def __init__(self, study_period=10, idle_period = 20):
+    def __init__(self, study_period=10, idle_period=20):
         self._idle_period = idle_period
         self._study_period = study_period
 
     def get_study_period(self, student, current_time):
         return self._study_period
 
-    def get_pause_period(self, student, current_time):
+    def get_idle_period(self, student, current_time):
         return self._idle_period
 
 
@@ -39,8 +39,8 @@ class RandomStudyPeriodBehavior(BaseStudyPeriodBehavior):
         self._max_study_period = max_study_period
 
     def get_study_period(self, student, current_time):
-        return random.random() * self._max_study_period
+        return round(random.random() * self._max_study_period, 2)
 
-    def get_pause_period(self, student, current_time):
-        return random.random() * self._max_idle_period
+    def get_idle_period(self, student, current_time):
+        return round(random.random() * self._max_idle_period, 2)
 

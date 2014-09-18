@@ -5,7 +5,8 @@ from .behaviors.student.behavior_group import BehaviorGroup
 from .behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from .behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
 from .behaviors.student.stop_participation import CourseCompleteStopParticipationBehavior
-from agents.behaviors.student.study_period import RandomStudyPeriodBehavior, FixedStudyPeriodBehavior
+from agents.behaviors.student.study_period import RandomStudyPeriodBehavior, FixedStudyPeriodBehavior, \
+    QuarterHourRandomStudyPeriodBehavior
 from infrastructure.observers import Observer, DeltaObserver, observer_trigger, AgentCallObserver
 from simulation.result import ResultTopics
 
@@ -178,7 +179,7 @@ class RationalStudent(Student):
             resource_choice=RationalResourceChoiceBehavior(),
             knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
             stop_participation=CourseCompleteStopParticipationBehavior(),
-            study_period=RandomStudyPeriodBehavior(kwargs.get('study_period', 10), kwargs.get('idle_period', 20))
+            study_period=QuarterHourRandomStudyPeriodBehavior(kwargs.get('study_period', 10), kwargs.get('idle_period', 20))
         )
         super(RationalStudent, self).__init__(name, knowledge, behavior, **kwargs)
 
@@ -189,6 +190,6 @@ class RandomStudent(Student):
             resource_choice=RandomResourceChoiceBehavior(),
             knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
             stop_participation=CourseCompleteStopParticipationBehavior(),
-            study_period=RandomStudyPeriodBehavior(kwargs.get('study_period', 10), kwargs.get('idle_period', 20))
+            study_period=QuarterHourRandomStudyPeriodBehavior(kwargs.get('study_period', 10), kwargs.get('idle_period', 20))
         )
         super(RandomStudent, self).__init__(name, knowledge, behavior, **kwargs)

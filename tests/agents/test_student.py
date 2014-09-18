@@ -94,7 +94,7 @@ class TestStudent:
             behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
             patched_study_resource.assert_called_once_with(resource1)
 
-    def test_study_updates_student_competencies(self, student, behavior_group, env):
+    def test_study_resource_updates_student_competencies(self, student, behavior_group, env):
         resource1 = Resource('A', [])
         student._knowledge = {Fact('A'), Fact('C')}
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('A'), Fact('B')})

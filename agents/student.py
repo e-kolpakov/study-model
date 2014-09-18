@@ -13,6 +13,7 @@ __author__ = 'e.kolpakov'
 
 
 class Student(IntelligentAgent):
+
     def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
         """
         :type name: str
@@ -30,6 +31,8 @@ class Student(IntelligentAgent):
         self._curriculum = None
         self._resource_lookup_service = None
         self._stop_participation_event = None
+
+        self._logger = logging.getLogger(__name__)
 
     @property
     def name(self):
@@ -84,39 +87,40 @@ class Student(IntelligentAgent):
         self._curriculum = value
 
     def study(self):
-        logger = logging.getLogger(__name__)
-        study_session_length = self._behavior.study_period.get_study_period(self, self.env.now)
-        yield self.env.process(self.study_session(study_session_length))
+        while not self.stop_participation_event.processed:
+            available_resources = self.resource_lookup_service.get_accessible_resources(self)
+            if not available_resources:
+                self._logger.warn("No resources available")
+                return
 
-        if not self.stop_participation_event.processed:
+            study_session_length = self._behavior.study_period.get_study_period(self, self.env.now)
+            yield self.env.process(self._study_session(study_session_length, available_resources))
+
             idle_session_length = self._behavior.study_period.get_idle_period(self, self.env.now)
-            logger.debug("Student {name} idle session started at {time}".format(name=self.name, time=self.env.now))
-            yield self.env.timeout(idle_session_length)
+            yield self.env.process(self._idle_session(idle_session_length))
 
-            yield self.env.process(self.study())
+    def _idle_session(self, idle_session_length):
+        self._logger.debug("Student {name} idle session of length {length} started at {time}".format(
+            name=self.name, time=self.env.now, length=idle_session_length
+        ))
+        yield self.env.timeout(idle_session_length)
 
-    def study_session(self, study_session_length):
+    def _study_session(self, study_session_length, resources):
         entered_session = self.env.now
-        logger = logging.getLogger(__name__)
-        logger.debug("Student {name} study_session of length {length} started at {time}".format(
+        self._logger.debug("Student {name} study session of length {length} started at {time}".format(
             name=self.name, time=self.env.now, length=study_session_length
         ))
         while self.env.now - entered_session < study_session_length:
-            available_resources = self.resource_lookup_service.get_accessible_resources(self)
-            if not available_resources:
-                logger.warn("No resources available")
-                return
-
-            logger.debug("Choosing a resource to study at {time}".format(time=self.env.now))
-            resource_to_study = self._choose_resource(available_resources)
-            logger.info("Student {name}({id}): resource {resource_name}({resource_id}) chosen ".format(
+            self._logger.debug("Choosing a resource to study at {time}".format(time=self.env.now))
+            resource_to_study = self._choose_resource(resources)
+            self._logger.info("Student {name}({id}): resource {resource_name}({resource_id}) chosen ".format(
                 name=self.name, id=self.agent_id,
                 resource_name=resource_to_study.name, resource_id=resource_to_study.agent_id
             ))
 
             yield self.env.process(self.study_resource(resource_to_study))
 
-            if self._stop_participation(available_resources):
+            if self._stop_participation(resources):
                 self.stop_participation_event.succeed()
                 return
 
@@ -127,16 +131,16 @@ class Student(IntelligentAgent):
         :type resource: Resource
         :rtype: None
         """
-        logger = logging.getLogger(__name__)
-        logger.debug("Updating knowledge")
+        self._logger.debug("Updating knowledge")
         knowledge_to_acquire = self._acquire_knowledge(resource)
         time_to_study = self._get_time_to_study(knowledge_to_acquire)
         yield self.env.timeout(time_to_study)
         self._knowledge = self._knowledge | knowledge_to_acquire
 
-        logger.debug("Student {name}: Studying resource {resource_name} done at {time}".format(
+        self._logger.debug("Student {name}: Studying resource {resource_name} done at {time}".format(
             name=self.name, resource_name=resource.name, time=self.env.now
         ))
+        return
 
     def _get_time_to_study(self, facts):
         """

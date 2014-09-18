@@ -5,6 +5,7 @@ from unittest import mock
 from unittest.mock import patch, PropertyMock
 
 import agents
+from agents.behaviors.student.study_period import BaseStudyPeriodBehavior
 from agents.resource import Resource
 from agents.student import Student
 from agents.behaviors.student.behavior_group import BehaviorGroup
@@ -33,6 +34,7 @@ def behavior_group():
     bhg.resource_choice = mock.Mock(BaseResourceChoiceBehavior)
     bhg.knowledge_acquisition = mock.Mock(BaseFactsAcquisitionBehavior)
     bhg.stop_participation = mock.Mock(BaseStopParticipationBehavior)
+    bhg.study_period = mock.Mock(BaseStudyPeriodBehavior)
     return bhg
 
 
@@ -63,6 +65,8 @@ class TestStudent:
         logger = logging.getLogger(agents.student.__name__)
         resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
         behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
+        behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
+        behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
         with patch.object(logger, 'warn') as mocked_warn, \
                 patch.object(student, '_choose_resource') as resource_choice, \
                 patch.object(student, 'observe'):
@@ -80,6 +84,8 @@ class TestStudent:
         resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
         behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
         behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
+        behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
+        behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
 
         with patch.object(student, 'study_resource') as patched_study_resource, patch.object(student, 'observe'):
             patched_study_resource.return_value = (env.timeout(i) for i in range(1))

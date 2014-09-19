@@ -49,13 +49,6 @@ class Student(IntelligentAgent):
         return frozenset(self._knowledge)
 
     @property
-    def resource_lookup_service(self):
-        """
-        :rtype: ResourceLookupService
-        """
-        return self._resource_lookup_service
-
-    @property
     def stop_participation_event(self):
         if not self._stop_participation_event:
             self._stop_participation_event = self.env.event()
@@ -65,6 +58,13 @@ class Student(IntelligentAgent):
     def skill(self):
         """ :return: double """
         return self._skill
+
+    @property
+    def resource_lookup_service(self):
+        """
+        :rtype: ResourceLookupService
+        """
+        return self._resource_lookup_service
 
     @resource_lookup_service.setter
     def resource_lookup_service(self, value):

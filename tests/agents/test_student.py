@@ -13,6 +13,7 @@ from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionB
 from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
 from agents.behaviors.student.stop_participation import BaseStopParticipationBehavior
 from knowledge_representation import Fact
+from simulation.resource_lookup_service import ResourceLookupService
 from tests.utils import iterate_event_generator
 
 
@@ -25,7 +26,7 @@ def env():
 
 @pytest.fixture
 def resource_lookup():
-    return mock.Mock()
+    return mock.Mock(spec=ResourceLookupService)
 
 
 @pytest.fixture
@@ -133,3 +134,17 @@ class TestStudent:
             env.process(student.study_resource(resource))
             env.run()
         assert timeout_catcher == [expected_timeout]
+
+    def test_study_cycle(self, student, behavior_group, env, resource_lookup):
+        resources = [Resource('A', []),  Resource('B', [])]
+        resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
+        behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
+        behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
+        with patch.object(student, '_study_session') as patched_study_session, \
+            patch.object(student, '_idle_session') as patched_idle_session:
+            patched_study_session.return_value = (env.timeout(i) for i in [10])
+            patched_idle_session.return_value = (env.timeout(i) for i in [10])
+            env.process(student.study())
+            env.run(until=20)
+            patched_study_session.assert_called_once_with(10, resources)
+            patched_idle_session.assert_called_once_with(10)

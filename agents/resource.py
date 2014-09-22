@@ -1,4 +1,4 @@
-from .base_agents import BaseAgent
+from agents.base_agents import BaseAgent
 
 __author__ = 'e.kolpakov'
 

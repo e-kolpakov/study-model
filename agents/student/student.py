@@ -1,12 +1,11 @@
 import logging
 
-from .base_agents import IntelligentAgent
-from .behaviors.student.behavior_group import BehaviorGroup
-from .behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior
-from .behaviors.student.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
-from .behaviors.student.stop_participation import CourseCompleteStopParticipationBehavior
-from agents.behaviors.student.study_period import RandomStudyPeriodBehavior, FixedStudyPeriodBehavior, \
-    QuarterHourRandomStudyPeriodBehavior
+from ..base_agents import IntelligentAgent
+from .behaviors.behavior_group import BehaviorGroup
+from .behaviors.knowledge_acquisition import AllDependenciesAcquisitionBehavior
+from .behaviors.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
+from .behaviors.stop_participation import CourseCompleteStopParticipationBehavior
+from agents.student.behaviors.study_period import QuarterHourRandomStudyPeriodBehavior
 from infrastructure.observers import Observer, DeltaObserver, observer_trigger, AgentCallObserver
 from simulation.result import ResultTopics
 

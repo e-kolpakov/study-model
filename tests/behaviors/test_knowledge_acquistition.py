@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from agents.resource import Resource
-from agents.behaviors.student.knowledge_acquisition import AllDependenciesAcquisitionBehavior, GetAllFactsAcquisitionBehavior
+from agents.student.behaviors.knowledge_acquisition import AllDependenciesAcquisitionBehavior, GetAllFactsAcquisitionBehavior
 from knowledge_representation import Fact, ResourceFact
 
 

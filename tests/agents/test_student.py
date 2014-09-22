@@ -1,8 +1,9 @@
 import logging
-import pytest
-from simpy import Environment
 from unittest import mock
 from unittest.mock import patch, PropertyMock
+
+import pytest
+from simpy import Environment
 
 import agents
 from agents.behaviors.student.study_period import BaseStudyPeriodBehavior
@@ -10,11 +11,10 @@ from agents.resource import Resource
 from agents.student import Student
 from agents.behaviors.student.behavior_group import BehaviorGroup
 from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
+from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
 from agents.behaviors.student.stop_participation import BaseStopParticipationBehavior
 from knowledge_representation import Fact
 from simulation.resource_lookup_service import ResourceLookupService
-from tests.utils import iterate_event_generator
 
 
 __author__ = 'e.kolpakov'

@@ -1,7 +1,7 @@
-from agents.behaviors.student.stop_participation import BaseStopParticipationBehavior
-from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from agents.behaviors.student.resource_choice import BaseResourceChoiceBehavior
-from agents.behaviors.student.study_period import BaseStudyPeriodBehavior
+from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
+from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
+from agents.student.behaviors.study_period import BaseStudyPeriodBehavior
 
 
 __author__ = 'e.kolpakov'

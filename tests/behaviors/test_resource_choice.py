@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from agents.resource import Resource
-from agents.behaviors.student.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
+from agents.student.behaviors.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
 from knowledge_representation import Fact, ResourceFact, Curriculum
 
 

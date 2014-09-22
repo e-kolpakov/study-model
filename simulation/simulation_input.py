@@ -1,7 +1,7 @@
 from itertools import chain
 
 from agents.resource import Resource
-from agents.student import RationalStudent, RandomStudent
+from agents.student import Student, RationalStudent
 from knowledge_representation import Competency, Fact, ResourceFact, Curriculum
 
 

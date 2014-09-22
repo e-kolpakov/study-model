@@ -7,6 +7,7 @@ __author__ = 'e.kolpakov'
 
 snapshots = True
 deltas = True
+counts = True
 
 
 def output_results(results):
@@ -19,7 +20,8 @@ def output_results(results):
         print_snapshots(results)
     if deltas:
         print_deltas(results)
-
+    if counts:
+        print_counts(results)
 
 def print_resource_usages(results):
     print("=== Resources START ===")
@@ -47,3 +49,11 @@ def print_deltas(results):
         delta_str = ", ".join(list(map(str, item.value)))
         print("Student {name} at {time}: {delta}".format(name=item.agent.name, delta=delta_str, time=item.time))
     print("====== Delta END ======")
+
+
+def print_counts(results):
+    print("===== Count START =====")
+    counts = results.get_parameter(ResultTopics.KNOWLEDGE_COUNT)
+    for item in counts:
+        print("Student {name} at {time}: {count}".format(name=item.agent.name, count=item.value, time=item.time))
+    print("====== Count END ======")

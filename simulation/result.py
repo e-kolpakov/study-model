@@ -79,6 +79,7 @@ class SimulationResult(SimulationResultBase):
         self._register_result_handler(self.resource_usage_listener, ResultTopics.RESOURCE_USAGE)
         self._register_result_handler(self.knowledge_snapshot_listener, ResultTopics.KNOWLEDGE_SNAPSHOT)
         self._register_result_handler(self.knowledge_delta_listener, ResultTopics.KNOWLEDGE_DELTA)
+        self._register_result_handler(self.knowledge_count_listener, ResultTopics.KNOWLEDGE_COUNT)
 
     def resource_usage_listener(self, agent, args, kwargs):
         """
@@ -103,8 +104,16 @@ class SimulationResult(SimulationResultBase):
         """
         self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_DELTA, agent.time, delta))
 
+    def knowledge_count_listener(self, agent, value):
+        """
+        :type agent: BaseAgent
+        :type count:
+        """
+        self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_COUNT, agent.time, value))
+
 
 class ResultTopics:
     RESOURCE_USAGE = 'Resource.Usage'
     KNOWLEDGE_SNAPSHOT = 'Knowledge.Snapshot'
+    KNOWLEDGE_COUNT = 'Knowledge.Count'
     KNOWLEDGE_DELTA = 'Knowledge.Delta'

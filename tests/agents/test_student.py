@@ -6,13 +6,13 @@ import pytest
 from simpy import Environment
 
 import agents
-from agents.behaviors.student.study_period import BaseStudyPeriodBehavior
+from agents.student.behaviors.study_period import BaseStudyPeriodBehavior
 from agents.resource import Resource
 from agents.student import Student
-from agents.behaviors.student.behavior_group import BehaviorGroup
-from agents.behaviors.student.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from agents.student.behaviors.behavior_group import BehaviorGroup
+from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
 from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
-from agents.behaviors.student.stop_participation import BaseStopParticipationBehavior
+from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
 from knowledge_representation import Fact
 from simulation.resource_lookup_service import ResourceLookupService
 

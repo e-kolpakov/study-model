@@ -4,9 +4,6 @@ from unittest.mock import patch, PropertyMock
 
 import pytest
 from simpy import Environment
-from simpy.events import Event
-
-import agents
 from agents.student.activities import StudySessionStudentActivity, IdleStudentActivity
 from agents.student.behaviors.study_period import BaseStudyPeriodBehavior
 from agents.resource import Resource

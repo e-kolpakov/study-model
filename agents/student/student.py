@@ -16,8 +16,8 @@ __author__ = 'e.kolpakov'
 
 class Student(IntelligentAgent):
 
-    idle_activity = TypedDescriptorWithDefault(IdleStudentActivity, 'idle_activity')
-    study_session_activity = TypedDescriptorWithDefault(StudySessionStudentActivity, 'study_session_activity')
+    idle_activity = TypedDescriptor(IdleStudentActivity, 'idle_activity')
+    study_session_activity = TypedDescriptor(StudySessionStudentActivity, 'study_session_activity')
 
     def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
         """
@@ -39,9 +39,22 @@ class Student(IntelligentAgent):
 
         self._logger = logging.getLogger(__name__)
 
+        self.__init_activities()
+
+    def __init_activities(self):
+        self.idle_activity = IdleStudentActivity(self)
+        self.study_session_activity = StudySessionStudentActivity(self)
+
     @property
     def name(self):
         return self._name
+
+    @property
+    def behavior(self):
+        """
+        :return: BehaviorGroup
+        """
+        return self._behavior
 
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
@@ -95,14 +108,10 @@ class Student(IntelligentAgent):
     def study(self):
         while not self.stop_participation_event.processed:
             study_session_length = self._behavior.study_period.get_study_period(self, self.env.now)
-            yield self.env.process(self.study_session_activity.activate(
-                self, study_session_length,
-                get_resources_callback=lambda: self.resource_lookup_service.get_accessible_resources(self),
-                choose_resource_callback=lambda res: self._choose_resource(res)
-            ))
+            yield self.env.process(self.study_session_activity.activate(study_session_length))
 
             idle_session_length = self._behavior.study_period.get_idle_period(self, self.env.now)
-            yield self.env.process(self.idle_activity.activate(self, idle_session_length))
+            yield self.env.process(self.idle_activity.activate(idle_session_length))
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)

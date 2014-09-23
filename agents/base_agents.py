@@ -39,6 +39,12 @@ class BaseAgent:
     def time(self):
         return self.env.now
 
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return "{type} {id}".format(type=type(self).__name__, id=self._agent_id)
+
     def observe(self):
         for observer in self._get_all_observables():
             observer.inspect(self)
@@ -56,14 +62,17 @@ class BaseAgent:
                     self._observers_cache.append(observer)
         return self._observers_cache
 
+    def __get_member_names(self):
+        return [member_name for member_name in dir(self.__class__) if not member_name.startswith('__')]
+
     def _get_all_callables(self):
-        for member_name in dir(self.__class__):
+        for member_name in self.__get_member_names():
             member = getattr(self, member_name)
             if callable(member):
                 yield member
 
     def _get_all_properties(self):
-        for member_name in dir(self.__class__):
+        for member_name in self.__get_member_names():
             member = getattr(self.__class__, member_name)
             if isinstance(member, property):
                 yield member.fget

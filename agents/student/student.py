@@ -45,6 +45,9 @@ class Student(IntelligentAgent):
         self.idle_activity = IdleStudentActivity(self)
         self.study_session_activity = StudySessionStudentActivity(self)
 
+    def __unicode__(self):
+        return "{type} {name}({id})".format(type=type(self).__name__, id=self._agent_id, name=self._name)
+
     @property
     def name(self):
         return self._name

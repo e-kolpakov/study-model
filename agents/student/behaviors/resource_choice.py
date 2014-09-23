@@ -7,7 +7,7 @@ __author__ = 'e.kolpakov'
 
 
 class BaseResourceChoiceBehavior:
-    def choose_resource(self, student, curriculum, available_resources):
+    def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
         """
         :param student: Student
         :param curriculum: Curriculum
@@ -18,7 +18,7 @@ class BaseResourceChoiceBehavior:
 
 
 class RandomResourceChoiceBehavior(BaseResourceChoiceBehavior):
-    def choose_resource(self, student, curriculum, available_resources):
+    def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
         """
         :param student: Student
         :param curriculum: Curriculum
@@ -29,7 +29,7 @@ class RandomResourceChoiceBehavior(BaseResourceChoiceBehavior):
 
 
 class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
-    def choose_resource(self, student, curriculum, available_resources):
+    def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
         """
         :param student: Student
         :param curriculum: Curriculum

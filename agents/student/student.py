@@ -157,15 +157,11 @@ class Student(IntelligentAgent):
         """
         return self._behavior.knowledge_acquisition.acquire_facts(self, resource)
 
-    def check_stop_participation(self, available_resources):
+    def stop_participation(self):
         """
-        :type available_resources: tuple[Resource]
         :rtype: bool
         """
-        should_stop = self._behavior.stop_participation.stop_participation(self, self.curriculum, available_resources)
-        if should_stop:
-            self.stop_participation_event.succeed()
-        return should_stop
+        self.stop_participation_event.succeed()
 
 
 class RationalStudent(Student):

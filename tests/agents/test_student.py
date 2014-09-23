@@ -4,8 +4,10 @@ from unittest.mock import patch, PropertyMock
 
 import pytest
 from simpy import Environment
+from simpy.events import Event
 
 import agents
+from agents.student.activities import StudySessionStudentActivity, IdleStudentActivity
 from agents.student.behaviors.study_period import BaseStudyPeriodBehavior
 from agents.resource import Resource
 from agents.student import Student
@@ -22,6 +24,10 @@ __author__ = 'e.kolpakov'
 @pytest.fixture
 def env():
     return Environment()
+
+@pytest.fixture
+def env_mock():
+    return mock.Mock(spec_set=Environment)
 
 
 @pytest.fixture
@@ -62,38 +68,49 @@ def resource():
 
 
 class TestStudent:
-    def test_study_no_resources_logs_and_returns(self, student, resource_lookup, behavior_group, env):
-        logger = logging.getLogger(agents.student.__name__)
-        resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
-        behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
-        behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
-        behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
-        with patch.object(logger, 'warn') as mocked_warn, \
-                patch.object(student, '_choose_resource') as resource_choice, \
-                patch.object(student, 'observe'):
-            env.process(student.study())
-            env.run()
-            mocked_warn.assert_called_once_with("No resources available")
-            assert resource_choice.call_args_list == []
-            assert not resource_choice.called
+    def test_study_given_already_stopped_returns_immediately(self, student):
+        student._stop_participation_event = mock.Mock()
+        student._stop_participation_event.processed = mock.PropertyMock(return_value=True)
+        with patch.object(student, 'study_session_activity', spec=StudySessionStudentActivity) as patched_study_session,\
+            patch.object(student, 'idle_activity', spec=IdleStudentActivity) as patched_idle:
+            patched_study_session.activate = mock.Mock()
+            patched_idle.activate = mock.Mock()
+            student.study()
+            assert not patched_study_session.activate.called
+            assert not patched_idle.activate.called
 
-    def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self, student, behavior_group, resource_lookup,
-                                                                        curriculum, env):
-        resource1 = Resource('A', [])
-        resource2 = Resource('B', [])
-        resources = [resource1, resource2]
-        resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
-        behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
-        behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
-        behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
-        behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
+    # def test_study_no_resources_logs_and_returns(self, student, resource_lookup, behavior_group, env):
+    #     logger = logging.getLogger(agents.student.__name__)
+    #     resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
+    #     behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
+    #     behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
+    #     behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
+    #     with patch.object(logger, 'warn') as mocked_warn, \
+    #             patch.object(student, '_choose_resource') as resource_choice, \
+    #             patch.object(student, 'observe'):
+    #         env.process(student.study())
+    #         env.run()
+    #         mocked_warn.assert_called_once_with("No resources available")
+    #         assert resource_choice.call_args_list == []
+    #         assert not resource_choice.called
 
-        with patch.object(student, 'study_resource') as patched_study_resource, patch.object(student, 'observe'):
-            patched_study_resource.return_value = (env.timeout(i) for i in range(1))
-            env.process(student.study())
-            env.run()
-            behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
-            patched_study_resource.assert_called_once_with(resource1)
+    # def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self, student, behavior_group, resource_lookup,
+    #                                                                     curriculum, env):
+    #     resource1 = Resource('A', [])
+    #     resource2 = Resource('B', [])
+    #     resources = [resource1, resource2]
+    #     resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
+    #     behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
+    #     behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
+    #     behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
+    #     behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
+    #
+    #     with patch.object(student, 'study_resource') as patched_study_resource, patch.object(student, 'observe'):
+    #         patched_study_resource.return_value = (env.timeout(i) for i in range(1))
+    #         env.process(student.study())
+    #         env.run()
+    #         behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
+    #         patched_study_resource.assert_called_once_with(resource1)
 
     def test_study_resource_updates_student_competencies(self, student, behavior_group, env):
         resource1 = Resource('A', [])
@@ -135,16 +152,16 @@ class TestStudent:
             env.run()
         assert timeout_catcher == [expected_timeout]
 
-    def test_study_cycle(self, student, behavior_group, env, resource_lookup):
-        resources = [Resource('A', []),  Resource('B', [])]
-        resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
-        behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
-        behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
-        with patch.object(student, '_study_session') as patched_study_session, \
-            patch.object(student, '_idle_session') as patched_idle_session:
-            patched_study_session.return_value = (env.timeout(i) for i in [10])
-            patched_idle_session.return_value = (env.timeout(i) for i in [10])
-            env.process(student.study())
-            env.run(until=20)
-            patched_study_session.assert_called_once_with(10, resources)
-            patched_idle_session.assert_called_once_with(10)
+    # def test_study_cycle(self, student, behavior_group, env, resource_lookup):
+    #     resources = [Resource('A', []),  Resource('B', [])]
+    #     resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
+    #     behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
+    #     behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
+    #     with patch.object(student, '_study_session') as patched_study_session, \
+    #         patch.object(student, '_idle_session') as patched_idle_session:
+    #         patched_study_session.return_value = (env.timeout(i) for i in [10])
+    #         patched_idle_session.return_value = (env.timeout(i) for i in [10])
+    #         env.process(student.study())
+    #         env.run(until=20)
+    #         patched_study_session.assert_called_once_with(10, resources)
+    #         patched_idle_session.assert_called_once_with(10)

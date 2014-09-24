@@ -3,7 +3,7 @@ from unittest import mock
 from unittest.mock import patch, PropertyMock
 
 from agents.student import Student
-from agents.student.activities import IdleStudentActivity, StudySessionStudentActivity
+from agents.student.activities import IdleActivity, StudySessionActivity
 
 __author__ = 'e.kolpakov'
 
@@ -21,7 +21,7 @@ def student(behavior_group, resource_lookup, env):
 class TestIdleActivity:
     @pytest.fixture
     def activity(self, student):
-        return IdleStudentActivity(student)
+        return IdleActivity(student)
 
     @pytest.mark.parametrize("length", [10, 15, 20, 3, 7, 11])
     def test_activate_sends(self, activity, env, length):
@@ -34,4 +34,4 @@ class TestIdleActivity:
 class TestStudySessionActibity:
     @pytest.fixture
     def activity(self, student):
-        return StudySessionStudentActivity(student)
+        return StudySessionActivity(student)

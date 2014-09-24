@@ -1,7 +1,7 @@
 import logging
 
 from agents.base_agents import IntelligentAgent
-from agents.student.activities import IdleStudentActivity, StudySessionStudentActivity
+from agents.student.activities import IdleActivity, StudySessionActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.behaviors.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from agents.student.behaviors.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
@@ -16,8 +16,8 @@ __author__ = 'e.kolpakov'
 
 class Student(IntelligentAgent):
 
-    idle_activity = TypedDescriptor(IdleStudentActivity, 'idle_activity')
-    study_session_activity = TypedDescriptor(StudySessionStudentActivity, 'study_session_activity')
+    idle_activity = TypedDescriptor(IdleActivity, 'idle_activity')
+    study_session_activity = TypedDescriptor(StudySessionActivity, 'study_session_activity')
 
     def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
         """
@@ -42,8 +42,8 @@ class Student(IntelligentAgent):
         self.__init_activities()
 
     def __init_activities(self):
-        self.idle_activity = IdleStudentActivity(self)
-        self.study_session_activity = StudySessionStudentActivity(self)
+        self.idle_activity = IdleActivity(self)
+        self.study_session_activity = StudySessionActivity(self)
 
     def __unicode__(self):
         return "{type} {name}({id})".format(type=type(self).__name__, id=self._agent_id, name=self._name)

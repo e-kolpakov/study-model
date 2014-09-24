@@ -4,7 +4,7 @@ from unittest.mock import patch, PropertyMock
 
 import pytest
 from simpy import Environment
-from agents.student.activities import StudySessionStudentActivity, IdleStudentActivity
+from agents.student.activities import StudySessionActivity, IdleActivity
 from agents.student.behaviors.study_period import BaseStudyPeriodBehavior
 from agents.resource import Resource
 from agents.student import Student
@@ -39,8 +39,8 @@ class TestStudent:
     def test_study_given_already_stopped_returns_immediately(self, student):
         student._stop_participation_event = mock.Mock()
         student._stop_participation_event.processed = mock.PropertyMock(return_value=True)
-        with patch.object(student, 'study_session_activity', spec=StudySessionStudentActivity) as patched_study_session,\
-            patch.object(student, 'idle_activity', spec=IdleStudentActivity) as patched_idle:
+        with patch.object(student, 'study_session_activity', spec=StudySessionActivity) as patched_study_session,\
+            patch.object(student, 'idle_activity', spec=IdleActivity) as patched_idle:
             patched_study_session.activate = mock.Mock()
             patched_idle.activate = mock.Mock()
             student.study()

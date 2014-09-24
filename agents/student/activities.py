@@ -13,17 +13,17 @@ class BaseStudentActivity:
         return self._student.env
 
 
-class IdleStudentActivity(BaseStudentActivity):
+class IdleActivity(BaseStudentActivity):
     def __init__(self, student):
-        super(IdleStudentActivity, self).__init__(student)
+        super(IdleActivity, self).__init__(student)
 
     def activate(self, length):
         yield self.env.timeout(length)
 
 
-class StudySessionStudentActivity(BaseStudentActivity):
+class StudySessionActivity(BaseStudentActivity):
     def __init__(self, student):
-        super(StudySessionStudentActivity, self).__init__(student)
+        super(StudySessionActivity, self).__init__(student)
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def activate(self, length):
@@ -55,3 +55,11 @@ class StudySessionStudentActivity(BaseStudentActivity):
 
         if stop:
             self._student.stop_participation()
+
+
+class StudentInteractionActivity(BaseStudentActivity):
+    def __init__(self, student):
+        super(StudentInteractionActivity, self).__init__(student)
+
+    def activate(self, length):
+        pass

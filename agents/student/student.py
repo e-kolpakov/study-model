@@ -124,8 +124,8 @@ class Student(IntelligentAgent):
         :rtype: None
         """
         self._logger.debug("Updating knowledge")
-        knowledge_to_acquire = self._acquire_knowledge(resource)
-        time_to_study = self._get_time_to_study(knowledge_to_acquire)
+        knowledge_to_acquire = self._behavior.knowledge_acquisition.acquire_facts(self, resource)
+        time_to_study = self.get_time_to_study(knowledge_to_acquire)
         yield self.env.timeout(time_to_study)
         self._add_knowledge(knowledge_to_acquire)
 
@@ -138,7 +138,7 @@ class Student(IntelligentAgent):
     def _add_knowledge(self, new_knowledge):
         self._knowledge = self._knowledge | new_knowledge
 
-    def _get_time_to_study(self, facts):
+    def get_time_to_study(self, facts):
         """
         Calculates time required to study a set of facts
         :param facts: frozenset[knowledge_representation.Fact]
@@ -146,24 +146,7 @@ class Student(IntelligentAgent):
         """
         return sum(fact.complexity for fact in facts) / self.skill
 
-    def _choose_resource(self, available_resources):
-        """
-        :type available_resources: tuple[Resource]
-        :rtype: Resource
-        """
-        return self._behavior.resource_choice.choose_resource(self, self.curriculum, available_resources)
-
-    def _acquire_knowledge(self, resource):
-        """
-        :type resource: Resource
-        :rtype: frozenset[knowledge_representation.Fact]
-        """
-        return self._behavior.knowledge_acquisition.acquire_facts(self, resource)
-
     def stop_participation(self):
-        """
-        :rtype: bool
-        """
         self.stop_participation_event.succeed()
 
 

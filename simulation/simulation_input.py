@@ -86,5 +86,5 @@ class SimulationInputBuilder:
     def build_students(curriculum):
         return [
             RationalStudent("John", [], agent_id='s1', skill=2.0),
-            RationalStudent("Jim", [], agent_id='s2', skill=0.5)
+            RationalStudent("Jim", [], agent_id='s2', skill=1.0)
         ]

@@ -6,7 +6,7 @@ from simulation.result import ResultTopics
 __author__ = 'e.kolpakov'
 
 snapshots = True
-deltas = True
+deltas = False
 counts = True
 
 

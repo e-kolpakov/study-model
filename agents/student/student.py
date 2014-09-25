@@ -62,7 +62,7 @@ class Student(IntelligentAgent):
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_COUNT, converter=lambda x: len(x))
-    @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x - y)
+    # @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x - y)
     def knowledge(self):
         """
         :rtype: frozenset
@@ -125,9 +125,10 @@ class Student(IntelligentAgent):
         """
         self._logger.debug("Updating knowledge")
         knowledge_to_acquire = self._behavior.knowledge_acquisition.acquire_facts(self, resource)
-        time_to_study = self.get_time_to_study(knowledge_to_acquire)
-        yield self.env.timeout(time_to_study)
-        self._add_knowledge(knowledge_to_acquire)
+        for fact in knowledge_to_acquire:
+            time_to_study = fact.complexity / self.skill
+            yield self.env.timeout(time_to_study)
+            self._add_fact(fact)
 
         self._logger.debug("Student {name}: Studying resource {resource_name} done at {time}".format(
             name=self.name, resource_name=resource.name, time=self.env.now
@@ -135,8 +136,8 @@ class Student(IntelligentAgent):
         return
 
     @observer_trigger
-    def _add_knowledge(self, new_knowledge):
-        self._knowledge = self._knowledge | new_knowledge
+    def _add_fact(self, fact):
+        self._knowledge.add(fact)
 
     def get_time_to_study(self, facts):
         """

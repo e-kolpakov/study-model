@@ -118,20 +118,26 @@ class Student(IntelligentAgent):
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
-    def study_resource(self, resource):
+    def study_resource(self, resource, until):
         """
         :type resource: Resource
         :rtype: None
         """
-        self._logger.debug("Updating knowledge")
+        self._logger.debug("{self}: Studying resource, until {until}".format(self=self, until=until))
         knowledge_to_acquire = self._behavior.knowledge_acquisition.acquire_facts(self, resource)
         for fact in knowledge_to_acquire:
             time_to_study = fact.complexity / self.skill
+            if self.env.now + time_to_study > until:
+                self._logger.debug("{self}: To complex fact - skipping to end of study session at {end}".format(
+                    self=self, end=until
+                ))
+                yield self.env.timeout(until - self.env.now)
+                break
             yield self.env.timeout(time_to_study)
             self._add_fact(fact)
 
-        self._logger.debug("Student {name}: Studying resource {resource_name} done at {time}".format(
-            name=self.name, resource_name=resource.name, time=self.env.now
+        self._logger.debug("{self}: Studying resource {resource_name} done at {time}".format(
+            self=self, resource_name=resource.name, time=self.env.now
         ))
         return
 

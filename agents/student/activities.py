@@ -28,29 +28,30 @@ class StudySessionActivity(BaseStudentActivity):
 
     def activate(self, length):
         entered = self.env.now
-        self._logger.debug("Student {name} study session of length {length} started at {time}".format(
-            name=self._student, time=self.env.now, length=length
+        self._logger.debug("{student} study session of length {length} started at {time}".format(
+            student=self._student, time=self.env.now, length=length
         ))
+
+        study_until = entered + length
 
         choose_resource = self._student.behavior.resource_choice.choose_resource
         study_resource = self._student.study_resource
         get_accessible_resources = self._student.resource_lookup_service.get_accessible_resources
         stop_participation = self._student.behavior.stop_participation.stop_participation
-        get_remaining_time = lambda now: entered + length - now
 
         def get_loop_parameters():
             res = get_accessible_resources(self._student)
             stop = stop_participation(self._student, self._student.curriculum, res)
-            time = get_remaining_time(self.env.now)
+            time = study_until - self.env.now
             return time, res, stop
 
         remaining_time, resources, stop = get_loop_parameters()
         while remaining_time > 0 and not stop and resources:
             resource_to_study = choose_resource(self._student, self._student.curriculum, resources, remaining_time)
             self._logger.info(
-                "Student {0}: resource {1} chosen at {2}".format(self._student, resource_to_study, self.env.now)
+                "{0}: resource {1} chosen at {2}".format(self._student, resource_to_study, self.env.now)
             )
-            yield from study_resource(resource_to_study)
+            yield from study_resource(resource_to_study, study_until)
             remaining_time, resources, stop = get_loop_parameters()
 
         if stop:

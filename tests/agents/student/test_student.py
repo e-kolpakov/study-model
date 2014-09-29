@@ -105,9 +105,9 @@ class TestStudent:
         (6, [Fact("A", complexity=1), Fact('B', complexity=2)]),
     ])
     def test_study_resource_yields_timeout_for_duration_of_study(self, student, behavior_group, resource, env, skill, facts):
-        behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=set(facts))
+        behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=facts)
         student._skill = skill
-        expected_timeout = sum(fact.complexity for fact in facts) / skill
+        expected_timeouts = [fact.complexity / skill for fact in facts]
 
         timeout_catcher = []
         old_timeout = env.timeout
@@ -118,7 +118,7 @@ class TestStudent:
         with patch.object(env, 'timeout', env_timeout_override):
             env.process(student.study_resource(resource))
             env.run()
-        assert timeout_catcher == [expected_timeout]
+        assert timeout_catcher == expected_timeouts
 
     # def test_study_cycle(self, student, behavior_group, env, resource_lookup):
     #     resources = [Resource('A', []),  Resource('B', [])]

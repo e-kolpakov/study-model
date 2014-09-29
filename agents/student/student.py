@@ -124,7 +124,7 @@ class Student(IntelligentAgent):
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
-    def study_resource(self, resource, until):
+    def study_resource(self, resource, until=100):
         """
         :type resource: Resource
         :rtype: None

@@ -1,4 +1,5 @@
 import logging
+import simpy
 
 __author__ = 'e.kolpakov'
 
@@ -12,13 +13,16 @@ class BaseStudentActivity:
     def env(self):
         return self._student.env
 
+    def activate(self, length, **kwargs):
+        raise NotImplemented
+
 
 class IdleActivity(BaseStudentActivity):
     def __init__(self, student):
         super(IdleActivity, self).__init__(student)
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def activate(self, length):
+    def activate(self, length, **kwargs):
         self._logger.debug("{student} idle session of length {length} started at {time}".format(
             student=self._student, time=self.env.now, length=length
         ))
@@ -30,11 +34,13 @@ class StudySessionActivity(BaseStudentActivity):
         super(StudySessionActivity, self).__init__(student)
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def activate(self, length):
+    def activate(self, length, **kwargs):
         entered = self.env.now
         self._logger.debug("{student} study session of length {length} started at {time}".format(
             student=self._student, time=self.env.now, length=length
         ))
+
+        interruptable = kwargs.get('interruptable', False)
 
         study_until = entered + length
 
@@ -52,14 +58,19 @@ class StudySessionActivity(BaseStudentActivity):
         remaining_time, resources, stop = get_loop_parameters()
         while remaining_time > 0 and not stop and resources:
             resource_to_study = choose_resource(self._student, self._student.curriculum, resources, remaining_time)
-            self._logger.info(
-                "{0}: resource {1} chosen at {2}".format(self._student, resource_to_study, self.env.now)
-            )
-            study_resourse = self.env.process(study_resource(resource_to_study, study_until))
-            completed = yield study_resourse
-            if not completed:
-                break
-            remaining_time, resources, stop = get_loop_parameters()
+            self._logger.info("{0}: resource {1} chosen at {2}".format(self._student, resource_to_study, self.env.now))
+            study_event = self.env.process(study_resource(resource_to_study, study_until))
+            try:
+                completed = yield study_event
+                if not completed:
+                    break
+                remaining_time, resources, stop = get_loop_parameters()
+            except simpy.Interrupt as i:
+                if not interruptable:
+                    yield study_event
+                else:
+                    study_event.interrupt(i.cause)
+                    break
 
         if stop:
             self._student.stop_participation()
@@ -69,5 +80,5 @@ class StudentInteractionActivity(BaseStudentActivity):
     def __init__(self, student):
         super(StudentInteractionActivity, self).__init__(student)
 
-    def activate(self, length):
+    def activate(self, length, **kwargs):
         pass

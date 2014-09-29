@@ -1,4 +1,5 @@
 import logging
+from simpy import Interrupt
 
 from agents.base_agents import IntelligentAgent
 from agents.student.activities import IdleActivity, StudySessionActivity
@@ -136,8 +137,11 @@ class Student(IntelligentAgent):
             if self.env.now + time_to_study > until:
                 self._logger.debug("{self}: not enough time to study fact - skipping".format(self=self))
                 return False
-            yield self.env.timeout(time_to_study)
-            self._add_fact(fact)
+            try:
+                yield self.env.timeout(time_to_study)
+                self._add_fact(fact)
+            except Interrupt:
+                return False
 
         self._logger.debug("{self}: Studying resource {resource_name} done at {time}".format(
             self=self, resource_name=resource.name, time=self.env.now

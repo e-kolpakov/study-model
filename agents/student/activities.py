@@ -16,8 +16,12 @@ class BaseStudentActivity:
 class IdleActivity(BaseStudentActivity):
     def __init__(self, student):
         super(IdleActivity, self).__init__(student)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     def activate(self, length):
+        self._logger.debug("{student} idle session of length {length} started at {time}".format(
+            student=self._student, time=self.env.now, length=length
+        ))
         yield self.env.timeout(length)
 
 
@@ -51,7 +55,10 @@ class StudySessionActivity(BaseStudentActivity):
             self._logger.info(
                 "{0}: resource {1} chosen at {2}".format(self._student, resource_to_study, self.env.now)
             )
-            yield from study_resource(resource_to_study, study_until)
+            study_resourse = self.env.process(study_resource(resource_to_study, study_until))
+            completed = yield study_resourse
+            if not completed:
+                break
             remaining_time, resources, stop = get_loop_parameters()
 
         if stop:

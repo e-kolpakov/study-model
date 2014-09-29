@@ -39,6 +39,8 @@ class Student(IntelligentAgent):
 
         self._logger = logging.getLogger(__name__)
 
+        self._current_activity = None
+
         self.__init_activities()
 
     def __init_activities(self):
@@ -58,6 +60,10 @@ class Student(IntelligentAgent):
         :return: BehaviorGroup
         """
         return self._behavior
+
+    @property
+    def current_activity(self):
+        return self._current_activity
 
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
@@ -111,10 +117,10 @@ class Student(IntelligentAgent):
     def study(self):
         while not self.stop_participation_event.processed:
             study_session_length = self._behavior.study_period.get_study_period(self, self.env.now)
-            yield self.env.process(self.study_session_activity.activate(study_session_length))
+            yield self.env.process(self._activate(self.study_session_activity, study_session_length))
 
             idle_session_length = self._behavior.study_period.get_idle_period(self, self.env.now)
-            yield self.env.process(self.idle_activity.activate(idle_session_length))
+            yield self.env.process(self._activate(self.idle_activity, idle_session_length))
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
@@ -141,6 +147,11 @@ class Student(IntelligentAgent):
     @observer_trigger
     def _add_fact(self, fact):
         self._knowledge.add(fact)
+
+    def _activate(self, activity, length, **kwargs):
+        process = activity.activate(length, **kwargs)
+        self._current_activity = process
+        return process
 
     def get_time_to_study(self, facts):
         """

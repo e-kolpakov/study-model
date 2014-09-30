@@ -1,16 +1,14 @@
 import logging
+
 from simpy import Interrupt
 
 from agents.base_agents import IntelligentAgent
-from agents.student.activities import IdleActivity, StudySessionActivity
+from agents.student.activities import IdleActivity, StudySessionActivity, HandshakeActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
-from agents.student.behaviors.knowledge_acquisition import AllDependenciesAcquisitionBehavior
-from agents.student.behaviors.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior
-from agents.student.behaviors.stop_participation import CourseCompleteStopParticipationBehavior
-from agents.student.behaviors.study_period import QuarterHourRandomStudyPeriodBehavior
-from infrastructure.descriptors import TypedDescriptor, TypedDescriptorWithDefault
-from infrastructure.observers import Observer, DeltaObserver, observer_trigger, AgentCallObserver
+from infrastructure.descriptors import TypedDescriptor
+from infrastructure.observers import Observer, observer_trigger, AgentCallObserver
 from simulation.result import ResultTopics
+
 
 __author__ = 'e.kolpakov'
 
@@ -19,6 +17,7 @@ class Student(IntelligentAgent):
 
     idle_activity = TypedDescriptor(IdleActivity, 'idle_activity')
     study_session_activity = TypedDescriptor(StudySessionActivity, 'study_session_activity')
+    handshake_activity = TypedDescriptor(HandshakeActivity, 'handshake_activity')
 
     def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
         """
@@ -41,12 +40,21 @@ class Student(IntelligentAgent):
         self._logger = logging.getLogger(__name__)
 
         self._current_activity = None
+        self._current_activity_end = None
 
         self.__init_activities()
 
     def __init_activities(self):
+        # TODO: improve activity discovery
         self.idle_activity = IdleActivity(self)
         self.study_session_activity = StudySessionActivity(self)
+        self.handshake_activity = HandshakeActivity(self)
+
+        self.__activities_list = {
+            type(IdleActivity): self.idle_activity,
+            type(StudySessionActivity): self.study_session_activity,
+            type(HandshakeActivity): self.handshake_activity,
+        }
 
     def __unicode__(self):
         return "{type} {name}({id})".format(type=type(self).__name__, id=self._agent_id, name=self._name)
@@ -69,7 +77,6 @@ class Student(IntelligentAgent):
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_COUNT, converter=lambda x: len(x))
-    # @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda x, y: x - y)
     def knowledge(self):
         """
         :rtype: frozenset
@@ -155,6 +162,7 @@ class Student(IntelligentAgent):
     def _activate(self, activity, length, **kwargs):
         process = activity.activate(length, **kwargs)
         self._current_activity = process
+        self._current_activity_end = self.env.now + length
         return process
 
     def get_time_to_study(self, facts):
@@ -168,24 +176,21 @@ class Student(IntelligentAgent):
     def stop_participation(self):
         self.stop_participation_event.succeed()
 
+    def get_next_conversation_availability(self):
+        if self._current_activity == self.study_session_activity:
+            result = self._current_activity_end
+        else:
+            result = self.env.now
 
-class RationalStudent(Student):
-    def __init__(self, name, knowledge, **kwargs):
-        behavior = BehaviorGroup.make_group(
-            resource_choice=RationalResourceChoiceBehavior(),
-            knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
-            stop_participation=CourseCompleteStopParticipationBehavior(),
-            study_period=QuarterHourRandomStudyPeriodBehavior(kwargs.get('study_period', 10), kwargs.get('idle_period', 20))
-        )
-        super(RationalStudent, self).__init__(name, knowledge, behavior, **kwargs)
+        assert result > self.env.now
+        return result
 
+    def request_activity_start(self, activity_type, length, **kwargs):
+        requested_activity = self.__activities_list.get(activity_type, None)
+        if requested_activity is None:
+            self._logger.warn("Requested activity {type} nt found".format(type=activity_type))
+            return False
 
-class RandomStudent(Student):
-    def __init__(self, name, knowledge, **kwargs):
-        behavior = BehaviorGroup.make_group(
-            resource_choice=RandomResourceChoiceBehavior(),
-            knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
-            stop_participation=CourseCompleteStopParticipationBehavior(),
-            study_period=QuarterHourRandomStudyPeriodBehavior(kwargs.get('study_period', 10), kwargs.get('idle_period', 20))
-        )
-        super(RandomStudent, self).__init__(name, knowledge, behavior, **kwargs)
+        # TODO: check if we really want to switch activity
+        self._activate(requested_activity, length, **kwargs)
+        return True

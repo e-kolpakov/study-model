@@ -3,7 +3,7 @@ import random
 __author__ = 'e.kolpakov'
 
 
-class BaseStudyPeriodBehavior:
+class BaseActivityLengthsBehavior:
     def get_study_period(self, student, current_time):
         """
         Gets time span for studying resources
@@ -20,11 +20,21 @@ class BaseStudyPeriodBehavior:
         """
         raise NotImplemented()
 
+    def get_handshake_wait(self, student, current_time):
+        """
+        Gets time span for handshake
+        :param student:
+        :param current_time:
+        :return:
+        """
+        raise NotImplemented()
 
-class FixedStudyPeriodBehavior(BaseStudyPeriodBehavior):
-    def __init__(self, study_period=10, idle_period=20):
+
+class FixedActivityLengthsBehavior(BaseActivityLengthsBehavior):
+    def __init__(self, study_period=10, idle_period=20, handshake_period=2):
         self._idle_period = idle_period
         self._study_period = study_period
+        self._handshake_period = handshake_period
 
     def get_study_period(self, student, current_time):
         return self._study_period
@@ -32,13 +42,18 @@ class FixedStudyPeriodBehavior(BaseStudyPeriodBehavior):
     def get_idle_period(self, student, current_time):
         return self._idle_period
 
+    def get_handshake_wait(self, student, current_time):
+        return self._handshake_period
 
-class RandomStudyPeriodBehavior(BaseStudyPeriodBehavior):
-    def __init__(self, max_study_period=10, max_idle_period=20):
+
+class RandomActivityLengthsBehavior(BaseActivityLengthsBehavior):
+    def __init__(self, max_study_period=10, max_idle_period=20, max_handshake_period=5):
         self._max_idle_period = max_idle_period
         self._max_study_period = max_study_period
+        self._max_handshake_period = max_handshake_period
 
-    def _get_rounded_random(self, max_value, decimal_points=2):
+    @staticmethod
+    def _get_rounded_random(max_value, decimal_points=2):
         return round(random.random() * max_value, decimal_points)
 
     def get_study_period(self, student, current_time):
@@ -47,13 +62,18 @@ class RandomStudyPeriodBehavior(BaseStudyPeriodBehavior):
     def get_idle_period(self, student, current_time):
         return self._get_rounded_random(self._max_idle_period)
 
+    def get_handshake_wait(self, student, current_time):
+        return self._get_rounded_random(self._max_handshake_period)
 
-class QuarterHourRandomStudyPeriodBehavior(BaseStudyPeriodBehavior):
-    def __init__(self, max_study_period=10, max_idle_period=20):
+
+class QuarterHourRandomActivityLengthsBehavior(BaseActivityLengthsBehavior):
+    def __init__(self, max_study_period=10, max_idle_period=20, max_handshake_period=5):
         self._max_idle_period = max_idle_period
         self._max_study_period = max_study_period
+        self._max_handshake_period = max_handshake_period
 
-    def _get_random_quarters(self, max_value):
+    @staticmethod
+    def _get_random_quarters(max_value):
         return random.randrange(max_value*4) * 1.0 / 4.0
 
     def get_study_period(self, student, current_time):
@@ -61,3 +81,6 @@ class QuarterHourRandomStudyPeriodBehavior(BaseStudyPeriodBehavior):
 
     def get_idle_period(self, student, current_time):
         return self._get_random_quarters(self._max_idle_period)
+
+    def get_handshake_wait(self, student, current_time):
+        return self._get_random_quarters(self._max_handshake_period)

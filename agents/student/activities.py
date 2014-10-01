@@ -77,34 +77,34 @@ class StudySessionActivity(BaseStudentActivity):
             self._student.stop_participation()
 
 
-class HandshakeActivity(BaseStudentActivity):
+class SymmetricalHandshakeActivity(BaseStudentActivity):
     def __init__(self, student):
-        super(HandshakeActivity, self).__init__(student)
+        super(SymmetricalHandshakeActivity, self).__init__(student)
 
     def activate(self, length, **kwargs):
         from agents.student import Student
-        student = kwargs.get('student', None)
+        other_student = kwargs.get('other_student', None)
         next_activity_type = kwargs.get('next_activity_type', None)
-        if student is None or not isinstance(student, Student):
-            raise ValueError("Student instance expected, {0} given".format(type(student)))
+        if other_student is None or not isinstance(other_student, Student):
+            raise ValueError("Student instance expected, {0} given".format(type(other_student)))
         if next_activity_type is None or not isinstance(next_activity_type, BaseStudentActivity):
             raise ValueError("Activity type expected, {0} given".format(type(next_activity_type)))
 
-        wait_until = kwargs.get('wait_until', self.env.now + 2)
-        other_availability = student.get_next_conversation_availability()
+        wait_until = self.env.now + length
+        other_availability = other_student.get_next_conversation_availability()
 
         next_activity_parameters = copy.deepcopy(kwargs)
-        del next_activity_parameters['student']
+        del next_activity_parameters['other_student']
         del next_activity_parameters['next_activity_type']
-        del next_activity_parameters['wait_until']
 
         if other_availability > wait_until:
             return False
 
         yield self.env.timeout(other_availability - self.env.now)
-        length = 10  # TODO: determine session length collaboratively
-        student.request_activity_start(next_activity_type, length, **next_activity_parameters)
-        return True
+        next_activity_length = 10  # TODO: determine session length collaboratively
+        other_started = other_student.request_activity_start(next_activity_type, next_activity_length, **next_activity_parameters)
+        started = self._student.request_activity_start(next_activity_type, next_activity_length, **next_activity_parameters)
+        return other_started and started
 
 
 class StudentInteractionActivity(BaseStudentActivity):

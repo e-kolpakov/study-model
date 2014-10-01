@@ -5,7 +5,7 @@ from unittest.mock import patch, PropertyMock
 import pytest
 from simpy import Environment
 from agents.student.activities import StudySessionActivity, IdleActivity
-from agents.student.behaviors.study_period import BaseStudyPeriodBehavior
+from agents.student.behaviors.study_period import BaseActivityLengthsBehavior
 from agents.resource import Resource
 from agents.student import Student
 from agents.student.behaviors.behavior_group import BehaviorGroup
@@ -51,8 +51,8 @@ class TestStudent:
     #     logger = logging.getLogger(agents.student.__name__)
     #     resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
     #     behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
-    #     behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
-    #     behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
+    #     behavior_group.activity_periods.get_study_period = mock.Mock(return_value=10)
+    #     behavior_group.activity_periods.get_idle_period = mock.Mock(return_value=10)
     #     with patch.object(logger, 'warn') as mocked_warn, \
     #             patch.object(student, '_choose_resource') as resource_choice, \
     #             patch.object(student, 'observe'):
@@ -70,8 +70,8 @@ class TestStudent:
     #     resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
     #     behavior_group.resource_choice.choose_resource = mock.Mock(return_value=resource1)
     #     behavior_group.stop_participation.stop_participation = mock.Mock(return_value=True)
-    #     behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
-    #     behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
+    #     behavior_group.activity_periods.get_study_period = mock.Mock(return_value=10)
+    #     behavior_group.activity_periods.get_idle_period = mock.Mock(return_value=10)
     #
     #     with patch.object(student, 'study_resource') as patched_study_resource, patch.object(student, 'observe'):
     #         patched_study_resource.return_value = (env.timeout(i) for i in range(1))
@@ -123,8 +123,8 @@ class TestStudent:
     # def test_study_cycle(self, student, behavior_group, env, resource_lookup):
     #     resources = [Resource('A', []),  Resource('B', [])]
     #     resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
-    #     behavior_group.study_period.get_study_period = mock.Mock(return_value=10)
-    #     behavior_group.study_period.get_idle_period = mock.Mock(return_value=10)
+    #     behavior_group.activity_periods.get_study_period = mock.Mock(return_value=10)
+    #     behavior_group.activity_periods.get_idle_period = mock.Mock(return_value=10)
     #     with patch.object(student, '_study_session') as patched_study_session, \
     #         patch.object(student, '_idle_session') as patched_idle_session:
     #         patched_study_session.return_value = (env.timeout(i) for i in [10])

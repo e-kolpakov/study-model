@@ -3,7 +3,7 @@ import logging
 from simpy import Interrupt
 
 from agents.base_agents import IntelligentAgent
-from agents.student.activities import IdleActivity, StudySessionActivity, HandshakeActivity
+from agents.student.activities import IdleActivity, StudySessionActivity, SymmetricalHandshakeActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from infrastructure.descriptors import TypedDescriptor
 from infrastructure.observers import Observer, observer_trigger, AgentCallObserver
@@ -17,7 +17,7 @@ class Student(IntelligentAgent):
 
     idle_activity = TypedDescriptor(IdleActivity, 'idle_activity')
     study_session_activity = TypedDescriptor(StudySessionActivity, 'study_session_activity')
-    handshake_activity = TypedDescriptor(HandshakeActivity, 'handshake_activity')
+    handshake_activity = TypedDescriptor(SymmetricalHandshakeActivity, 'handshake_activity')
 
     def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
         """
@@ -48,12 +48,12 @@ class Student(IntelligentAgent):
         # TODO: improve activity discovery
         self.idle_activity = IdleActivity(self)
         self.study_session_activity = StudySessionActivity(self)
-        self.handshake_activity = HandshakeActivity(self)
+        self.handshake_activity = SymmetricalHandshakeActivity(self)
 
         self.__activities_list = {
             type(IdleActivity): self.idle_activity,
             type(StudySessionActivity): self.study_session_activity,
-            type(HandshakeActivity): self.handshake_activity,
+            type(SymmetricalHandshakeActivity): self.handshake_activity,
         }
 
     def __unicode__(self):
@@ -124,10 +124,10 @@ class Student(IntelligentAgent):
 
     def study(self):
         while not self.stop_participation_event.processed:
-            study_session_length = self._behavior.study_period.get_study_period(self, self.env.now)
+            study_session_length = self._behavior.activity_periods.get_study_period(self, self.env.now)
             yield self.env.process(self._activate(self.study_session_activity, study_session_length))
 
-            idle_session_length = self._behavior.study_period.get_idle_period(self, self.env.now)
+            idle_session_length = self._behavior.activity_periods.get_idle_period(self, self.env.now)
             yield self.env.process(self._activate(self.idle_activity, idle_session_length))
 
     @observer_trigger
@@ -190,6 +190,10 @@ class Student(IntelligentAgent):
         if requested_activity is None:
             self._logger.warn("Requested activity {type} nt found".format(type=activity_type))
             return False
+
+        self._logger.debug("Requested to start activity {type} with args {kwargs}".format(
+            type=activity_type, kwargs=kwargs
+        ))
 
         # TODO: check if we really want to switch activity
         self._activate(requested_activity, length, **kwargs)

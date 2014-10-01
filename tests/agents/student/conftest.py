@@ -8,7 +8,7 @@ from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
 from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
 from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
-from agents.student.behaviors.study_period import BaseStudyPeriodBehavior
+from agents.student.behaviors.study_period import BaseActivityLengthsBehavior
 from simulation.resource_lookup_service import ResourceLookupService
 
 __author__ = 'e.kolpakov'
@@ -19,7 +19,7 @@ def behavior_group():
     bhg.resource_choice = mock.Mock(BaseResourceChoiceBehavior)
     bhg.knowledge_acquisition = mock.Mock(BaseFactsAcquisitionBehavior)
     bhg.stop_participation = mock.Mock(BaseStopParticipationBehavior)
-    bhg.study_period = mock.Mock(BaseStudyPeriodBehavior)
+    bhg.study_period = mock.Mock(BaseActivityLengthsBehavior)
     return bhg
 
 

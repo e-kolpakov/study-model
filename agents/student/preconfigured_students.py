@@ -13,7 +13,7 @@ class RationalStudent(Student):
             resource_choice=RationalResourceChoiceBehavior(),
             knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
             stop_participation=CourseCompleteStopParticipationBehavior(),
-            study_period=QuarterHourRandomActivityLengthsBehavior(
+            activity_periods=QuarterHourRandomActivityLengthsBehavior(
                 kwargs.get('activity_periods', 10), kwargs.get('idle_period', 20), kwargs.get('handshake_period', 20)
             )
         )
@@ -26,7 +26,7 @@ class RandomStudent(Student):
             resource_choice=RandomResourceChoiceBehavior(),
             knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
             stop_participation=CourseCompleteStopParticipationBehavior(),
-            study_period=QuarterHourRandomActivityLengthsBehavior(
+            activity_periods=QuarterHourRandomActivityLengthsBehavior(
                 kwargs.get('activity_periods', 10), kwargs.get('idle_period', 20), kwargs.get('handshake_period', 20)
             )
         )

@@ -65,9 +65,7 @@ class Student(IntelligentAgent):
 
     @property
     def behavior(self):
-        """
-        :return: BehaviorGroup
-        """
+        """ :return: BehaviorGroup """
         return self._behavior
 
     @property
@@ -78,9 +76,7 @@ class Student(IntelligentAgent):
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_COUNT, converter=lambda x: len(x))
     def knowledge(self):
-        """
-        :rtype: frozenset
-        """
+        """ :rtype: frozenset """
         return frozenset(self._knowledge)
 
     @property
@@ -96,30 +92,22 @@ class Student(IntelligentAgent):
 
     @property
     def resource_lookup_service(self):
-        """
-        :rtype: ResourceLookupService
-        """
+        """ :rtype: ResourceLookupService """
         return self._resource_lookup_service
 
     @resource_lookup_service.setter
     def resource_lookup_service(self, value):
-        """
-        :type value: ResourceLookupService
-        """
+        """ :type value: ResourceLookupService """
         self._resource_lookup_service = value
 
     @property
     def curriculum(self):
-        """
-        :rtype: knowledge_representation.Curriculum
-        """
+        """ :rtype: knowledge_representation.Curriculum """
         return self._curriculum
 
     @curriculum.setter
     def curriculum(self, value):
-        """
-        :type value: knowledge_representation.Curriculum
-        """
+        """ :type value: knowledge_representation.Curriculum """
         self._curriculum = value
 
     def study(self):
@@ -165,15 +153,8 @@ class Student(IntelligentAgent):
         self._current_activity_end = self.env.now + length
         return process
 
-    def get_time_to_study(self, facts):
-        """
-        Calculates time required to study a set of facts
-        :param facts: frozenset[knowledge_representation.Fact]
-        :return: double
-        """
-        return sum(fact.complexity for fact in facts) / self.skill
-
     def stop_participation(self):
+        # TODO: check if we really wnat to stop participation
         self.stop_participation_event.succeed()
 
     def get_next_conversation_availability(self):

@@ -1,3 +1,4 @@
+from itertools import cycle
 import logging
 
 from simpy import Interrupt
@@ -50,10 +51,16 @@ class Student(IntelligentAgent):
         self.study_session_activity = StudySessionActivity(self)
         self.handshake_activity = SymmetricalHandshakeActivity(self)
 
-        self.__activities_list = {
-            type(IdleActivity): self.idle_activity,
-            type(StudySessionActivity): self.study_session_activity,
-            type(SymmetricalHandshakeActivity): self.handshake_activity,
+        self._activities_list = {
+            IdleActivity: self.idle_activity,
+            StudySessionActivity: self.study_session_activity,
+            SymmetricalHandshakeActivity: self.handshake_activity,
+        }
+
+        self._activity_lengths = {
+            IdleActivity: self._behavior.activity_periods.get_study_period,
+            StudySessionActivity: self._behavior.activity_periods.get_idle_period,
+            SymmetricalHandshakeActivity: self._behavior.activity_periods.get_handshake_wait,
         }
 
     def __unicode__(self):
@@ -112,11 +119,9 @@ class Student(IntelligentAgent):
 
     def study(self):
         while not self.stop_participation_event.processed:
-            study_session_length = self._behavior.activity_periods.get_study_period(self, self.env.now)
-            yield self.env.process(self._activate(self.study_session_activity, study_session_length))
-
-            idle_session_length = self._behavior.activity_periods.get_idle_period(self, self.env.now)
-            yield self.env.process(self._activate(self.idle_activity, idle_session_length))
+            for activity in [self.study_session_activity, self.idle_activity]:
+                activity_length = self._activity_lengths.get(type(activity))(self, self.env.now)
+                yield self.env.process(self._activate(activity, activity_length))
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
@@ -166,10 +171,16 @@ class Student(IntelligentAgent):
         assert result > self.env.now
         return result
 
-    def request_activity_start(self, activity_type, length, **kwargs):
-        requested_activity = self.__activities_list.get(activity_type, None)
+    def _get_activity_by_type(self, activity_type):
+        requested_activity = self._activities_list.get(activity_type, None)
         if requested_activity is None:
             self._logger.warn("Requested activity {type} nt found".format(type=activity_type))
+        return requested_activity
+
+    def request_activity_start(self, activity_type, length, **kwargs):
+        requested_activity = self._get_activity_by_type(activity_type)
+
+        if requested_activity is None:
             return False
 
         self._logger.debug("Requested to start activity {type} with args {kwargs}".format(

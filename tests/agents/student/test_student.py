@@ -41,11 +41,11 @@ class TestStudent:
         student._stop_participation_event.processed = mock.PropertyMock(return_value=True)
         with patch.object(student, 'study_session_activity', spec=StudySessionActivity) as patched_study_session,\
             patch.object(student, 'idle_activity', spec=IdleActivity) as patched_idle:
-            patched_study_session.activate = mock.Mock()
-            patched_idle.activate = mock.Mock()
+            patched_study_session.run = mock.Mock()
+            patched_idle.run = mock.Mock()
             student.study()
-            assert not patched_study_session.activate.called
-            assert not patched_idle.activate.called
+            assert not patched_study_session.run.called
+            assert not patched_idle.run.called
 
     # def test_study_no_resources_logs_and_returns(self, student, resource_lookup, behavior_group, env):
     #     logger = logging.getLogger(agents.student.__name__)

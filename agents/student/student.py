@@ -4,7 +4,7 @@ import logging
 from simpy import Interrupt
 
 from agents.base_agents import IntelligentAgent
-from agents.student.activities import IdleActivity, StudySessionActivity, SymmetricalHandshakeActivity
+from agents.student.activities import IdleActivity, StudySessionActivity, PeerStudentInteractionActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from infrastructure.descriptors import TypedDescriptor
 from infrastructure.observers import Observer, observer_trigger, AgentCallObserver
@@ -18,7 +18,7 @@ class Student(IntelligentAgent):
 
     idle_activity = TypedDescriptor(IdleActivity, 'idle_activity')
     study_session_activity = TypedDescriptor(StudySessionActivity, 'study_session_activity')
-    handshake_activity = TypedDescriptor(SymmetricalHandshakeActivity, 'handshake_activity')
+    peer_student_interaction = TypedDescriptor(PeerStudentInteractionActivity, 'peer_student_interaction')
 
     def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
         """
@@ -49,18 +49,18 @@ class Student(IntelligentAgent):
         # TODO: improve activity discovery
         self.idle_activity = IdleActivity(self)
         self.study_session_activity = StudySessionActivity(self)
-        self.handshake_activity = SymmetricalHandshakeActivity(self)
+        self.peer_student_interaction = PeerStudentInteractionActivity(self)
 
         self._activities_list = {
             IdleActivity: self.idle_activity,
             StudySessionActivity: self.study_session_activity,
-            SymmetricalHandshakeActivity: self.handshake_activity,
+            PeerStudentInteractionActivity: self.peer_student_interaction,
         }
 
         self._activity_lengths = {
             IdleActivity: self._behavior.activity_periods.get_study_period,
             StudySessionActivity: self._behavior.activity_periods.get_idle_period,
-            SymmetricalHandshakeActivity: self._behavior.activity_periods.get_handshake_wait,
+            PeerStudentInteractionActivity: self._behavior.activity_periods.get_peer_wait,
         }
 
     def __unicode__(self):
@@ -121,6 +121,7 @@ class Student(IntelligentAgent):
         while not self.stop_participation_event.processed:
             for activity in [self.study_session_activity, self.idle_activity]:
                 activity_length = self._activity_lengths.get(type(activity))(self, self.env.now)
+                activity.prepare()
                 yield self.env.process(self._activate(activity, activity_length))
 
     @observer_trigger
@@ -153,7 +154,7 @@ class Student(IntelligentAgent):
         self._knowledge.add(fact)
 
     def _activate(self, activity, length, **kwargs):
-        process = activity.activate(length, **kwargs)
+        process = activity.run(length)
         self._current_activity = process
         self._current_activity_end = self.env.now + length
         return process

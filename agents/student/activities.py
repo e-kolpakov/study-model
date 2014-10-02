@@ -9,13 +9,20 @@ class BaseStudentActivity:
     def __init__(self, student):
         """:type: Student"""
         self._student = student
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     @property
     def env(self):
         return self._student.env
 
-    def activate(self, length, **kwargs):
+    def prepare(self, **kwargs):
+        pass
+
+    def run(self, length):
         raise NotImplemented
+
+    def cancel(self):
+        pass
 
 
 class IdleActivity(BaseStudentActivity):
@@ -23,7 +30,7 @@ class IdleActivity(BaseStudentActivity):
         super(IdleActivity, self).__init__(student)
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def activate(self, length, **kwargs):
+    def run(self, length):
         self._logger.debug("{student} idle session of length {length} started at {time}".format(
             student=self._student, time=self.env.now, length=length
         ))
@@ -34,14 +41,16 @@ class StudySessionActivity(BaseStudentActivity):
     def __init__(self, student):
         super(StudySessionActivity, self).__init__(student)
         self._logger = logging.getLogger(self.__class__.__name__)
+        self.interruptable = False
 
-    def activate(self, length, **kwargs):
+    def prepare(self, **kwargs):
+        self.interruptable = kwargs.get('interruptable', False)
+
+    def run(self, length):
         entered = self.env.now
         self._logger.debug("{student} study session of length {length} started at {time}".format(
             student=self._student, time=self.env.now, length=length
         ))
-
-        interruptable = kwargs.get('interruptable', False)
 
         study_until = entered + length
 
@@ -66,8 +75,9 @@ class StudySessionActivity(BaseStudentActivity):
                 if not completed:
                     break
                 remaining_time, resources, stop = get_loop_parameters()
+            # TODO: not tested and not verified
             except simpy.Interrupt as i:
-                if not interruptable:
+                if not self.interruptable:
                     yield study_event
                 else:
                     study_event.interrupt(i.cause)
@@ -77,39 +87,41 @@ class StudySessionActivity(BaseStudentActivity):
             self._student.stop_participation()
 
 
-class SymmetricalHandshakeActivity(BaseStudentActivity):
-    def __init__(self, student):
-        super(SymmetricalHandshakeActivity, self).__init__(student)
+class PeerStudentInteractionActivity(BaseStudentActivity):
 
-    def activate(self, length, **kwargs):
+    PARAMETER_OTHER_STUDENT = 'other_student'
+    PARAMETER_SKIP_HANDSHAKE = 'skip_handshake'
+
+    def __init__(self, student):
+        super(PeerStudentInteractionActivity, self).__init__(student)
+        """ :type: Student """
+        self._other_student = None
+
+    def prepare(self, **kwargs):
         from agents.student import Student
-        other_student = kwargs.get('other_student', None)
-        next_activity_type = kwargs.get('next_activity_type', None)
-        if other_student is None or not isinstance(other_student, Student):
-            raise ValueError("Student instance expected, {0} given".format(type(other_student)))
-        if next_activity_type is None or not isinstance(next_activity_type, BaseStudentActivity):
-            raise ValueError("Activity type expected, {0} given".format(type(next_activity_type)))
+        self._other_student = kwargs.get(self.PARAMETER_OTHER_STUDENT, None)
+        if self._other_student is None or not isinstance(self._other_student, Student):
+            raise ValueError("Student instance expected, {0} given".format(type(self._other_student)))
 
-        wait_until = self.env.now + length
-        other_availability = other_student.get_next_conversation_availability()
+        if not kwargs.get('skip_handshake', False):
+            wait_until = self.env.now + kwargs.get('max_wait', 2)
+            other_availability = self._other_student.get_next_conversation_availability()
 
-        next_activity_parameters = copy.deepcopy(kwargs)
-        del next_activity_parameters['other_student']
-        del next_activity_parameters['next_activity_type']
+            if other_availability > wait_until:
+                return False
 
-        if other_availability > wait_until:
-            return False
+            yield self.env.timeout(other_availability - self.env.now)
 
-        yield self.env.timeout(other_availability - self.env.now)
-        next_activity_length = 10  # TODO: determine session length collaboratively
-        other_started = other_student.request_activity_start(next_activity_type, next_activity_length, **next_activity_parameters)
-        started = self._student.request_activity_start(next_activity_type, next_activity_length, **next_activity_parameters)
-        return other_started and started
+        return True
 
+    def run(self, length):
+        other_kwargs = {self.PARAMETER_OTHER_STUDENT: self._student, self.PARAMETER_SKIP_HANDSHAKE: True}
+        started = self._other_student.request_activity_start(PeerStudentInteractionActivity, length, other_kwargs)
 
-class StudentInteractionActivity(BaseStudentActivity):
-    def __init__(self, student):
-        super(StudentInteractionActivity, self).__init__(student)
-
-    def activate(self, length, **kwargs):
-        pass
+        if not started:
+            self._logger.debug("{student2} refused {activity} with {student1}".format(
+                student1=self._student, activity=self, student2=self._other_student
+            ))
+        self._logger.debug("Handshake successful between {student1} and {student2} for {activity}".format(
+            student1=self._student, activity=self, student2=self._other_student
+        ))

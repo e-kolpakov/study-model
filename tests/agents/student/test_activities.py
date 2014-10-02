@@ -26,7 +26,7 @@ class TestIdleActivity:
     @pytest.mark.parametrize("length", [10, 15, 20, 3, 7, 11])
     def test_activate_sends(self, activity, env, length):
         with patch.object(env, 'timeout') as patched_timeout:
-            env.process(activity.activate(length))
+            env.process(activity.run(length))
             env.run()
             patched_timeout.assert_called_once_with(length)
 

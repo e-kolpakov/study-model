@@ -94,15 +94,15 @@ class PeerStudentInteractionActivity(BaseStudentActivity):
     def __init__(self, student):
         super(PeerStudentInteractionActivity, self).__init__(student)
 
-    def _get_other_student(self, kwargs):
+    def _get_other_student(self, kwargs, default=None):
         from agents.student import Student
-        other_student = kwargs.get(self.PARAMETER_OTHER_STUDENT, None)
+        other_student = kwargs.get(self.PARAMETER_OTHER_STUDENT, default)
         if other_student is None or not isinstance(other_student, Student):
             raise ValueError("Student instance expected, {0} given".format(type(other_student)))
         return other_student
 
     def prepare(self, **kwargs):
-        other_student = self._get_other_student(kwargs)
+        other_student = self._get_other_student(kwargs, self._student.get_known_student())
 
         if not kwargs.get(self.PARAMETER_SKIP_HANDSHAKE, False):
             wait_until = self.env.now + kwargs.get('max_wait', 2)

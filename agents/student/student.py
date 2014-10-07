@@ -1,5 +1,6 @@
 from itertools import cycle
 import logging
+import random
 
 from simpy import Interrupt
 
@@ -9,6 +10,7 @@ from agents.student.behaviors.behavior_group import BehaviorGroup
 from infrastructure.descriptors import TypedDescriptor
 from infrastructure.observers import Observer, observer_trigger, AgentCallObserver
 from simulation.result import ResultTopics
+from simulation.student_register import StudentRegister
 
 
 __author__ = 'e.kolpakov'
@@ -42,6 +44,8 @@ class Student(IntelligentAgent):
 
         self._current_activity = None
         self._current_activity_end = None
+
+        self._student_register = StudentRegister()
 
         self.__init_activities()
 
@@ -119,10 +123,11 @@ class Student(IntelligentAgent):
 
     def study(self):
         while not self.stop_participation_event.processed:
-            for activity in [self.study_session_activity, self.idle_activity]:
-                activity_length = self._activity_lengths.get(type(activity))(self, self.env.now)
-                acctivity_arguments = activity.prepare()
-                yield self.env.process(self._activate(activity, activity_length, **acctivity_arguments))
+            for activity_type in [StudySessionActivity, IdleActivity, PeerStudentInteractionActivity]:
+                activity_length = self._activity_lengths.get(activity_type)(self, self.env.now)
+                activity_process = self._start_activity(activity_type, activity_length)
+                if activity_process:
+                    yield self.env.process(activity_process)
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
@@ -154,7 +159,7 @@ class Student(IntelligentAgent):
         self._knowledge.add(fact)
 
     def _activate(self, activity, length, **kwargs):
-        process = activity.run(length)
+        process = activity.run(length, **kwargs)
         self._current_activity = process
         self._current_activity_end = self.env.now + length
         return process
@@ -178,16 +183,32 @@ class Student(IntelligentAgent):
             self._logger.warn("Requested activity {type} nt found".format(type=activity_type))
         return requested_activity
 
-    def request_activity_start(self, activity_type, length, **kwargs):
+    def _start_activity(self, activity_type, length, **kwargs):
         requested_activity = self._get_activity_by_type(activity_type)
 
         if requested_activity is None:
-            return False
+            return None
 
-        self._logger.debug("Requested to start activity {type} with args {kwargs}".format(
-            type=activity_type, kwargs=kwargs
-        ))
+        self._logger.debug("Starting activity {type} with args {kwargs}".format(type=activity_type, kwargs=kwargs))
+
+        activity_parameters = requested_activity.prepare(**kwargs)
+        return self._activate(requested_activity, length, **activity_parameters)
+
+    def request_activity_start(self, activity_type, length, **kwargs):
+        self._logger.debug("Requested activity {type} with args {kwargs}".format(type=activity_type, kwargs=kwargs))
 
         # TODO: check if we really want to switch activity
-        self._activate(requested_activity, length, **kwargs)
-        return True
+        activity_process = self._start_activity(activity_type, length)
+        if activity_process:
+            yield self.env.process(activity_process)
+
+    def meet(self, student):
+        """
+        :param Student student: student to remember
+        :return:
+        """
+        self._student_register.add_student(student.name, student)
+
+    #TODO: encapsulate into behavior
+    def get_known_student(self):
+        return random.choice(self._student_register.get_all())

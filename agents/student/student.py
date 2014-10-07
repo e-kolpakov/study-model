@@ -121,8 +121,8 @@ class Student(IntelligentAgent):
         while not self.stop_participation_event.processed:
             for activity in [self.study_session_activity, self.idle_activity]:
                 activity_length = self._activity_lengths.get(type(activity))(self, self.env.now)
-                activity.prepare()
-                yield self.env.process(self._activate(activity, activity_length))
+                acctivity_arguments = activity.prepare()
+                yield self.env.process(self._activate(activity, activity_length, **acctivity_arguments))
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)

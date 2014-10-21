@@ -1,6 +1,5 @@
-simpy=3.0.5
---allow-external PyPubSub==3.3.0
-colorama==0.3.1
-py==1.4.20
+simpy==3.0.5
+--allow-external PyPubSub
+PyPubSub==3.3.0
 pytest==2.5.2
 

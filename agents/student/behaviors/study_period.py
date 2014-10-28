@@ -20,7 +20,7 @@ class BaseActivityLengthsBehavior:
         """
         raise NotImplemented()
 
-    def get_peer_wait(self, student, current_time):
+    def get_peer_interaction_period(self, student, current_time):
         """
         Gets time span for handshake
         :param student:
@@ -42,7 +42,7 @@ class FixedActivityLengthsBehavior(BaseActivityLengthsBehavior):
     def get_idle_period(self, student, current_time):
         return self._idle_period
 
-    def get_peer_wait(self, student, current_time):
+    def get_peer_interaction_period(self, student, current_time):
         return self._handshake_period
 
 
@@ -62,7 +62,7 @@ class RandomActivityLengthsBehavior(BaseActivityLengthsBehavior):
     def get_idle_period(self, student, current_time):
         return self._get_rounded_random(self._max_idle_period)
 
-    def get_peer_wait(self, student, current_time):
+    def get_peer_interaction_period(self, student, current_time):
         return self._get_rounded_random(self._max_handshake_period)
 
 
@@ -82,5 +82,5 @@ class QuarterHourRandomActivityLengthsBehavior(BaseActivityLengthsBehavior):
     def get_idle_period(self, student, current_time):
         return self._get_random_quarters(self._max_idle_period)
 
-    def get_peer_wait(self, student, current_time):
+    def get_peer_interaction_period(self, student, current_time):
         return self._get_random_quarters(self._max_handshake_period)

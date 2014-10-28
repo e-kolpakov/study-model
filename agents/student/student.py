@@ -2,10 +2,12 @@ import logging
 from itertools import cycle
 
 from simpy import Interrupt
+from pubsub import pub
 
 from agents.base_agents import IntelligentAgent
 from agents.student.activities import IdleActivity, StudySessionActivity, PeerStudentInteractionActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
+from agents.student.messages import BaseMessage
 from infrastructure.observers import Observer, observer_trigger, AgentCallObserver
 from simulation.result import ResultTopics
 
@@ -38,6 +40,9 @@ class Student(IntelligentAgent):
         self._current_activity = None
         self._current_activity_end = None
 
+        self._known_students = {}
+        self._inbox = []
+
         self.__init_activities()
 
     def __init_activities(self):
@@ -47,12 +52,19 @@ class Student(IntelligentAgent):
             PeerStudentInteractionActivity: self._behavior.activity_periods.get_peer_interaction_period,
         }
 
+    def __subscribe_to_inbox(self):
+        pub.subscribe(self._receive_message, self.inbox_address)
+
     def __unicode__(self):
         return "{type} {name}({id})".format(type=type(self).__name__, id=self._agent_id, name=self._name)
 
     @property
     def name(self):
         return self._name
+
+    @property
+    def inbox_address(self):
+        return "Student {name} (id: {id})".format(self.name, self.agent_id)
 
     @property
     def behavior(self):
@@ -148,9 +160,28 @@ class Student(IntelligentAgent):
         # TODO: check if we really wnat to stop participation
         self.stop_participation_event.succeed()
 
+    def meet(self, other_student):
+        if not isinstance(other_student, Student):
+            message = "Expected student, got {other_student}".format(other_student=other_student)
+            self._logger.warn(message)
+            raise ValueError(message)
+        if self == other_student:
+            self._logger.info("Student {student} already knows himself".format(student=self))
+        if other_student.agent_id in self._known_students.keys():
+            self._logger.info("Already met student {other}".format(other=other_student))
+
+        self._known_students[other_student.agent_id] = other_student
+
     def _start_activity(self, activity, **kwargs):
         self._logger.debug("Starting activity {activity} with args {kwargs}".format(activity=activity, kwargs=kwargs))
         process = activity.run(**kwargs)
         self._current_activity = activity
         self._current_activity_end = self.env.now + activity.length
         return process
+
+    def _receive_message(self, message):
+        if not isinstance(message, BaseMessage):
+            message = "Expected message type, got {message}".format(message=message)
+            self._logger.warn(message)
+            raise ValueError(message)
+        self._inbox.append(message)

@@ -84,4 +84,8 @@ class StudySessionActivity(BaseStudentActivity):
 
 class PeerStudentInteractionActivity(BaseStudentActivity):
     def run(self, **kwargs):
-        pass
+        entered = self.env.now
+        interact_until = entered + self._length
+
+        self._student.process_messages(until=interact_until)
+        self._student.send_messages(until=interact_until)

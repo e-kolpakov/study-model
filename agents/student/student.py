@@ -64,7 +64,7 @@ class Student(IntelligentAgent):
 
     @property
     def inbox_address(self):
-        return "Student {name} (id: {id})".format(self.name, self.agent_id)
+        return "Student {name} (id: {id})".format(name=self.name, id=self.agent_id)
 
     @property
     def behavior(self):
@@ -81,6 +81,10 @@ class Student(IntelligentAgent):
     def knowledge(self):
         """ :rtype: frozenset """
         return frozenset(self._knowledge)
+
+    @property
+    def known_students(self):
+        return self._known_students.values()
 
     @property
     def stop_participation_event(self):
@@ -113,13 +117,6 @@ class Student(IntelligentAgent):
         """ :type value: knowledge_representation.Curriculum """
         self._curriculum = value
 
-    def _get_next_activity(self):
-        for activity_type in cycle([StudySessionActivity, PeerStudentInteractionActivity, IdleActivity]):
-            if self.stop_participation_event.processed:
-                return
-            activity_length = self._activity_lengths.get(activity_type)(self, self.env.now)
-            yield activity_type(self, activity_length, self.env)
-
     def study(self):
         next_activity_gen = self._get_next_activity()
         for activity in next_activity_gen:
@@ -129,7 +126,7 @@ class Student(IntelligentAgent):
 
     @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
-    def study_resource(self, resource, until=100):
+    def study_resource(self, resource, until=None):
         """
         :type resource: Resource
         :rtype: None
@@ -137,14 +134,9 @@ class Student(IntelligentAgent):
         self._logger.debug("{self}: Studying resource, until {until}".format(self=self, until=until))
         knowledge_to_acquire = self._behavior.knowledge_acquisition.acquire_facts(self, resource)
         for fact in knowledge_to_acquire:
-            time_to_study = fact.complexity / self.skill
-            if self.env.now + time_to_study > until:
-                self._logger.debug("{self}: not enough time to study fact - skipping".format(self=self))
-                return False
-            try:
-                yield self.env.timeout(time_to_study)
-                self._add_fact(fact)
-            except Interrupt:
+            fact_study_process = self.study_fact(fact, until)
+            success = yield from fact_study_process
+            if not success:
                 return False
 
         self._logger.debug("{self}: Studying resource {resource_name} done at {time}".format(
@@ -152,9 +144,17 @@ class Student(IntelligentAgent):
         ))
         return True
 
-    @observer_trigger
-    def _add_fact(self, fact):
-        self._knowledge.add(fact)
+    def study_fact(self, fact, until=None):
+        time_to_study = fact.complexity / self.skill
+        if until is not None and self.env.now + time_to_study > until:
+            self._logger.debug("{self}: not enough time to study fact - skipping".format(self=self))
+            return False
+        try:
+            yield self.env.timeout(time_to_study)
+            self._add_fact(fact)
+        except Interrupt:
+            return False
+        return True
 
     def stop_participation(self):
         # TODO: check if we really wnat to stop participation
@@ -172,6 +172,19 @@ class Student(IntelligentAgent):
 
         self._known_students[other_student.agent_id] = other_student
 
+    def process_messages(self, until=None):
+        success = True
+        while success and self._inbox:
+            message = self._inbox.pop()
+            success = yield from message.process(self, until)
+
+    def send_messages(self, until=None):
+        pass
+
+    @observer_trigger
+    def _add_fact(self, fact):
+        self._knowledge.add(fact)
+
     def _start_activity(self, activity, **kwargs):
         self._logger.debug("Starting activity {activity} with args {kwargs}".format(activity=activity, kwargs=kwargs))
         process = activity.run(**kwargs)
@@ -185,3 +198,10 @@ class Student(IntelligentAgent):
             self._logger.warn(message)
             raise ValueError(message)
         self._inbox.append(message)
+
+    def _get_next_activity(self):
+        for activity_type in cycle([StudySessionActivity, PeerStudentInteractionActivity, IdleActivity]):
+            if self.stop_participation_event.processed:
+                return
+            activity_length = self._activity_lengths.get(activity_type)(self, self.env.now)
+            yield activity_type(self, activity_length, self.env)

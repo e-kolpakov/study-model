@@ -1,5 +1,7 @@
 import random
-from agents.student.messages import FactMessage
+import itertools
+
+from agents.student.messages import FactMessage, ResourceMessage
 
 __author__ = 'e.kolpakov'
 
@@ -15,8 +17,14 @@ class BaseSendMessagesBehavior:
         """
         pass
 
-    def generate_messages(self, from_student, to_student):
-        pass
+    def generate_messages(self, from_student, to_student, **kwargs):
+        """
+        :param Student from_student: student sending messages
+        :param Student to_student: recipient student
+        :param kwargs: keyword arguments
+        :rtype: itertools.Iterable[BaseMessage]
+        """
+        return tuple()
 
     def get_messages(self, student):
         """
@@ -47,19 +55,44 @@ class ChooseRandomStudentsMixin:
 
 
 class RandomFactMessagesMixin:
-    def generate_messages(self, from_student, to_student):
+    def generate_messages(self, from_student, to_student, **kwargs):
+        """
+        :param Student from_student: student sending messages
+        :param Student to_student: recipient student
+        :param kwargs: keyword arguments
+        :rtype: itertools.Iterable[BaseMessage]
+        """
         if not from_student.knowledge:
-            return tuple()
+            return
 
         fact = random.sample(from_student.knowledge, 1)[0]
-        return FactMessage(fact),
+        yield FactMessage(fact)
+        yield from super(RandomFactMessagesMixin, self).generate_messages(from_student, to_student, **kwargs)
+
+
+class RandomResourceMessagesMixin:
+    def generate_message(self, from_student, to_student, **kwargs):
+        """
+        :param Student from_student: student sending messages
+        :param Student to_student: recipient student
+        :param kwargs: keyword arguments
+        :rtype: itertools.Iterable[BaseMessage]
+        """
+        available_resources = from_student.known_resources
+        if not available_resources:
+            return
+
+        resource = random.sample(available_resources)
+        yield ResourceMessage(resource)
+        yield from super(RandomResourceMessagesMixin, self).generate_message(from_student, to_student, **kwargs)
+
 
 
 class RandomFactToAllStudentsInteractionBehavior(ChooseAllStudentsMixin, RandomFactMessagesMixin,
-                                                 BaseSendMessagesBehavior):
+                                                 RandomResourceMessagesMixin, BaseSendMessagesBehavior):
     pass
 
 
 class RandomFactToRandomStudentsInteractionBehavior(ChooseRandomStudentsMixin, RandomFactMessagesMixin,
-                                                    BaseSendMessagesBehavior):
+                                                    RandomResourceMessagesMixin, BaseSendMessagesBehavior):
     pass

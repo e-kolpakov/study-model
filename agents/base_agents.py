@@ -10,12 +10,13 @@ __author__ = 'e.kolpakov'
 class BaseAgent:
     agent_count_by_type = defaultdict(int)
 
-    def __init__(self, agent_id=None):
+    def __init__(self, agent_id=None, **kwargs):
         actual_type = type(self)
         self.agent_count_by_type[actual_type] += 1
         self._agent_id = agent_id if agent_id else actual_type.__name__ + str(self.agent_count_by_type[actual_type])
         self._env = None
         self._observers_cache = None
+        super(BaseAgent, self).__init__(**kwargs)
 
     @property
     def agent_id(self):

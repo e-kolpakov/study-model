@@ -9,13 +9,14 @@ from agents.student.activities import IdleActivity, StudySessionActivity, PeerSt
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.messages import BaseMessage
 from infrastructure.observers import Observer, observer_trigger, AgentCallObserver
+from simulation.resource_lookup_service import ResourceRosterMixin
 from simulation.result import ResultTopics
 
 
 __author__ = 'e.kolpakov'
 
 
-class Student(IntelligentAgent):
+class Student(IntelligentAgent, ResourceRosterMixin):
     def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
         """
         :type name: str
@@ -101,12 +102,12 @@ class Student(IntelligentAgent):
 
     @property
     def resource_lookup_service(self):
-        """ :rtype: ResourceLookupService """
+        """ :rtype: ResourceAcccessService """
         return self._resource_lookup_service
 
     @resource_lookup_service.setter
     def resource_lookup_service(self, value):
-        """ :type value: ResourceLookupService """
+        """ :type value: ResourceAcccessService """
         self._resource_lookup_service = value
 
     @property

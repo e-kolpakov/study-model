@@ -1,12 +1,36 @@
+import logging
+
 __author__ = 'e.kolpakov'
 
 
-class ResourceLookupService:
+class ResourceRosterMixin:
+    def __init__(self, *args, **kwargs):
+        self._known_resources = set()
+
+    def add_resource(self, resource):
+        self._logger.debug("{self} adds resource {resource}".format(self=self, resource=resource))
+        self._known_resources.add(resource)
+
+    def forget_resource(self, resource):
+        self._known_resources.remove(resource)
+
+    @property
+    def known_resources(self):
+        return frozenset(self._known_resources)
+
+    @property
+    def logger(self):
+        if not hasattr(self, '_logger'):
+            self._logger = logging.getLogger(self.__class__.__name__)
+        return self._logger
+
+
+class ResourceAcccessService:
     def __init__(self, *args, **kwargs):
         self._access_privileges = dict()
         self._resources = None
 
-        super(ResourceLookupService, self).__init__(*args, **kwargs)
+        super(ResourceAcccessService, self).__init__(*args, **kwargs)
 
     def _register_resources(self, resources):
         """ :type resources: list[agents.Resource] """

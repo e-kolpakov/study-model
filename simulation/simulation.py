@@ -1,12 +1,12 @@
 from simpy import Environment
 
-from simulation.resource_lookup_service import ResourceLookupService
+from simulation.resource_lookup_service import ResourceAcccessService
 
 
 __author__ = 'e.kolpakov'
 
 
-class Simulation(ResourceLookupService):
+class Simulation(ResourceAcccessService):
     def __init__(self, simulation_input, *args, **kwargs):
         """
         :type simulation_input: study_model.simulation.simulation_input.SimulationInput

@@ -13,7 +13,7 @@ from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionB
 from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
 from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
 from knowledge_representation import Fact
-from simulation.resource_lookup_service import ResourceLookupService
+from simulation.resource_lookup_service import ResourceAcccessService
 
 
 __author__ = 'e.kolpakov'

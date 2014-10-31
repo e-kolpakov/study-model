@@ -32,3 +32,22 @@ class FactMessage(BaseMessage):
     def __repr__(self):
         return "FactMessage ({id}): {fact}".format(id=id(self), fact=self._fact)
 
+
+class ResourceMessage(BaseMessage):
+    def __init__(self, resource):
+        self._resource = resource
+        super(ResourceMessage, self).__init__()
+
+    @property
+    def resource(self):
+        return self._resource
+
+    def process(self, student, until=None):
+        student.add_resource(self.resource)
+
+    def time_to_send(self, student):
+        return 0.1
+
+
+
+

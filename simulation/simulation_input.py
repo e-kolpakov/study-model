@@ -50,7 +50,8 @@ class SimulationInputBuilder:
         :return: SimulationInput
         """
         curriculum = self.build_curriculum()
-        return SimulationInput(curriculum, self.build_resources(curriculum), self.build_students(curriculum))
+        resources = self.build_resources(curriculum)
+        return SimulationInput(curriculum, resources, self.build_students(curriculum, resources))
 
     def build_curriculum(self):
         curriculum = Curriculum()
@@ -84,9 +85,15 @@ class SimulationInputBuilder:
         ]
 
     @staticmethod
-    def build_students(curriculum):
+    def build_students(curriculum, resources):
         student1 = RationalStudent("John", [], agent_id='s1', skill=2.0)
         student2 = RandomStudent("Jim", [], agent_id='s2', skill=1.0)
         student1.meet(student2)
         student2.meet(student1)
-        return [ student1, student2 ]
+
+        students = [student1, student2]
+        for student in students:
+            for resource in resources:
+                student.add_resource(resource)
+
+        return students

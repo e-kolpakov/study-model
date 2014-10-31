@@ -51,11 +51,11 @@ class StudySessionActivity(BaseStudentActivity):
 
         choose_resource = self._student.behavior.resource_choice.choose_resource
         study_resource = self._student.study_resource
-        get_accessible_resources = self._student.resource_lookup_service.get_accessible_resources
+        get_accessible_resources = self._student.get_accessible_resources
         stop_participation = self._student.behavior.stop_participation.stop_participation
 
         def get_loop_parameters():
-            res = get_accessible_resources(self._student)
+            res = get_accessible_resources()
             stop = stop_participation(self._student, self._student.curriculum, res)
             time = study_until - self.env.now
             return time, res, stop

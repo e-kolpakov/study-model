@@ -33,7 +33,6 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         # injected properties
         self._curriculum = None
         self._env = None
-        self._resource_lookup_service = None
         self._stop_participation_event = None
 
         self._logger = logging.getLogger(__name__)
@@ -101,16 +100,6 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         return self._skill
 
     @property
-    def resource_lookup_service(self):
-        """ :rtype: ResourceAcccessService """
-        return self._resource_lookup_service
-
-    @resource_lookup_service.setter
-    def resource_lookup_service(self, value):
-        """ :type value: ResourceAcccessService """
-        self._resource_lookup_service = value
-
-    @property
     def curriculum(self):
         """ :rtype: knowledge_representation.Curriculum """
         return self._curriculum
@@ -166,6 +155,9 @@ class Student(IntelligentAgent, ResourceRosterMixin):
     def stop_participation(self):
         # TODO: check if we really wnat to stop participation
         self.stop_participation_event.succeed()
+
+    def get_accessible_resources(self):
+        return (resource for resource in self.known_resources if resource.allow_access(self))
 
     def meet(self, other_student):
         if not isinstance(other_student, Student):

@@ -1,12 +1,12 @@
 from simpy import Environment
 
-from simulation.resource_lookup_service import ResourceAcccessService
+from simulation.resource_lookup_service import ResourceAccessService
 
 
 __author__ = 'e.kolpakov'
 
 
-class Simulation(ResourceAcccessService):
+class Simulation(ResourceAccessService):
     def __init__(self, simulation_input, *args, **kwargs):
         """
         :type simulation_input: study_model.simulation.simulation_input.SimulationInput
@@ -36,8 +36,10 @@ class Simulation(ResourceAcccessService):
 
     def run(self):
         student_stop_conditions = []
+        for resource in self._resources:
+            resource.resource_access_service = self
+
         for student in self._students:
-            student.resource_lookup_service = self
             student.curriculum = self._curriculum
             student.env = self._environment
             self._environment.process(student.study())

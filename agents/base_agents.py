@@ -78,6 +78,9 @@ class BaseAgent:
             if isinstance(member, property):
                 yield member.fget
 
+    def __hash__(self):
+        return hash(self._agent_id)
+
 
 class IntelligentAgent(BaseAgent):
     pass

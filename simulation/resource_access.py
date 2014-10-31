@@ -8,6 +8,8 @@ class ResourceRosterMixin:
         self._known_resources = set()
 
     def add_resource(self, resource):
+        if resource in self._known_resources:
+            self._logger.debug("{self} already knows about resource {resource}".format(self=self, resource=resource))
         self._logger.debug("{self} adds resource {resource}".format(self=self, resource=resource))
         self._known_resources.add(resource)
 
@@ -25,12 +27,12 @@ class ResourceRosterMixin:
         return self._logger
 
 
-class ResourceAcccessService:
+class ResourceAccessService:
     def __init__(self, *args, **kwargs):
         self._access_privileges = dict()
         self._resources = None
 
-        super(ResourceAcccessService, self).__init__(*args, **kwargs)
+        super(ResourceAccessService, self).__init__(*args, **kwargs)
 
     def _register_resources(self, resources):
         """ :type resources: list[agents.Resource] """

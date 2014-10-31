@@ -12,7 +12,6 @@ def student(behavior_group, resource_lookup, env):
     student_mock = mock.Mock(spec_set=Student)
     student_mock.behavior = PropertyMock(return_value=behavior_group)
     student_mock.env = env
-    student_mock.resource_lookup_service = resource_lookup
     student_mock.curriculum = PropertyMock()
     student_mock.env = env
     return student_mock

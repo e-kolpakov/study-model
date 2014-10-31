@@ -1,4 +1,5 @@
 from agents.base_agents import BaseAgent
+from simulation.resource_lookup_service import ResourceAccessService
 
 __author__ = 'e.kolpakov'
 
@@ -14,6 +15,8 @@ class Resource(BaseAgent):
         self._behavior = behavior
         self._facts = resource_facts
 
+        self._resource_access_service = None
+
     @property
     def name(self):
         """
@@ -27,3 +30,20 @@ class Resource(BaseAgent):
         :rtype: tuple[knowledge_representation.ResourceFact]
         """
         return tuple(self._facts)
+
+    @property
+    def resource_access_service(self):
+        """ :rtype: ResourceAccessService """
+        return self._resource_access_service
+
+    @resource_access_service.setter
+    def resource_access_service(self, value):
+        """
+        :param value: ResourceAccessService
+        """
+        if not isinstance(value, ResourceAccessService):
+            raise ValueError("expected ResourceAccessService instance, {0} given".format(value))
+        self._resource_access_service = value
+
+    def allow_access(self, student):
+        return self.resource_access_service.check_access(student, self)

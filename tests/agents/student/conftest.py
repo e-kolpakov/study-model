@@ -9,7 +9,7 @@ from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionB
 from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
 from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
 from agents.student.behaviors.study_period import BaseActivityLengthsBehavior
-from simulation.resource_lookup_service import ResourceAcccessService
+from simulation.resource_lookup_service import ResourceAccessService
 
 __author__ = 'e.kolpakov'
 
@@ -34,7 +34,7 @@ def env_mock():
 
 @pytest.fixture
 def resource_lookup():
-    return mock.Mock(spec=ResourceAcccessService)
+    return mock.Mock(spec=ResourceAccessService)
 
 
 @pytest.fixture

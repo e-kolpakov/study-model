@@ -69,7 +69,7 @@ class TestObserver:
         mock = Mock(return_value=value)
         decorated = Observer.observe(topic, converter=converter)(mock)
         observer = get_observers(decorated)[0]
-        with patch('pysimagents.observers.pub.sendMessage', spec=True) as pub_mock:
+        with patch('infrastructure.observers.pub.sendMessage', spec=True) as pub_mock:
             observer.inspect(agent)
             expected_value = eff_converter(value)
             pub_mock.assert_called_once_with(topic, agent=agent, value=expected_value)

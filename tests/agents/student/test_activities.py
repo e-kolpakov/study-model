@@ -19,12 +19,9 @@ def student(behavior_group, resource_lookup, env):
 
 
 class TestIdleActivity:
-    @pytest.fixture
-    def activity(self, student):
-        return IdleActivity(student)
-
     @pytest.mark.parametrize("length", [10, 15, 20, 3, 7, 11])
-    def test_activate_sends(self, activity, env, length):
+    def test_activate_sends(self, student, env, length):
+        activity = IdleActivity(student, length, env)
         with patch.object(env, 'timeout') as patched_timeout:
             env.process(activity.run(length))
             env.run()

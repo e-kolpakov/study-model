@@ -31,10 +31,10 @@ class BaseActivityLengthsBehavior:
 
 
 class FixedActivityLengthsBehavior(BaseActivityLengthsBehavior):
-    def __init__(self, study_period=10, idle_period=20, handshake_period=2):
+    def __init__(self, study_period=10, idle_period=20, peer_interaction_period=2):
         self._idle_period = idle_period
         self._study_period = study_period
-        self._handshake_period = handshake_period
+        self._peer_interaction_period = peer_interaction_period
 
     def get_study_period(self, student, current_time):
         return self._study_period
@@ -43,14 +43,14 @@ class FixedActivityLengthsBehavior(BaseActivityLengthsBehavior):
         return self._idle_period
 
     def get_peer_interaction_period(self, student, current_time):
-        return self._handshake_period
+        return self._peer_interaction_period
 
 
 class RandomActivityLengthsBehavior(BaseActivityLengthsBehavior):
-    def __init__(self, max_study_period=10, max_idle_period=20, max_handshake_period=5):
+    def __init__(self, max_study_period=10, max_idle_period=20, peer_interaction_period=5):
         self._max_idle_period = max_idle_period
         self._max_study_period = max_study_period
-        self._max_handshake_period = max_handshake_period
+        self._peer_interaction_period = peer_interaction_period
 
     @staticmethod
     def _get_rounded_random(max_value, decimal_points=2):
@@ -63,14 +63,14 @@ class RandomActivityLengthsBehavior(BaseActivityLengthsBehavior):
         return self._get_rounded_random(self._max_idle_period)
 
     def get_peer_interaction_period(self, student, current_time):
-        return self._get_rounded_random(self._max_handshake_period)
+        return self._get_rounded_random(self._peer_interaction_period)
 
 
 class QuarterHourRandomActivityLengthsBehavior(BaseActivityLengthsBehavior):
-    def __init__(self, max_study_period=10, max_idle_period=20, max_handshake_period=5):
+    def __init__(self, max_study_period=10, max_idle_period=20, peer_interaction_period=5):
         self._max_idle_period = max_idle_period
         self._max_study_period = max_study_period
-        self._max_handshake_period = max_handshake_period
+        self._peer_interaction_period = peer_interaction_period
 
     @staticmethod
     def _get_random_quarters(max_value):
@@ -83,4 +83,4 @@ class QuarterHourRandomActivityLengthsBehavior(BaseActivityLengthsBehavior):
         return self._get_random_quarters(self._max_idle_period)
 
     def get_peer_interaction_period(self, student, current_time):
-        return self._get_random_quarters(self._max_handshake_period)
+        return self._get_random_quarters(self._peer_interaction_period)

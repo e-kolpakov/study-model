@@ -44,15 +44,17 @@ class Student(IntelligentAgent):
         self._inbox = []
 
         self.__init_activities()
+        self.__subscribe_to_inbox()
 
     def __init_activities(self):
         self._activity_lengths = {
-            IdleActivity: self._behavior.activity_periods.get_study_period,
-            StudySessionActivity: self._behavior.activity_periods.get_idle_period,
+            IdleActivity: self._behavior.activity_periods.get_idle_period,
+            StudySessionActivity: self._behavior.activity_periods.get_study_period,
             PeerStudentInteractionActivity: self._behavior.activity_periods.get_peer_interaction_period,
         }
 
     def __subscribe_to_inbox(self):
+        self._logger.info("{student} subscribes to inbox {address}".format(student=self, address=self.inbox_address))
         pub.subscribe(self._receive_message, self.inbox_address)
 
     def __unicode__(self):
@@ -84,7 +86,7 @@ class Student(IntelligentAgent):
 
     @property
     def known_students(self):
-        return self._known_students.values()
+        return tuple(self._known_students.values())
 
     @property
     def stop_participation_event(self):
@@ -145,6 +147,10 @@ class Student(IntelligentAgent):
         return True
 
     def study_fact(self, fact, until=None):
+        if fact in self._knowledge:
+            self._logger.debug("{student}: {fact} already known - skipping".format(student=self, fact=fact))
+
+        self._logger.debug("{student}: studies {fact}".format(student=self, fact=fact))
         time_to_study = fact.complexity / self.skill
         if until is not None and self.env.now + time_to_study > until:
             self._logger.debug("{self}: not enough time to study fact - skipping".format(self=self))
@@ -174,19 +180,38 @@ class Student(IntelligentAgent):
 
     def process_messages(self, until=None):
         success = True
+        self._logger.debug("{student} starts reading messages (count:{count})".format(
+            student=self, count=len(self._inbox)
+        ))
         while success and self._inbox:
             message = self._inbox.pop()
+            self._logger.debug("{student} reads message {message} from inbox".format(student=self, message=message))
             success = yield from message.process(self, until)
 
     def send_messages(self, until=None):
-        pass
+        for to_student, messages in self.behavior.send_messages.get_messages(self):
+            address = to_student.inbox_address
+            for message in messages:
+                time_to_send = message.time_to_send(self)
+                if until is not None and self.env.now + time_to_send > until:
+                    # there might be less involving messages in the queue - should try sending them
+                    # On the other hand, it does not allow for short-circuiting out of this process
+                    # if there are little time left. TODO: implement short-circuit
+                    continue
+                yield self.env.timeout(time_to_send)
+                self._logger.debug("{student} sends message {message} to {address}".format(
+                    student=self, message=message, address=address
+                ))
+                pub.sendMessage(address, message=message)
 
     @observer_trigger
     def _add_fact(self, fact):
         self._knowledge.add(fact)
 
     def _start_activity(self, activity, **kwargs):
-        self._logger.debug("Starting activity {activity} with args {kwargs}".format(activity=activity, kwargs=kwargs))
+        self._logger.debug("{student} Starting activity {activity} with args {kwargs}".format(
+            student=self, activity=activity, kwargs=kwargs
+        ))
         process = activity.run(**kwargs)
         self._current_activity = activity
         self._current_activity_end = self.env.now + activity.length
@@ -197,6 +222,7 @@ class Student(IntelligentAgent):
             message = "Expected message type, got {message}".format(message=message)
             self._logger.warn(message)
             raise ValueError(message)
+        self._logger.debug("{student} received message {message}".format(student=self, message=message))
         self._inbox.append(message)
 
     def _get_next_activity(self):

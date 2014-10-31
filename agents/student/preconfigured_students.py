@@ -19,7 +19,9 @@ class RationalStudentBehaviorMixin:
             stop_participation=CourseCompleteStopParticipationBehavior(),
             send_messages=RandomFactToAllStudentsInteractionBehavior(),
             activity_periods=QuarterHourRandomActivityLengthsBehavior(
-                kwargs.get('activity_periods', 10), kwargs.get('idle_period', 20), kwargs.get('handshake_period', 20)
+                max_study_period=kwargs.get('study_period', 4),
+                max_idle_period=kwargs.get('idle_period', 18),
+                peer_interaction_period=kwargs.get('peer_interaction_period', 2)
             )
         )
 
@@ -32,7 +34,9 @@ class RandomStudentBehaviorMixin:
             stop_participation=CourseCompleteStopParticipationBehavior(),
             send_messages=RandomFactToRandomStudentsInteractionBehavior(),
             activity_periods=QuarterHourRandomActivityLengthsBehavior(
-                kwargs.get('activity_periods', 10), kwargs.get('idle_period', 20), kwargs.get('handshake_period', 20)
+                max_study_period=kwargs.get('study_period', 4),
+                max_idle_period=kwargs.get('idle_period', 18),
+                peer_interaction_period=kwargs.get('peer_interaction_period', 2)
             )
         )
 

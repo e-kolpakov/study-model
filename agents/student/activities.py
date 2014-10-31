@@ -87,5 +87,5 @@ class PeerStudentInteractionActivity(BaseStudentActivity):
         entered = self.env.now
         interact_until = entered + self._length
 
-        self._student.process_messages(until=interact_until)
-        self._student.send_messages(until=interact_until)
+        yield from self._student.process_messages(until=interact_until)
+        yield from self._student.send_messages(until=interact_until)

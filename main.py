@@ -2,7 +2,7 @@ import logging
 import logging.config
 
 from log_config import log_config
-from simulation_output import output_results
+from simulation.simulation_output import output_results
 from simulation.simulation import Simulation
 from simulation.result import SimulationResult
 from simulation.simulation_input import get_simulation_input

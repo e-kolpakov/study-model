@@ -8,7 +8,7 @@ from agents.base_agents import IntelligentAgent
 from agents.student.activities import IdleActivity, StudySessionActivity, PeerStudentInteractionActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.messages import BaseMessage
-from infrastructure.observers import Observer, observer_trigger, AgentCallObserver
+from infrastructure.observers import Observer, observer_trigger, AgentCallObserver, DeltaObserver
 from simulation.resource_access import ResourceRosterMixin
 from simulation.result import ResultTopics
 
@@ -80,6 +80,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_COUNT, converter=lambda x: len(x))
+    @DeltaObserver.observe(topic=ResultTopics.KNOWLEDGE_DELTA, delta=lambda new, old: new-old)
     def knowledge(self):
         """ :rtype: frozenset """
         return frozenset(self._knowledge)

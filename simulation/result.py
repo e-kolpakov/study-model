@@ -42,6 +42,9 @@ class SimulationResultBase:
         self._results = []
         """ :type: list[SimulationResultItem] """
 
+        self._agents = set()
+        """ :type: set[BaseAgent] """
+
     @staticmethod
     def _register_result_handler(callback, parameter):
         pub.subscribe(callback, parameter)
@@ -52,6 +55,7 @@ class SimulationResultBase:
         :return: None
         """
         self._results.append(result_item)
+        self._agents.add(result_item.agent)
 
     def _get_data(self, filter_callback):
         """
@@ -59,6 +63,10 @@ class SimulationResultBase:
         :return: list[SimulationResultItem]
         """
         return (item for item in self._results if filter_callback(item))
+
+    @property
+    def agents(self):
+        return frozenset(self._agents)
 
     def get_parameter(self, parameter):
         items = self._get_data(lambda item: item.parameter == parameter)
@@ -68,8 +76,8 @@ class SimulationResultBase:
         items = self._get_data(lambda item: item.agent == agent and item.parameter == parameter)
         return sorted(items, key=lambda item: item.time)
 
-    def get_time_slice(self, parameter, step):
-        items = self._get_data(lambda item: item.step == step and item.parameter == parameter)
+    def get_time_slice(self, parameter, time):
+        items = self._get_data(lambda item: item.step == time and item.parameter == parameter)
         return sorted(items, key=lambda item: item.agent.agent_id)
 
 
@@ -107,7 +115,7 @@ class SimulationResult(SimulationResultBase):
     def knowledge_count_listener(self, agent, value):
         """
         :type agent: BaseAgent
-        :type count:
+        :type value:
         """
         self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_COUNT, agent.time, value))
 

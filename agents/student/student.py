@@ -9,7 +9,7 @@ from agents.student.activities import IdleActivity, StudySessionActivity, PeerSt
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.messages import BaseMessage
 from infrastructure.observers import Observer, observer_trigger, AgentCallObserver
-from simulation.resource_lookup_service import ResourceRosterMixin
+from simulation.resource_access import ResourceRosterMixin
 from simulation.result import ResultTopics
 
 

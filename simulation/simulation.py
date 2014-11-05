@@ -1,6 +1,6 @@
 from simpy import Environment
 
-from simulation.resource_lookup_service import ResourceAccessService
+from simulation.resource_access import ResourceAccessService
 
 
 __author__ = 'e.kolpakov'

@@ -28,5 +28,5 @@ if __name__ == "__main__":
     simulation.run()
 
     logger.debug("Simulation finished, displaying results")
-    output_renderer = JsonOutputRenderer(sys.stdout)
+    output_renderer = HumanReadableOutputRenderer(sys.stdout)
     output_renderer.render(result)

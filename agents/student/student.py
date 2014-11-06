@@ -117,7 +117,6 @@ class Student(IntelligentAgent, ResourceRosterMixin):
             if activity_process:
                 yield self.env.process(activity_process)
 
-    @observer_trigger
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
     def study_resource(self, resource, until=None):
         """

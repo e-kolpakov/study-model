@@ -17,7 +17,7 @@ __author__ = 'e.kolpakov'
 
 
 class Student(IntelligentAgent, ResourceRosterMixin):
-    def __init__(self, name, knowledge, behavior, skill=None, **kwargs):
+    def __init__(self, name, knowledge, behavior, skill=None, goals=None, **kwargs):
         """
         :type name: str
         :type knowledge: list[knowledge_representation.Fact]
@@ -29,16 +29,18 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         self._behavior = behavior
         self._knowledge = set(knowledge)
         self._skill = skill if skill else 1
-
-        # injected properties
-        self._curriculum = None
-        self._env = None
-        self._stop_participation_event = None
+        self._goals = goals or []
 
         self._logger = logging.getLogger(__name__)
 
         self._current_activity = None
         self._current_activity_end = None
+
+        # injected properties
+        self._curriculum = None
+        self._env = None
+        self._stop_participation_event = None
+        # injected properties end
 
         self._known_students = {}
         self._inbox = []
@@ -76,6 +78,10 @@ class Student(IntelligentAgent, ResourceRosterMixin):
     @property
     def current_activity(self):
         return self._current_activity
+
+    @property
+    def goals(self):
+        return tuple(self._goals)
 
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)

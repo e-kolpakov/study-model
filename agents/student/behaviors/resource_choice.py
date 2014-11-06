@@ -1,4 +1,5 @@
 import random
+from agents.student.behaviors.common import GoalDrivenBehaviorMixin
 
 from knowledge_representation import get_available_facts
 
@@ -6,7 +7,7 @@ from knowledge_representation import get_available_facts
 __author__ = 'e.kolpakov'
 
 
-class BaseResourceChoiceBehavior:
+class ResourceChoiceMixin:
     def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
         """
         :param student: Student
@@ -15,6 +16,10 @@ class BaseResourceChoiceBehavior:
         :rtype: Resource
         """
         raise NotImplemented
+
+
+class BaseResourceChoiceBehavior(ResourceChoiceMixin):
+    pass
 
 
 class RandomResourceChoiceBehavior(BaseResourceChoiceBehavior):
@@ -36,10 +41,18 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         :param available_resources: tuple[Resource]
         :rtype: Resource
         """
-
         def new_facts_count(resource):
             facts = set([resource_fact.fact for resource_fact in resource.facts])
             available_facts = get_available_facts(facts, student.knowledge)
             return len(available_facts)
 
         return max(available_resources, key=new_facts_count)
+
+
+class GoalDrivenResourceBehavior(BaseResourceChoiceBehavior, GoalDrivenBehaviorMixin):
+    def __init__(self, *args, **kwargs):
+        super(GoalDrivenResourceBehavior, self).__init__(*args, **kwargs)
+
+    def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
+        handler = self.find_goal_handler(student, BaseResourceChoiceBehavior)
+        return handler.choose_resource(student, curriculum, available_resources, remaining_time)

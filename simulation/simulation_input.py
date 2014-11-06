@@ -2,7 +2,7 @@ from itertools import chain
 
 from agents.resource import Resource
 from agents.student import RationalStudent
-from agents.student.preconfigured_students import RandomStudent
+from agents.student.preconfigured_students import RandomStudent, GoalDrivenStudent
 from knowledge_representation import Competency, Fact, ResourceFact, Curriculum
 
 
@@ -86,7 +86,7 @@ class SimulationInputBuilder:
 
     @staticmethod
     def build_students(curriculum, resources):
-        student1 = RationalStudent("John", [], agent_id='s1', skill=2.0)
+        student1 = GoalDrivenStudent("John", [], agent_id='s1', skill=2.0)
         student2 = RandomStudent("Jim", [], agent_id='s2', skill=1.0)
         student1.meet(student2)
         student2.meet(student1)

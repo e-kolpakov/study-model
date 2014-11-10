@@ -42,7 +42,7 @@ class Simulation(ResourceAccessService):
         for student in self._students:
             student.curriculum = self._curriculum
             student.env = self._environment
-            self._environment.process(student.study())
+            self._environment.process(student.start())
             student_stop_conditions.append(student.stop_participation_event)
 
         self._grant_initial_access_permissions()

@@ -44,10 +44,10 @@ class TestStudent:
     #         patch.object(student, 'idle_activity', spec=IdleActivity) as patched_idle:
     #         patched_study_session.run = mock.Mock()
     #         patched_idle.run = mock.Mock()
-    #         student.study()
+    #         student.start()
     #         assert not patched_study_session.run.called
     #         assert not patched_idle.run.called
-
+    #
     # def test_study_no_resources_logs_and_returns(self, student, resource_lookup, behavior_group, env):
     #     logger = logging.getLogger(agents.student.__name__)
     #     resource_lookup.get_accessible_resources = mock.Mock(return_value=[])
@@ -57,12 +57,12 @@ class TestStudent:
     #     with patch.object(logger, 'warn') as mocked_warn, \
     #             patch.object(student, '_choose_resource') as resource_choice, \
     #             patch.object(student, 'observe'):
-    #         env.process(student.study())
+    #         env.process(student.start())
     #         env.run()
     #         mocked_warn.assert_called_once_with("No resources available")
     #         assert resource_choice.call_args_list == []
     #         assert not resource_choice.called
-
+    #
     # def test_study_uses_behavior_to_choose_and_passes_to_study_resource(self, student, behavior_group, resource_lookup,
     #                                                                     curriculum, env):
     #     resource1 = Resource('A', [])
@@ -76,7 +76,7 @@ class TestStudent:
     #
     #     with patch.object(student, 'study_resource') as patched_study_resource, patch.object(student, 'observe'):
     #         patched_study_resource.return_value = (env.timeout(i) for i in range(1))
-    #         env.process(student.study())
+    #         env.process(student.start())
     #         env.run()
     #         behavior_group.resource_choice.choose_resource.assert_called_once_with(student, curriculum, resources)
     #         patched_study_resource.assert_called_once_with(resource1)
@@ -87,7 +87,7 @@ class TestStudent:
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('A'), Fact('B')})
 
         with patch.object(student, 'observe'):
-            student.study()
+            student.start()
             env.process(student.study_resource(resource1))
             env.run()
 
@@ -124,17 +124,3 @@ class TestStudent:
             env.process(student.study_resource(resource))
             env.run()
         assert timeout_catcher == expected_timeouts
-
-    # def test_study_cycle(self, student, behavior_group, env, resource_lookup):
-    #     resources = [Resource('A', []),  Resource('B', [])]
-    #     resource_lookup.get_accessible_resources = mock.Mock(return_value=resources)
-    #     behavior_group.activity_periods.get_study_period = mock.Mock(return_value=10)
-    #     behavior_group.activity_periods.get_idle_period = mock.Mock(return_value=10)
-    #     with patch.object(student, '_study_session') as patched_study_session, \
-    #         patch.object(student, '_idle_session') as patched_idle_session:
-    #         patched_study_session.return_value = (env.timeout(i) for i in [10])
-    #         patched_idle_session.return_value = (env.timeout(i) for i in [10])
-    #         env.process(student.study())
-    #         env.run(until=20)
-    #         patched_study_session.assert_called_once_with(10, resources)
-    #         patched_idle_session.assert_called_once_with(10)

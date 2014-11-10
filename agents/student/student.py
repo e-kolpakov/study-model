@@ -116,9 +116,8 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         """ :type value: knowledge_representation.Curriculum """
         self._curriculum = value
 
-    def study(self):
-        next_activity_gen = self._get_next_activity()
-        for activity in next_activity_gen:
+    def start(self):
+        for activity in self._next_activity_generator():
             activity_process = self._start_activity(activity)
             if activity_process:
                 yield self.env.process(activity_process)
@@ -224,7 +223,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         self._logger.debug("{student} received message {message}".format(student=self, message=message))
         self._inbox.append(message)
 
-    def _get_next_activity(self):
+    def _next_activity_generator(self):
         for activity_type in cycle([StudySessionActivity, PeerStudentInteractionActivity, IdleActivity]):
             if self.stop_participation_event.processed:
                 return

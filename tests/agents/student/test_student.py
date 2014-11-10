@@ -14,6 +14,7 @@ from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
 from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
 from knowledge_representation import Fact
 from simulation.resource_access import ResourceAccessService
+from simulation.result import ResultTopics
 
 
 __author__ = 'e.kolpakov'
@@ -94,9 +95,13 @@ class TestStudent:
 
     def test_study_resource_triggers_observe(self, student, behavior_group, resource):
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=set())
-        with patch.object(student, 'observe') as observe_mock:
+        with patch('infrastructure.observers.pub.sendMessage') as observe_mock:
             student.study_resource(resource)
-            observe_mock.assert_called_once_with()
+            call_args = observe_mock.call_args
+            args, kwargs = call_args
+            assert args == (ResultTopics.RESOURCE_USAGE, )
+            assert kwargs['args'] == (resource, )
+            assert kwargs['agent'] == student
 
     @pytest.mark.parametrize("skill, facts", [
         (1, [Fact("A", complexity=1)]),

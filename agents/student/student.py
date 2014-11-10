@@ -81,7 +81,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
 
     @property
     def goals(self):
-        return tuple(self._goals)
+        return self._goals
 
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)

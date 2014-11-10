@@ -2,8 +2,9 @@ from agents.student import Student
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.behaviors.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from agents.student.behaviors.resource_choice import RationalResourceChoiceBehavior, RandomResourceChoiceBehavior, \
-    GoalDrivenResourceBehavior
-from agents.student.behaviors.stop_participation import CourseCompleteStopParticipationBehavior
+    GoalDrivenResourceChoiceBehavior
+from agents.student.behaviors.stop_participation import CourseCompleteStopParticipationBehavior, \
+    AllGoalsAchievedStopParticipationBehavior
 from agents.student.behaviors.student_interaction import RandomFactToAllStudentsInteractionBehavior, \
     RandomFactToRandomStudentsInteractionBehavior
 from agents.student.behaviors.study_period import QuarterHourRandomActivityLengthsBehavior
@@ -45,9 +46,9 @@ class RandomStudentBehaviorMixin:
 class GoalDrivenBehaviorMixin:
     def get_behavior(self, **kwargs):
         return BehaviorGroup.make_group(
-            resource_choice=GoalDrivenResourceBehavior(RationalResourceChoiceBehavior()),
+            resource_choice=GoalDrivenResourceChoiceBehavior(RationalResourceChoiceBehavior()),
             knowledge_acquisition=AllDependenciesAcquisitionBehavior(),
-            stop_participation=CourseCompleteStopParticipationBehavior(),
+            stop_participation=AllGoalsAchievedStopParticipationBehavior(CourseCompleteStopParticipationBehavior()),
             send_messages=RandomFactToRandomStudentsInteractionBehavior(),
             activity_periods=QuarterHourRandomActivityLengthsBehavior(
                 max_study_period=kwargs.get('study_period', 4),
@@ -67,6 +68,7 @@ class RandomStudent(Student, RandomStudentBehaviorMixin):
     def __init__(self, name, knowledge, **kwargs):
         behavior = self.get_behavior(**kwargs)
         super(RandomStudent, self).__init__(name, knowledge, behavior, **kwargs)
+
 
 class GoalDrivenStudent(Student, GoalDrivenBehaviorMixin):
     def __init__(self, name, knowledge, **kwargs):

@@ -5,6 +5,10 @@ import json
 from simulation.result import ResultTopics
 
 
+def _sort_and_group(sequence, key):
+    return groupby(sorted(sequence, key=key), key=key)
+
+
 class OutputRenderer:
     def __init__(self, output_stream, resourse_access=True, snapshots=True, deltas=True, counts=True):
         self._output_stream = output_stream
@@ -33,16 +37,17 @@ class HumanReadableOutputRenderer(OutputRenderer):
     def print_resource_usages(self, results):
         self._print("=== Resources START ===")
         resource_usages = results.get_parameter(ResultTopics.RESOURCE_USAGE)
-        for (resource, time), group in groupby(resource_usages, key=lambda item: (item.value, item.time)):
-            used_by = ", ".join(map(lambda item: item.agent.name, group))
-            self._print("Resource {name} used by {used_by} at {time}".format(name=resource.name, used_by=used_by, time=time))
+        for agent_name, group in _sort_and_group(resource_usages, key=lambda record: record.agent.name):
+            for item in sorted(group, key=lambda record: record.time):
+                self._print("Student {student} used {resource} at {time}".format(
+                    resource=item.value.name, student=agent_name, time=item.time))
         self._print("==== Resources END ====")
 
     def print_snapshots(self, results):
         self._print("=== Snapshots START ===")
         snaps = results.get_parameter(ResultTopics.KNOWLEDGE_SNAPSHOT)
         for item in snaps:
-            snapshot_str = ", ".join(list(map(str, item.value)))
+            snapshot_str = ", ".join(list(map(str, sorted(item.value, key=lambda fact: fact.code))))
             self._print(
                 "Student {name} at {time}: {snapshot}".format(name=item.agent.name, snapshot=snapshot_str, time=item.time))
         self._print("==== Snapshots END ====")
@@ -95,9 +100,9 @@ class JsonOutputRenderer(OutputRenderer):
     def get_resourse_access(self, results):
         result = OrderedDict()
         resource_usages = results.get_parameter(ResultTopics.RESOURCE_USAGE)
-        for time, group in groupby(resource_usages, key=lambda item: item.time):
+        for time, group in _sort_and_group(resource_usages, key=lambda item: item.time):
             result[time] = {}
-            for resource, items in groupby(group, key=lambda item: item.value):
+            for resource, items in _sort_and_group(group, key=lambda item: item.value):
                 result[time][resource.name] = list(map(lambda item: item.agent.name, items))
         return result
 

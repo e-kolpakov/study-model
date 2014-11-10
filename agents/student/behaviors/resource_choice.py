@@ -49,10 +49,10 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         return max(available_resources, key=new_facts_count)
 
 
-class GoalDrivenResourceBehavior(BaseResourceChoiceBehavior, GoalDrivenBehaviorMixin):
+class GoalDrivenResourceChoiceBehavior(BaseResourceChoiceBehavior, GoalDrivenBehaviorMixin):
     def __init__(self, *args, **kwargs):
-        super(GoalDrivenResourceBehavior, self).__init__(*args, **kwargs)
+        super(GoalDrivenResourceChoiceBehavior, self).__init__(*args, **kwargs)
 
     def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
-        handler = self.find_goal_handler(student, BaseResourceChoiceBehavior)
+        handler = self.find_goal_handler(student, ResourceChoiceMixin)
         return handler.choose_resource(student, curriculum, available_resources, remaining_time)

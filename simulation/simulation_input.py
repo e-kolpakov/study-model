@@ -1,8 +1,8 @@
 from itertools import chain
 
 from agents.resource import Resource
-from agents.student import RationalStudent
-from agents.student.preconfigured_students import RandomStudent, GoalDrivenStudent
+from agents.student.goals import StudyCompetenciesGoal
+from agents.student.preconfigured_students import RandomStudent, GoalDrivenStudent, RationalStudent
 from knowledge_representation import Competency, Fact, ResourceFact, Curriculum
 
 
@@ -87,7 +87,10 @@ class SimulationInputBuilder:
     @staticmethod
     def build_students(curriculum, resources):
         student1 = GoalDrivenStudent("John", [], agent_id='s1', skill=2.0)
-        student2 = RandomStudent("Jim", [], agent_id='s2', skill=1.0)
+        student1.goals.extend((
+            StudyCompetenciesGoal([curriculum.find_competency('diff_eq')]),
+        ))
+        student2 = RationalStudent("Jim", [], agent_id='s2', skill=1.0)
         student1.meet(student2)
         student2.meet(student1)
 

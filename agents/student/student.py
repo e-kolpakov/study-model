@@ -141,6 +141,22 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         ))
         return True
 
+    def study_lecture(self, lecture, until=None):
+        self._logger.debug("{self}: Studying lecture {lecture}, until {until}".format(
+            self=self, lesson=lecture, until=until)
+        )
+        knowledge_to_acquire = self._behavior.knowledge_acquisition.acquire_facts(self, lecture)
+        for fact in knowledge_to_acquire:
+            fact_study_process = self.study_fact(fact, until)
+            success = yield from fact_study_process
+            if not success:
+                return False
+
+        self._logger.debug("{self}: Studying lecture {lesson_name} done at {time}".format(
+            self=self, lesson_name=lecture.name, time=self.env.now
+        ))
+        return True
+
     def study_fact(self, fact, until=None):
         if fact in self._knowledge:
             self._logger.debug("{student}: {fact} already known - skipping".format(student=self, fact=fact))

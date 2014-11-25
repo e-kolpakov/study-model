@@ -4,31 +4,30 @@ __author__ = 'e.kolpakov'
 
 
 class BaseFactsAcquisitionBehavior:
-    def acquire_facts(self, student, resource):
+    def acquire_facts(self, student, lecture):
         """
         :type student: Student
-        :type resource: Resource
+        :type resource: Lecture
         :rtype: frozenset[knowledge_representation.Fact]
         """
         raise NotImplemented
 
 
 class GetAllFactsAcquisitionBehavior(BaseFactsAcquisitionBehavior):
-    def acquire_facts(self, student, resource):
+    def acquire_facts(self, student, lecture):
         """
         :type student: agents.student.Student
-        :type resource: Resource
+        :type resource: Lecture
         :rtype: frozenset[knowledge_representation.Fact]
         """
-        return frozenset(resource_fact.fact for resource_fact in resource.facts)
+        return frozenset(lecture.facts)
 
 
 class AllDependenciesAcquisitionBehavior(BaseFactsAcquisitionBehavior):
-    def acquire_facts(self, student, resource):
+    def acquire_facts(self, student, lecture):
         """
         :type student: Student
-        :type resource: Resource
+        :type resource: Lecture
         :rtype: frozenset[knowledge_representation.Fact]
         """
-        facts = set(resource_fact.fact for resource_fact in resource.facts)
-        return get_available_facts(facts, student.knowledge)
+        return get_available_facts(lecture.facts, student.knowledge)

@@ -5,7 +5,7 @@ __author__ = 'e.kolpakov'
 
 
 class Resource(BaseAgent):
-    def __init__(self, name, resource_facts, behavior=None, *args, **kwargs):
+    def __init__(self, name, behavior=None, *args, **kwargs):
         """
         :type name: str
         :type resource_facts: list[knowledge_representation.ResourceFact]
@@ -13,7 +13,6 @@ class Resource(BaseAgent):
         super(Resource, self).__init__(*args, **kwargs)
         self._name = name
         self._behavior = behavior
-        self._facts = resource_facts
 
         self._resource_access_service = None
 
@@ -23,13 +22,6 @@ class Resource(BaseAgent):
         :rtype: str
         """
         return self._name
-
-    @property
-    def facts(self):
-        """
-        :rtype: tuple[knowledge_representation.ResourceFact]
-        """
-        return tuple(self._facts)
 
     @property
     def resource_access_service(self):

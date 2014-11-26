@@ -1,19 +1,12 @@
-import logging
 from unittest import mock
 from unittest.mock import patch, PropertyMock
 
 import pytest
-from simpy import Environment
-from agents.student.activities import StudySessionActivity, IdleActivity
-from agents.student.behaviors.study_period import BaseActivityLengthsBehavior
+
 from agents.resource import Resource
 from agents.student import Student
-from agents.student.behaviors.behavior_group import BehaviorGroup
-from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
-from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
 from knowledge_representation import Fact
-from simulation.resource_access import ResourceAccessService
+from knowledge_representation.lesson_type import Lecture
 from simulation.result import ResultTopics
 
 
@@ -82,10 +75,11 @@ class TestStudent:
     #         patched_study_resource.assert_called_once_with(resource1)
 
     def test_study_resource_updates_student_competencies(self, student, behavior_group, env):
-        resource1 = Resource('A', [])
+        resource1 = Resource('A', [Lecture('L1', [Fact('A'), Fact('B')])])
         student._knowledge = {Fact('A'), Fact('C')}
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value={Fact('A'), Fact('B')})
 
+        # noinspection PyUnresolvedReferences
         with patch.object(student, 'observe'):
             student.start()
             env.process(student.study_resource(resource1))
@@ -109,7 +103,8 @@ class TestStudent:
         (1, [Fact("A", complexity=1), Fact('B', complexity=2)]),
         (6, [Fact("A", complexity=1), Fact('B', complexity=2)]),
     ])
-    def test_study_resource_yields_timeout_for_duration_of_study(self, student, behavior_group, resource, env, skill, facts):
+    def test_study_resource_yields_timeout_for_duration_of_study(self, student, behavior_group, resource, lecture, env, skill, facts):
+        type(resource).lectures = mock.PropertyMock(return_value=[lecture])
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=facts)
         student._skill = skill
         expected_timeouts = [fact.complexity / skill for fact in facts]
@@ -120,6 +115,7 @@ class TestStudent:
         def env_timeout_override(t):
             timeout_catcher.append(t)
             return old_timeout(t)
+        # noinspection PyUnresolvedReferences
         with patch.object(env, 'timeout', env_timeout_override):
             env.process(student.study_resource(resource))
             env.run()

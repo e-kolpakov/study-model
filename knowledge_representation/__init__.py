@@ -2,7 +2,7 @@ from copy import deepcopy
 
 __author__ = 'e.kolpakov'
 
-from .fact import Fact, ResourceFact, Competency
+from .fact import Fact, Competency
 from .curriculum import Curriculum
 
 
@@ -23,6 +23,6 @@ def get_available_facts(facts, known_facts):
         first_iteration = False
         available |= new_available
         to_check -= new_available
-        new_available = set(fact for fact in to_check if fact.is_available(available))
+        new_available = set(fact_to_check for fact_to_check in to_check if fact_to_check.is_available(available))
 
     return frozenset(available & facts - known_facts)

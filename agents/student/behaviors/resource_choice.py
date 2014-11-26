@@ -1,6 +1,6 @@
 import random
-from agents.student.behaviors.common import GoalDrivenBehaviorMixin
 
+from agents.student.behaviors.common import GoalDrivenBehaviorMixin
 from knowledge_representation import get_available_facts
 
 
@@ -42,7 +42,7 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
         :rtype: Resource
         """
         def new_facts_count(resource):
-            facts = set([resource_fact.fact for resource_fact in resource.facts])
+            facts = set(resource.facts_to_study)
             available_facts = get_available_facts(facts, student.knowledge)
             return len(available_facts)
 

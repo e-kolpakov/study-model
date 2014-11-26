@@ -32,7 +32,7 @@ class StudyCompetenciesGoal(ResourceChoiceMixin):
     # TODO add unit tests
     def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
         def weighted_new_facts_count(resource):
-            facts = set([resource_fact.fact for resource_fact in resource.facts])
+            facts = set(resource.facts_to_study)
             available_facts = get_available_facts(facts, student.knowledge)
             return sum(map(self._get_fact_weight, available_facts))
 

@@ -1,6 +1,6 @@
 from unittest import mock
-import pytest
 
+import pytest
 from simpy import Environment
 
 from agents.resource import Resource
@@ -9,7 +9,9 @@ from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionB
 from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
 from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
 from agents.student.behaviors.study_period import BaseActivityLengthsBehavior
+from knowledge_representation.lesson_type import Lecture
 from simulation.resource_access import ResourceAccessService
+
 
 __author__ = 'e.kolpakov'
 
@@ -40,3 +42,7 @@ def resource_lookup():
 @pytest.fixture
 def resource():
     return mock.Mock(spec=Resource)
+
+@pytest.fixture
+def lecture():
+    return mock.Mock(spec=Lecture)

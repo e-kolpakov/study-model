@@ -2,8 +2,9 @@ from itertools import chain
 
 from agents.resource import Resource
 from agents.student.goals import StudyCompetenciesGoal
-from agents.student.preconfigured_students import RandomStudent, GoalDrivenStudent, RationalStudent
-from knowledge_representation import Competency, Fact, ResourceFact, Curriculum
+from agents.student.preconfigured_students import GoalDrivenStudent, RationalStudent
+from knowledge_representation import Competency, Fact, Curriculum
+from knowledge_representation.lesson_type import Lecture
 
 
 __author__ = 'e.kolpakov'
@@ -70,18 +71,23 @@ class SimulationInputBuilder:
         curriculum.register_competency(Competency("diff_eq", diff_eq_facts))
         curriculum.register_competency(Competency("trigonometry", trig_facts))
 
+        curriculum.register_lesson(Lecture("algebra", alg_facts, name="Algebra"))
+        curriculum.register_lesson(Lecture("trigonometry", trig_facts, name="Trigonometry"))
+        curriculum.register_lesson(Lecture("calculus1", calc_facts[:2], name="Calculus 1"))
+        curriculum.register_lesson(Lecture("calculus2", calc_facts[2:], name="Calculus 2"))
+        curriculum.register_lesson(Lecture("diff_eq1", diff_eq_facts[:2], name="Differential Equations 1"))
+        curriculum.register_lesson(Lecture("diff_eq2", diff_eq_facts[2:], name="Differential Equations 2"))
+
+
         return curriculum
 
     @staticmethod
     def build_resources(curriculum):
-        to_resource_facts = lambda fact_codes: [ResourceFact(curriculum.find_fact(code)) for code in fact_codes]
+        get_lessons = lambda *codes: [curriculum.find_lesson(code) for code in codes]
         return [
-            Resource("Resource1", to_resource_facts(['Sum', "Sub", "Mul", "Div"]), None, agent_id='r1'),
-            Resource("Resource2", to_resource_facts(['Lim', "Int"]), None, agent_id='r2'),
-            Resource("Resource3", to_resource_facts(['Lim', 'Int', 'Der']), None, agent_id='r3'),
-            Resource("Resource4", to_resource_facts(['Int', "Der", "LinearDE", "SquareDE", "MultipleVarDE"]), None,
-                     agent_id='r4'),
-            Resource("Resource5", to_resource_facts(["Sin", "Cos", "Tan", "Ctg", "SinCos"]), None, agent_id='r5'),
+            Resource("Basic Math", get_lessons("algebra", "trigonometry"), agent_id='r1'),
+            Resource("Calculus", get_lessons("calculus1", "calculus2"), agent_id='r2'),
+            Resource("Differential Equations", get_lessons("diff_eq1", "diff_eq2"), agent_id='r3')
         ]
 
     @staticmethod

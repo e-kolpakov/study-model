@@ -125,25 +125,27 @@ class Student(IntelligentAgent, ResourceRosterMixin):
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
     def study_resource(self, resource, until=None):
         """
-        :type resource: Resource
-        :rtype: None
+        :type resource: agents.Resource
+        :return bool: returns False if there was not enough time to study resource completely
         """
         self._logger.debug("{self}: Studying resource, until {until}".format(self=self, until=until))
-        knowledge_to_acquire = self._behavior.knowledge_acquisition.acquire_facts(self, resource)
-        for fact in knowledge_to_acquire:
-            fact_study_process = self.study_fact(fact, until)
-            success = yield from fact_study_process
-            if not success:
-                return False
+        # TODO: behavior?
+        study_result = True
+        for lecture in resource.lectures:
+            study_result = yield from self.study_lecture(lecture, until)
+            if not study_result:
+                break
 
-        self._logger.debug("{self}: Studying resource {resource_name} done at {time}".format(
-            self=self, resource_name=resource.name, time=self.env.now
-        ))
-        return True
+        return study_result
 
     def study_lecture(self, lecture, until=None):
+        """
+        :param Lecture lecture: lecture to study
+        :param float until: end of time window to study lecture
+        :return bool: returns False if there was not enough time to study lecture completely
+        """
         self._logger.debug("{self}: Studying lecture {lecture}, until {until}".format(
-            self=self, lesson=lecture, until=until)
+            self=self, lecture=lecture, until=until)
         )
         knowledge_to_acquire = self._behavior.knowledge_acquisition.acquire_facts(self, lecture)
         for fact in knowledge_to_acquire:

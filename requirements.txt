@@ -2,4 +2,4 @@ simpy==3.0.5
 --allow-external PyPubSub
 PyPubSub==3.3.0
 pytest==2.5.2
-
+lazy=1.2

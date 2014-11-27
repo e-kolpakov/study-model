@@ -3,6 +3,8 @@ import logging
 
 from lazy import lazy
 
+from infrastructure import INFINITY
+
 
 __author__ = 'e.kolpakov'
 
@@ -82,7 +84,7 @@ class FactBasedLessonMixin:
 
 
 class Lecture(BaseLesson, FactBasedLessonMixin):
-    def interact(self, student, until=None):
+    def interact(self, student, until=INFINITY):
 
         knowledge_to_acquire = student.behavior.knowledge_acquisition.acquire_facts(student, self)
         for fact in knowledge_to_acquire:
@@ -91,12 +93,25 @@ class Lecture(BaseLesson, FactBasedLessonMixin):
             if not success:
                 return False
 
-
         return True
 
 
 class Exam(BaseLesson, FactBasedLessonMixin):
-    def interact(self, student, until=None):
-        super().interact(student)
+    def __init__(self, code, pass_threshold=1.0, *args, **kwargs):
+        super(Exam, self).__init__(code, *args, **kwargs)
+        self._pass_threshold = pass_threshold
+
+    @property
+    def pass_threshold(self):
+        return self._pass_threshold
+
+    def interact(self, student, until=INFINITY):
+        for fact in self.facts:
+            knows_fact = yield from student.check_fact(fact, until)
+            if not knows_fact:
+                return False
+
+        return True
+
 
 

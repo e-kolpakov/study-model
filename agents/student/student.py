@@ -8,6 +8,7 @@ from agents.base_agents import IntelligentAgent
 from agents.student.activities import IdleActivity, StudySessionActivity, PeerStudentInteractionActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.messages import BaseMessage
+from infrastructure import INFINITY
 from infrastructure.observers import Observer, observer_trigger, AgentCallObserver, DeltaObserver
 from simulation.resource_access import ResourceRosterMixin
 from simulation.result import ResultTopics
@@ -123,7 +124,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
                 yield self.env.process(activity_process)
 
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
-    def study_resource(self, resource, until=None):
+    def study_resource(self, resource, until=INFINITY):
         """
         :type resource: agents.Resource
         :return bool: returns False if there was not enough time to study resource completely
@@ -144,7 +145,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
 
         return study_result
 
-    def study_fact(self, fact, until=None):
+    def study_fact(self, fact, until=INFINITY):
         if fact in self._knowledge:
             self._logger.debug("{student}: {fact} already known - skipping".format(student=self, fact=fact))
 
@@ -159,6 +160,14 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         except Interrupt:
             return False
         return True
+
+    def check_fact(self, fact, until=INFINITY):
+        # TODO: student parameter for time calculation, probabilistic check, revisiting lectures if missed, behavior
+        time_to_check = fact.complexity / self.skill
+        enough_time = self.env.now + time_to_check <= until
+        timeout = min(time_to_check, until - self.env.now)
+        yield self.env.timeout(timeout)
+        return enough_time and fact in self._knowledge
 
     def stop_participation(self):
         # TODO: check if we really want to stop participation
@@ -179,7 +188,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
 
         self._known_students[other_student.agent_id] = other_student
 
-    def process_messages(self, until=None):
+    def process_messages(self, until=INFINITY):
         success = True
         self._logger.debug("{student} starts reading messages (count:{count})".format(
             student=self, count=len(self._inbox)
@@ -189,7 +198,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
             self._logger.debug("{student} reads message {message} from inbox".format(student=self, message=message))
             success = yield from message.process(self, until)
 
-    def send_messages(self, until=None):
+    def send_messages(self, until=INFINITY):
         for to_student, messages in self.behavior.send_messages.get_messages(self):
             address = to_student.inbox_address
             for message in messages:

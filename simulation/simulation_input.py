@@ -2,7 +2,7 @@ from itertools import chain
 
 from agents.resource import Resource
 from agents.student.goals import StudyCompetenciesGoal
-from agents.student.preconfigured_students import GoalDrivenStudent, RationalStudent
+from agents.student import GoalDrivenStudent, RationalStudent
 from knowledge_representation import Competency, Fact, Curriculum
 from knowledge_representation.lesson_type import Lecture
 

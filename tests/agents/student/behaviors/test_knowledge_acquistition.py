@@ -4,14 +4,10 @@ import pytest
 
 from agents.resource import Resource
 from agents.student.behaviors.knowledge_acquisition import AllDependenciesAcquisitionBehavior, GetAllFactsAcquisitionBehavior
-from knowledge_representation import Fact, ResourceFact
+from knowledge_representation import Fact
 
 
 __author__ = 'e.kolpakov'
-
-
-def _to_resource_fact(facts):
-    return tuple([ResourceFact(fact) for fact in facts])
 
 
 @pytest.fixture
@@ -52,7 +48,7 @@ class TestGetAllFactsAcquisitionBehavior:
 
     def test_turns_resource_facts_into_facts(self, student, resource, behavior, facts_mock):
         facts = {Fact('A'), Fact('B'), Fact('C')}
-        facts_mock.return_value = _to_resource_fact(facts)
+        facts_mock.return_value = facts
 
         result = behavior.acquire_facts(student, resource)
 
@@ -65,7 +61,7 @@ class TestAllDependenciesAcquisitionBehavior:
         return AllDependenciesAcquisitionBehavior()
 
     def test_no_facts_returns_empty(self, student, resource, behavior, facts_mock, knowledge_mock):
-        facts_mock.return_value = []
+        facts_mock.return_value = set()
         knowledge_mock.return_value = frozenset()
 
         result = behavior.acquire_facts(student, resource)
@@ -74,7 +70,7 @@ class TestAllDependenciesAcquisitionBehavior:
 
     def test_turns_resource_facts_into_facts(self, student, resource, behavior, facts_mock, knowledge_mock):
         facts = {Fact('A'), Fact('B'), Fact('C')}
-        facts_mock.return_value = _to_resource_fact(facts)
+        facts_mock.return_value = facts
         knowledge_mock.return_value = frozenset()
 
         result = behavior.acquire_facts(student, resource)
@@ -83,7 +79,7 @@ class TestAllDependenciesAcquisitionBehavior:
 
     def test_filters_facts_with_missing_dependencies(self, student, resource, behavior, facts_mock, knowledge_mock):
         facts = {Fact('A'), Fact('C', ['B'])}
-        facts_mock.return_value = _to_resource_fact(facts)
+        facts_mock.return_value = facts
         knowledge_mock.return_value = frozenset()
 
         result = behavior.acquire_facts(student, resource)

@@ -154,8 +154,8 @@ class Student(IntelligentAgent, ResourceRosterMixin):
             if not success:
                 return False
 
-        self._logger.debug("{self}: Studying lecture {lesson_name} done at {time}".format(
-            self=self, lesson_name=lecture.name, time=self.env.now
+        self._logger.debug("{self}: Studying lecture {lecture} done at {time}".format(
+            self=self, lecture=lecture, time=self.env.now
         ))
         return True
 
@@ -176,7 +176,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         return True
 
     def stop_participation(self):
-        # TODO: check if we really wnat to stop participation
+        # TODO: check if we really want to stop participation
         self.stop_participation_event.succeed()
 
     def get_accessible_resources(self):

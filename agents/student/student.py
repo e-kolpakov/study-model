@@ -132,32 +132,17 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         # TODO: behavior?
         study_result = True
         for lecture in resource.lectures:
-            study_result = yield from self.study_lecture(lecture, until)
+            self._logger.debug("{student}: Studying {lecture}, until {until}".format(
+                student=self, lecture=lecture, until=until)
+            )
+            study_result = yield from lecture.interact(self, until)
+            self._logger.debug("{student}: Studying {lecture} done at {time}".format(
+                student=self, lecture=lecture, time=self.env.now
+            ))
             if not study_result:
                 break
 
         return study_result
-
-    def study_lecture(self, lecture, until=None):
-        """
-        :param Lecture lecture: lecture to study
-        :param float until: end of time window to study lecture
-        :return bool: returns False if there was not enough time to study lecture completely
-        """
-        self._logger.debug("{self}: Studying lecture {lecture}, until {until}".format(
-            self=self, lecture=lecture, until=until)
-        )
-        knowledge_to_acquire = self._behavior.knowledge_acquisition.acquire_facts(self, lecture)
-        for fact in knowledge_to_acquire:
-            fact_study_process = self.study_fact(fact, until)
-            success = yield from fact_study_process
-            if not success:
-                return False
-
-        self._logger.debug("{self}: Studying lecture {lecture} done at {time}".format(
-            self=self, lecture=lecture, time=self.env.now
-        ))
-        return True
 
     def study_fact(self, fact, until=None):
         if fact in self._knowledge:

@@ -71,12 +71,12 @@ class SimulationInputBuilder:
         curriculum.register_competency(Competency("diff_eq", diff_eq_facts))
         curriculum.register_competency(Competency("trigonometry", trig_facts))
 
-        curriculum.register_lesson(Lecture("algebra", alg_facts, name="Algebra"))
-        curriculum.register_lesson(Lecture("trigonometry", trig_facts, name="Trigonometry"))
-        curriculum.register_lesson(Lecture("calculus1", calc_facts[:2], name="Calculus 1"))
-        curriculum.register_lesson(Lecture("calculus2", calc_facts[2:], name="Calculus 2"))
-        curriculum.register_lesson(Lecture("diff_eq1", diff_eq_facts[:2], name="Differential Equations 1"))
-        curriculum.register_lesson(Lecture("diff_eq2", diff_eq_facts[2:], name="Differential Equations 2"))
+        curriculum.register_lesson(Lecture("algebra", facts=alg_facts, name="Algebra"))
+        curriculum.register_lesson(Lecture("trigonometry", facts=trig_facts, name="Trigonometry"))
+        curriculum.register_lesson(Lecture("calculus1", facts=calc_facts[:2], name="Calculus 1"))
+        curriculum.register_lesson(Lecture("calculus2", facts=calc_facts[2:], name="Calculus 2"))
+        curriculum.register_lesson(Lecture("diff_eq1", facts=diff_eq_facts[:2], name="Differential Equations 1"))
+        curriculum.register_lesson(Lecture("diff_eq2", facts=diff_eq_facts[2:], name="Differential Equations 2"))
 
 
         return curriculum

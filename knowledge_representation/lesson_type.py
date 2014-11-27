@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import logging
 
 from lazy import lazy
 
@@ -7,12 +8,16 @@ __author__ = 'e.kolpakov'
 
 
 class BaseLesson(ABC):
-    def __init__(self, code, name=None):
+    def __init__(self, code, name=None, **kwargs):
         self._code = code
 
         # name is just a displayed name for the lesson - it's not used in equality checks and hashing,
         # hence it can be mutable
         self.name = name
+
+        self._logger = logging.getLogger(__name__)
+
+        super(BaseLesson, self).__init__(**kwargs)
 
     @property
     def code(self):
@@ -49,19 +54,14 @@ class BaseLesson(ABC):
         return self.__str__()
 
     @abstractmethod
-    def interact(self, student):
+    def interact(self, student, until=None):
         pass
 
 
-class Lecture(BaseLesson):
-    def __init__(self, code, facts, **kwargs):
-        """
-        :param str code: lesson code
-        :param str name:
-        :param frozenset facts:
-        """
-        super(Lecture, self).__init__(code, **kwargs)
-        self._facts = facts
+class FactBasedLessonMixin:
+    def __init__(self, facts=None, **kwargs):
+        super(FactBasedLessonMixin, self).__init__(**kwargs)
+        self._facts = facts if facts else {}
 
     @property
     def facts(self):
@@ -78,12 +78,25 @@ class Lecture(BaseLesson):
         return super().__eq__(other) and self.facts == other.facts
 
     def __hash__(self):
-        return super(Lecture, self).__hash__() * 31 + hash(self.facts)
+        return super(FactBasedLessonMixin, self).__hash__() * 31 + hash(self.facts)
 
-    def interact(self, student):
+
+class Lecture(BaseLesson, FactBasedLessonMixin):
+    def interact(self, student, until=None):
+
+        knowledge_to_acquire = student.behavior.knowledge_acquisition.acquire_facts(student, self)
+        for fact in knowledge_to_acquire:
+            fact_study_process = student.study_fact(fact, until)
+            success = yield from fact_study_process
+            if not success:
+                return False
+
+
+        return True
+
+
+class Exam(BaseLesson, FactBasedLessonMixin):
+    def interact(self, student, until=None):
         super().interact(student)
-
-
-
 
 

@@ -56,7 +56,7 @@ class BaseLesson(ABC):
         return self.__str__()
 
     @abstractmethod
-    def interact(self, student, until=None):
+    def take(self, student, until=None):
         pass
 
 
@@ -84,12 +84,16 @@ class FactBasedLessonMixin:
 
 
 class Lecture(BaseLesson, FactBasedLessonMixin):
-    def interact(self, student, until=INFINITY):
-
+    def take(self, student, until=INFINITY):
+        """
+        Student learns all facts available in lecture
+        :param Student student:
+        :param float|None until: upper time bound for activity
+        :return: True if had enough time to study all the facts, False otherwise
+        """
         knowledge_to_acquire = student.behavior.knowledge_acquisition.acquire_facts(student, self)
         for fact in knowledge_to_acquire:
-            fact_study_process = student.study_fact(fact, until)
-            success = yield from fact_study_process
+            success = yield from student.study_fact(fact, until)
             if not success:
                 return False
 
@@ -105,7 +109,13 @@ class Exam(BaseLesson, FactBasedLessonMixin):
     def pass_threshold(self):
         return self._pass_threshold
 
-    def interact(self, student, until=INFINITY):
+    def take(self, student, until=INFINITY):
+        """
+        Student checks all facts available in exam
+        :param Student student:
+        :param float|None until: upper time bound for activity
+        :return: True if had enough time to check all the facts and knows them all, False otherwise
+        """
         for fact in self.facts:
             knows_fact = yield from student.check_fact(fact, until)
             if not knows_fact:

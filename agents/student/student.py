@@ -1,7 +1,6 @@
 import logging
 from itertools import cycle
 
-from simpy import Interrupt
 from pubsub import pub
 
 from agents.base_agents import IntelligentAgent
@@ -123,52 +122,6 @@ class Student(IntelligentAgent, ResourceRosterMixin):
             if activity_process:
                 yield self.env.process(activity_process)
 
-    @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
-    def study_resource(self, resource, until=INFINITY):
-        """
-        :type resource: agents.Resource
-        :return bool: returns False if there was not enough time to study resource completely
-        """
-        self._logger.debug("{self}: Studying resource, until {until}".format(self=self, until=until))
-        # TODO: behavior?
-        study_result = True
-        for lecture in resource.lectures:
-            self._logger.debug("{student}: Studying {lecture}, until {until}".format(
-                student=self, lecture=lecture, until=until)
-            )
-            study_result = yield from lecture.interact(self, until)
-            self._logger.debug("{student}: Studying {lecture} done at {time}".format(
-                student=self, lecture=lecture, time=self.env.now
-            ))
-            if not study_result:
-                break
-
-        return study_result
-
-    def study_fact(self, fact, until=INFINITY):
-        if fact in self._knowledge:
-            self._logger.debug("{student}: {fact} already known - skipping".format(student=self, fact=fact))
-
-        self._logger.debug("{student}: studies {fact}".format(student=self, fact=fact))
-        time_to_study = fact.complexity / self.skill
-        if until is not None and self.env.now + time_to_study > until:
-            self._logger.debug("{self}: not enough time to study fact - skipping".format(self=self))
-            return False
-        try:
-            yield self.env.timeout(time_to_study)
-            self._add_fact(fact)
-        except Interrupt:
-            return False
-        return True
-
-    def check_fact(self, fact, until=INFINITY):
-        # TODO: student parameter for time calculation, probabilistic check, revisiting lectures if missed, behavior
-        time_to_check = fact.complexity / self.skill
-        enough_time = self.env.now + time_to_check <= until
-        timeout = min(time_to_check, until - self.env.now)
-        yield self.env.timeout(timeout)
-        return enough_time and fact in self._knowledge
-
     def stop_participation(self):
         # TODO: check if we really want to stop participation
         self.stop_participation_event.succeed()
@@ -188,6 +141,49 @@ class Student(IntelligentAgent, ResourceRosterMixin):
 
         self._known_students[other_student.agent_id] = other_student
 
+    @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
+    def study_resource(self, resource, until=INFINITY):
+        """
+        :type resource: agents.Resource
+        :return bool: returns False if there was not enough time to study resource completely
+        """
+        self._logger.debug("{self}: Studying resource, until {until}".format(self=self, until=until))
+        # TODO: behavior?
+        study_result = True
+        for lecture in resource.lectures:
+            self._logger.debug("{student}: Studying {lecture}, until {until}".format(
+                student=self, lecture=lecture, until=until)
+            )
+            study_result = yield from lecture.take(self, until)
+            self._logger.debug("{student}: Studying {lecture} done at {time}".format(
+                student=self, lecture=lecture, time=self.env.now
+            ))
+            if not study_result:
+                break
+
+        return study_result
+
+    def study_fact(self, fact, until=INFINITY):
+        if fact in self._knowledge:
+            self._logger.debug("{student}: {fact} already known - skipping".format(student=self, fact=fact))
+
+        self._logger.debug("{student}: studies {fact}".format(student=self, fact=fact))
+        time_to_study = fact.complexity / self.skill
+        if self.env.now + time_to_study > until:
+            self._logger.debug("{self}: not enough time to study fact - skipping".format(self=self))
+            return False
+        yield self.env.timeout(time_to_study)
+        self._add_fact(fact)
+        return True
+
+    def check_fact(self, fact, until=INFINITY):
+        # TODO: student parameter for time calculation, probabilistic check, revisiting lectures if missed, behavior
+        time_to_check = fact.complexity / self.skill
+        enough_time = self.env.now + time_to_check <= until
+        timeout = min(time_to_check, until - self.env.now)
+        yield self.env.timeout(timeout)
+        return enough_time and fact in self._knowledge
+
     def process_messages(self, until=INFINITY):
         success = True
         self._logger.debug("{student} starts reading messages (count:{count})".format(
@@ -203,7 +199,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
             address = to_student.inbox_address
             for message in messages:
                 time_to_send = message.time_to_send(self)
-                if until is not None and self.env.now + time_to_send > until:
+                if self.env.now + time_to_send > until:
                     # there might be less involving messages in the queue - should try sending them
                     # On the other hand, it does not allow for short-circuiting out of this process
                     # if there are little time left. TODO: implement short-circuit

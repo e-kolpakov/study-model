@@ -125,3 +125,5 @@ class ResultTopics:
     KNOWLEDGE_SNAPSHOT = 'Knowledge.Snapshot'
     KNOWLEDGE_COUNT = 'Knowledge.Count'
     KNOWLEDGE_DELTA = 'Knowledge.Delta'
+
+    EXAM_RESULTS = 'Exam.Result'

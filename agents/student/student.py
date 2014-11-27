@@ -4,6 +4,7 @@ from itertools import cycle
 from pubsub import pub
 
 from agents.base_agents import IntelligentAgent
+
 from agents.student.activities import IdleActivity, StudySessionActivity, PeerStudentInteractionActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.messages import BaseMessage
@@ -140,6 +141,11 @@ class Student(IntelligentAgent, ResourceRosterMixin):
             self._logger.info("Already met student {other}".format(other=other_student))
 
         self._known_students[other_student.agent_id] = other_student
+
+    def get_feedback(self, exam, exam_feedback):
+        pub.sendMessage(
+            ResultTopics.EXAM_RESULTS, student=self, exam=exam, exam_feedback=exam_feedback, time=self.env.now
+        )
 
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
     def study_resource(self, resource, until=INFINITY):

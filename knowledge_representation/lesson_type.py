@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections import defaultdict
 import logging
 
 from lazy import lazy
@@ -19,6 +20,7 @@ class BaseLesson(ABC):
 
         self._logger = logging.getLogger(__name__)
 
+        # noinspection PyArgumentList
         super(BaseLesson, self).__init__(**kwargs)
 
     @property
@@ -62,6 +64,7 @@ class BaseLesson(ABC):
 
 class FactBasedLessonMixin:
     def __init__(self, facts=None, **kwargs):
+        # noinspection PyArgumentList
         super(FactBasedLessonMixin, self).__init__(**kwargs)
         self._facts = facts if facts else {}
 
@@ -105,6 +108,8 @@ class Exam(BaseLesson, FactBasedLessonMixin):
         super(Exam, self).__init__(code, *args, **kwargs)
         self._pass_threshold = pass_threshold
 
+        self._exam_attempts = defaultdict(int)
+
     @property
     def pass_threshold(self):
         return self._pass_threshold
@@ -114,14 +119,26 @@ class Exam(BaseLesson, FactBasedLessonMixin):
         Student checks all facts available in exam
         :param Student student:
         :param float|None until: upper time bound for activity
-        :return: True if had enough time to check all the facts and knows them all, False otherwise
+        :return ExamFeedback: Exam feedback
         """
+        self._exam_attempts[student] += 1
+
+        knows, total = 0, float(len(self.facts))
         for fact in self.facts:
             knows_fact = yield from student.check_fact(fact, until)
-            if not knows_fact:
-                return False
+            if knows_fact:
+                knows += 1
 
-        return True
+        ratio = knows / total
+        return ExamFeedback(ratio, ratio >= self.pass_threshold, self._exam_attempts[student])
+
+
+class ExamFeedback:
+    def __init__(self, ratio, passed, attempt_number, feedback=None):
+        self.ratio = ratio
+        self.passed = passed
+        self.attempt_number = attempt_number
+        self.feedback = feedback
 
 
 

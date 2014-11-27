@@ -107,4 +107,5 @@ class PassExamActivity(BaseStudentActivity):
         entered = self.env.now
         complete_before = entered + self._length
 
-        self.target_exam.take(self._student, complete_before)
+        exam_feedback = yield from self.target_exam.take(self._student, complete_before)
+        self._student.get_feedback(self.target_exam, exam_feedback)

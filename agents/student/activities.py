@@ -1,4 +1,5 @@
 import logging
+
 import simpy
 
 
@@ -89,3 +90,21 @@ class PeerStudentInteractionActivity(BaseStudentActivity):
 
         yield from self._student.process_messages(until=interact_until)
         yield from self._student.send_messages(until=interact_until)
+
+
+class PassExamActivity(BaseStudentActivity):
+    def __init__(self, student, exam, **kwargs):
+        """
+        :param agents.student.Student student:
+        :param knowledge_representation.lesson_type.Exam exam:
+        :param kwargs:
+        :return:
+        """
+        super(PassExamActivity, self).__init__(student, **kwargs)
+        self.target_exam = exam
+
+    def run(self, **kwargs):
+        entered = self.env.now
+        complete_before = entered + self._length
+
+        self.target_exam.take(self._student, complete_before)

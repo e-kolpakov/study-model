@@ -181,7 +181,8 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         self._logger.debug("{self}: Studying resource, until {until}".format(self=self, until=until))
         # TODO: behavior?
         study_result = True
-        for lecture in resource.lectures:
+        lectures_to_study = [lecture for lecture in resource.lectures if lecture.facts - self.knowledge]
+        for lecture in lectures_to_study:
             self._logger.debug("{student}: Studying {lecture}, until {until}".format(
                 student=self, lecture=lecture, until=until)
             )

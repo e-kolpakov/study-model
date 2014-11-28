@@ -5,7 +5,9 @@ from itertools import cycle
 from pubsub import pub
 
 from agents.base_agents import IntelligentAgent
-from agents.student.activities import IdleActivity, StudySessionActivity, PeerStudentInteractionActivity
+from agents.student.activities import (
+    IdleActivity, StudySessionActivity, PeerStudentInteractionActivity, PassExamActivity
+)
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.messages import BaseMessage
 from infrastructure import INFINITY
@@ -55,6 +57,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
             IdleActivity: self._behavior.activity_periods.get_idle_period,
             StudySessionActivity: self._behavior.activity_periods.get_study_period,
             PeerStudentInteractionActivity: self._behavior.activity_periods.get_peer_interaction_period,
+            PassExamActivity: self.behavior.activity_periods.get_pass_exam_period
         }
 
     def __subscribe_to_inbox(self):
@@ -166,9 +169,13 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         return len(knows_facts) / float(len(exam.facts))
 
     # TODO: behavior
-    def choose_exam(self):
+    def choose_exam(self, complete_before=INFINITY):
         exams = self.get_available_exams()
-        exam_map = {exam: self._calculate_pass_probability(exam) for exam in exams}
+        exam_map = {
+            exam: self._calculate_pass_probability(exam)
+            for exam in exams
+            if self.env.now + exam.allowed_time <= complete_before
+        }
         exams_to_attempt = {exam: exam.weight * probability for exam, probability in exam_map if property > 0.5}
         return max(exams_to_attempt, key=exams_to_attempt.get)
 

@@ -22,7 +22,7 @@ def curriculum():
 
 
 def _make_lecture(code, fact_codes):
-    return Lecture(code, (Fact(code) for code in fact_codes))
+    return Lecture(code, facts=(Fact(code) for code in fact_codes))
 
 
 class TestRandomResourceChoiceBehavior:
@@ -51,7 +51,7 @@ class TestRationalResourceChoiceBehavior:
     def test_student_zero_knowledge(self, student, curriculum, behavior, lesson1, lesson2, exp_res_id):
         resources = (
             Resource('r1', [_make_lecture("l1", lesson1)], agent_id='r1'),
-            Resource('r2', [_make_lecture("l1", lesson2)], agent_id='r2')
+            Resource('r2', [_make_lecture("l2", lesson2)], agent_id='r2')
         )
 
         student.knowledge = set()

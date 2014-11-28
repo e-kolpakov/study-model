@@ -43,6 +43,9 @@ def resource_lookup():
 def resource():
     return mock.Mock(spec=Resource)
 
+
 @pytest.fixture
 def lecture():
-    return mock.Mock(spec=Lecture)
+    fix = mock.Mock(spec=Lecture)
+    fix.take = mock.Mock(return_value=True)
+    return fix

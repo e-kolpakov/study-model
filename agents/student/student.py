@@ -1,10 +1,10 @@
+from collections import defaultdict
 import logging
 from itertools import cycle
 
 from pubsub import pub
 
 from agents.base_agents import IntelligentAgent
-
 from agents.student.activities import IdleActivity, StudySessionActivity, PeerStudentInteractionActivity
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.messages import BaseMessage
@@ -31,6 +31,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         self._knowledge = set(knowledge)
         self._skill = skill if skill else 1
         self._goals = goals or []
+        self._exam_results = defaultdict(list)
 
         self._logger = logging.getLogger(__name__)
 
@@ -83,6 +84,10 @@ class Student(IntelligentAgent, ResourceRosterMixin):
     @property
     def goals(self):
         return self._goals
+
+    @property
+    def exam_results(self):
+        return self._exam_results.items()
 
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
@@ -143,9 +148,29 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         self._known_students[other_student.agent_id] = other_student
 
     def get_feedback(self, exam, exam_feedback):
+        self._exam_results[exam].append(exam_feedback)
         pub.sendMessage(
             ResultTopics.EXAM_RESULTS, student=self, exam=exam, exam_feedback=exam_feedback, time=self.env.now
         )
+
+    def get_available_exams(self):
+        accessible_resources = self.get_accessible_resources()
+        return (exam for resource in accessible_resources for exam in resource.exams)
+
+    # TODO: exam should expose competencies instead of facts, than student should weight it's chances of passing based on
+    # weighted sum of ratios of mastery of that competencies. For now it uses facts, which essentially means student
+    # knows exam questions beforehand.
+    # TODO: behavior?
+    def _calculate_pass_probability(self, exam):
+        knows_facts = exam.facts & self.knowledge
+        return len(knows_facts) / float(len(exam.facts))
+
+    # TODO: behavior
+    def choose_exam(self):
+        exams = self.get_available_exams()
+        exam_map = {exam: self._calculate_pass_probability(exam) for exam in exams}
+        exams_to_attempt = {exam: exam.weight * probability for exam, probability in exam_map if property > 0.5}
+        return max(exams_to_attempt, key=exams_to_attempt.get)
 
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
     def study_resource(self, resource, until=INFINITY):

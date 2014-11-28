@@ -104,11 +104,16 @@ class Lecture(BaseLesson, FactBasedLessonMixin):
 
 
 class Exam(BaseLesson, FactBasedLessonMixin):
-    def __init__(self, code, pass_threshold=1.0, *args, **kwargs):
+    def __init__(self, code, weight=1.0, pass_threshold=1.0, *args, **kwargs):
         super(Exam, self).__init__(code, *args, **kwargs)
+        self._weight = weight
         self._pass_threshold = pass_threshold
 
         self._exam_attempts = defaultdict(int)
+
+    @property
+    def weight(self):
+        return self._weight
 
     @property
     def pass_threshold(self):

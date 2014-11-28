@@ -93,19 +93,14 @@ class PeerStudentInteractionActivity(BaseStudentActivity):
 
 
 class PassExamActivity(BaseStudentActivity):
-    def __init__(self, student, exam, **kwargs):
-        """
-        :param agents.student.Student student:
-        :param knowledge_representation.lesson_type.Exam exam:
-        :param kwargs:
-        :return:
-        """
-        super(PassExamActivity, self).__init__(student, **kwargs)
-        self.target_exam = exam
-
     def run(self, **kwargs):
         entered = self.env.now
         complete_before = entered + self._length
 
-        exam_feedback = yield from self.target_exam.take(self._student, complete_before)
-        self._student.get_feedback(self.target_exam, exam_feedback)
+        exam = self._student.choose_exam()
+
+        if not exam:
+            return
+
+        exam_feedback = yield from exam.take(self._student, complete_before)
+        self._student.get_feedback(exam, exam_feedback)

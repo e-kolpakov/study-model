@@ -1,14 +1,19 @@
+from abc import ABC, abstractmethod
+
 from agents.student.behaviors.resource_choice import ResourceChoiceMixin
 from knowledge_representation import get_available_facts
+
 
 __author__ = 'e.kolpakov'
 
 
-class StudyGoalBase:
-    pass
+class AbstractGoal(ABC):
+    @abstractmethod
+    def achieved(self, student):
+        pass
 
 
-class StudyCompetenciesGoal(ResourceChoiceMixin):
+class StudyCompetenciesGoal(ResourceChoiceMixin, AbstractGoal):
     TARGET_COMPETENCY_FACT_WEIGHT = 1.0
     DEPENDENCY_FACT_WEIGHT = 0.5
     OTHER_FACT_WEIGHT = 0.1
@@ -40,4 +45,14 @@ class StudyCompetenciesGoal(ResourceChoiceMixin):
 
     def achieved(self, student):
         return all(competency.is_mastered(student.knowledge) for competency in self._target_competencies)
+
+
+class PassExamGoal(AbstractGoal):
+    def __init__(self, target_exam):
+        self._target_exam = target_exam
+        self._achieved = False
+
+    def achieved(self, student):
+        exam_results = student.exam_results.get(self._target_exam, [])
+        return any(result.passed for result in exam_results)
 

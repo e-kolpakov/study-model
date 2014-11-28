@@ -8,7 +8,7 @@ from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
 from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
 from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
-from agents.student.behaviors.study_period import BaseActivityLengthsBehavior
+from agents.student.behaviors.activity_period import BaseActivityLengthsBehavior
 from knowledge_representation.lesson_type import Lecture
 from simulation.resource_access import ResourceAccessService
 

@@ -6,7 +6,7 @@ from agents.student.behaviors.stop_participation import CourseCompleteStopPartic
     AllGoalsAchievedStopParticipationBehavior
 from agents.student.behaviors.student_interaction import RandomFactToAllStudentsInteractionBehavior, \
     RandomFactToRandomStudentsInteractionBehavior
-from agents.student.behaviors.study_period import QuarterHourRandomActivityLengthsBehavior
+from agents.student.behaviors.activity_period import QuarterHourRandomActivityLengthsBehavior
 
 
 __author__ = 'e.kolpakov'
@@ -23,8 +23,8 @@ class RationalStudentBehaviorMixin:
             stop_participation=CourseCompleteStopParticipationBehavior(),
             send_messages=RandomFactToAllStudentsInteractionBehavior(),
             activity_periods=QuarterHourRandomActivityLengthsBehavior(
-                max_study_period=kwargs.get('study_period', 4),
-                max_idle_period=kwargs.get('idle_period', 18),
+                study_period=kwargs.get('study_period', 4),
+                idle_period=kwargs.get('idle_period', 18),
                 peer_interaction_period=kwargs.get('peer_interaction_period', 2)
             )
         )
@@ -38,8 +38,8 @@ class RandomStudentBehaviorMixin:
             stop_participation=CourseCompleteStopParticipationBehavior(),
             send_messages=RandomFactToRandomStudentsInteractionBehavior(),
             activity_periods=QuarterHourRandomActivityLengthsBehavior(
-                max_study_period=kwargs.get('study_period', 4),
-                max_idle_period=kwargs.get('idle_period', 18),
+                study_period=kwargs.get('study_period', 4),
+                idle_period=kwargs.get('idle_period', 18),
                 peer_interaction_period=kwargs.get('peer_interaction_period', 2)
             )
         )
@@ -53,8 +53,8 @@ class GoalDrivenBehaviorMixin:
             stop_participation=AllGoalsAchievedStopParticipationBehavior(CourseCompleteStopParticipationBehavior()),
             send_messages=RandomFactToRandomStudentsInteractionBehavior(),
             activity_periods=QuarterHourRandomActivityLengthsBehavior(
-                max_study_period=kwargs.get('study_period', 4),
-                max_idle_period=kwargs.get('idle_period', 18),
+                study_period=kwargs.get('study_period', 4),
+                idle_period=kwargs.get('idle_period', 18),
                 peer_interaction_period=kwargs.get('peer_interaction_period', 2)
             )
         )

@@ -1,7 +1,5 @@
 import itertools
 
-from lazy import lazy
-
 from agents.base_agents import BaseAgent
 from knowledge_representation.lesson_type import Lecture, Exam
 from simulation.resource_access import ResourceAccessService
@@ -36,18 +34,22 @@ class Resource(BaseAgent):
         """
         return tuple(self._lessons)
 
-    @lazy
+    @property
     def lectures(self):
         return tuple(self._get_lessons_of_type(Lecture))
 
-    @lazy
+    @property
     def exams(self):
         return tuple(self._get_lessons_of_type(Exam))
 
     def _get_lessons_of_type(self, lesson_type):
-        return (lesson for lesson in self.lessons if isinstance(lesson, lesson_type))
+        return (
+            lesson
+            for lesson in self.lessons
+            if isinstance(lesson, lesson_type) and lesson.publish_at <= self.env.now
+        )
 
-    @lazy
+    @property
     def facts_to_study(self):
         return tuple(itertools.chain(*[lecture.facts for lecture in self.lectures]))
 

@@ -38,6 +38,7 @@ class Simulation(ResourceAccessService):
         student_stop_conditions = []
         for resource in self._resources:
             resource.resource_access_service = self
+            resource.env = self._environment
 
         for student in self._students:
             student.curriculum = self._curriculum

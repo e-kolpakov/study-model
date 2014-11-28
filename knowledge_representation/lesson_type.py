@@ -11,12 +11,11 @@ __author__ = 'e.kolpakov'
 
 
 class BaseLesson(ABC):
-    def __init__(self, code, name=None, **kwargs):
+    def __init__(self, code, publish_at=0, name=None, **kwargs):
         self._code = code
 
-        # name is just a displayed name for the lesson - it's not used in equality checks and hashing,
-        # hence it can be mutable
         self.name = name
+        self.publish_at = publish_at
 
         self._logger = logging.getLogger(__name__)
 
@@ -104,10 +103,11 @@ class Lecture(BaseLesson, FactBasedLessonMixin):
 
 
 class Exam(BaseLesson, FactBasedLessonMixin):
-    def __init__(self, code, weight=1.0, pass_threshold=1.0, *args, **kwargs):
+    def __init__(self, code, allowed_time=INFINITY, weight=1.0, pass_threshold=1.0, *args, **kwargs):
         super(Exam, self).__init__(code, *args, **kwargs)
         self._weight = weight
         self._pass_threshold = pass_threshold
+        self._allowed_time = allowed_time
 
         self._exam_attempts = defaultdict(int)
 
@@ -118,6 +118,10 @@ class Exam(BaseLesson, FactBasedLessonMixin):
     @property
     def pass_threshold(self):
         return self._pass_threshold
+
+    @property
+    def allowed_time(self):
+        return self._allowed_time
 
     def take(self, student, until=INFINITY):
         """

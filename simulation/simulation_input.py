@@ -1,10 +1,10 @@
 from itertools import chain
 
 from agents.resource import Resource
-from agents.student.goals import StudyCompetenciesGoal
+from agents.student.goals import StudyCompetenciesGoal, PassExamGoal
 from agents.student import GoalDrivenStudent, RationalStudent
 from knowledge_representation import Competency, Fact, Curriculum
-from knowledge_representation.lesson_type import Lecture
+from knowledge_representation.lesson_type import Lecture, Exam
 
 
 __author__ = 'e.kolpakov'
@@ -78,6 +78,12 @@ class SimulationInputBuilder:
         curriculum.register_lesson(Lecture("diff_eq1", facts=diff_eq_facts[:2], name="Differential Equations 1"))
         curriculum.register_lesson(Lecture("diff_eq2", facts=diff_eq_facts[2:], name="Differential Equations 2"))
 
+        curriculum.register_lesson(
+            Exam("half_semester_exam", facts=alg_facts+trig_facts, weight=0.3, name="Half semester exam", publish_at=40)
+        )
+        curriculum.register_lesson(
+            Exam("final_exam", facts=alg_facts+trig_facts, weight=0.7, name="Final exam", publish_at=80)
+        )
 
         return curriculum
 
@@ -85,18 +91,23 @@ class SimulationInputBuilder:
     def build_resources(curriculum):
         get_lessons = lambda *codes: [curriculum.find_lesson(code) for code in codes]
         return [
-            Resource("Basic Math", get_lessons("algebra", "trigonometry"), agent_id='r1'),
+            Resource("Basic Math", get_lessons("algebra", "trigonometry", "half_semester_exam"), agent_id='r1'),
             Resource("Calculus", get_lessons("calculus1", "calculus2"), agent_id='r2'),
-            Resource("Differential Equations", get_lessons("diff_eq1", "diff_eq2"), agent_id='r3')
+            Resource("Differential Equations", get_lessons("diff_eq1", "diff_eq2", "final_exam"), agent_id='r3')
         ]
 
     @staticmethod
     def build_students(curriculum, resources):
-        student1 = GoalDrivenStudent("John", [], agent_id='s1', skill=2.0)
+        student1 = GoalDrivenStudent("Andy", [], agent_id='s1', skill=2.0)
         student1.goals.extend((
             StudyCompetenciesGoal([curriculum.find_competency('diff_eq')]),
         ))
-        student2 = RationalStudent("Jim", [], agent_id='s2', skill=1.0)
+        student2 = GoalDrivenStudent("Ben", [], agent_id='s2', skill=1.0)
+        student2.goals.extend((
+            PassExamGoal(curriculum.find_lesson('half_semester_exam')),
+            PassExamGoal(curriculum.find_lesson('final_exam'))
+        ))
+        student2 = RationalStudent("Charlie", [], agent_id='s2', skill=1.0)
         student1.meet(student2)
         student2.meet(student1)
 

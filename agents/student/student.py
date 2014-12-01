@@ -90,7 +90,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
 
     @property
     def exam_results(self):
-        return self._exam_results.items()
+        return self._exam_results
 
     @property
     @Observer.observe(topic=ResultTopics.KNOWLEDGE_SNAPSHOT)
@@ -114,6 +114,11 @@ class Student(IntelligentAgent, ResourceRosterMixin):
     def skill(self):
         """ :return: double """
         return self._skill
+
+    @property
+    def check_fact_skill(self):
+        # TODO separate parameter for time calculation
+        return self._skill * 10
 
     @property
     def curriculum(self):
@@ -160,6 +165,9 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         accessible_resources = self.get_accessible_resources()
         return (exam for resource in accessible_resources for exam in resource.exams)
 
+    def estimate_exam_time(self, exam):
+        return sum(fact.complexity / self.check_fact_skill for fact in exam.facts)
+
     # TODO: exam should expose competencies instead of facts, than student should weight it's chances of passing based on
     # weighted sum of ratios of mastery of that competencies. For now it uses facts, which essentially means student
     # knows exam questions beforehand.
@@ -174,9 +182,15 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         exam_map = {
             exam: self._calculate_pass_probability(exam)
             for exam in exams
-            if self.env.now + exam.allowed_time <= complete_before
+            if self.env.now + self.estimate_exam_time(exam) <= complete_before
         }
-        exams_to_attempt = {exam: exam.weight * probability for exam, probability in exam_map if property > 0.5}
+        exams_to_attempt = {
+            exam: exam.weight * probability
+            for exam, probability in exam_map.items()
+            if probability > 0.8 and not self._passed_exam(exam)
+        }
+        if not exams_to_attempt:
+            return None
         return max(exams_to_attempt, key=exams_to_attempt.get)
 
     @AgentCallObserver.observe(topic=ResultTopics.RESOURCE_USAGE)
@@ -216,8 +230,8 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         return True
 
     def check_fact(self, fact, until=INFINITY):
-        # TODO: student parameter for time calculation, probabilistic check, revisiting lectures if missed, behavior
-        time_to_check = fact.complexity / self.skill
+        # TODO: probabilistic check, revisiting lectures if missed, behavior
+        time_to_check = fact.complexity / self.check_fact_skill
         enough_time = self.env.now + time_to_check <= until
         timeout = min(time_to_check, until - self.env.now)
         yield self.env.timeout(timeout)
@@ -271,8 +285,14 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         self._inbox.append(message)
 
     def _next_activity_generator(self):
-        for activity_type in cycle([StudySessionActivity, PeerStudentInteractionActivity, IdleActivity]):
+        for activity_type in cycle([
+            StudySessionActivity, PeerStudentInteractionActivity, PassExamActivity, IdleActivity
+        ]):
             if self.stop_participation_event.processed:
                 return
             activity_length = self._activity_lengths.get(activity_type)(self, self.env.now)
             yield activity_type(self, activity_length, self.env)
+
+    def _passed_exam(self, exam):
+        # TODO allow attempting passed exam again if there's room for improvement
+        return any(feedback.passed for feedback in self._exam_results.get(exam, []))

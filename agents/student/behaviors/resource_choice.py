@@ -51,8 +51,14 @@ class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
 
 class GoalDrivenResourceChoiceBehavior(BaseResourceChoiceBehavior, GoalDrivenBehaviorMixin):
     def __init__(self, *args, **kwargs):
+        # noinspection PyArgumentList
         super(GoalDrivenResourceChoiceBehavior, self).__init__(*args, **kwargs)
 
+    def call_handler_method(self, handler, *args, **kwargs):
+        return handler.choose_resource(*args, **kwargs)
+
     def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
-        handler = self.find_goal_handler(student, ResourceChoiceMixin)
-        return handler.choose_resource(student, curriculum, available_resources, remaining_time)
+        return self.get_behavior_result(
+            student.goals, ResourceChoiceMixin,
+            student, curriculum, available_resources, remaining_time
+        )

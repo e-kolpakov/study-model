@@ -103,7 +103,7 @@ class Lecture(BaseLesson, FactBasedLessonMixin):
 
 
 class Exam(BaseLesson, FactBasedLessonMixin):
-    def __init__(self, code, allowed_time=INFINITY, weight=1.0, pass_threshold=1.0, *args, **kwargs):
+    def __init__(self, code, allowed_time=INFINITY, weight=1.0, pass_threshold=0.8, *args, **kwargs):
         super(Exam, self).__init__(code, *args, **kwargs)
         self._weight = weight
         self._pass_threshold = pass_threshold
@@ -130,11 +130,14 @@ class Exam(BaseLesson, FactBasedLessonMixin):
         :param float|None until: upper time bound for activity
         :return ExamFeedback: Exam feedback
         """
+        attempt_start = student.env.now
+        complete_until = attempt_start + self.allowed_time
+        stop_attempt_at = min(until, complete_until)
         self._exam_attempts[student] += 1
 
         knows, total = 0, float(len(self.facts))
         for fact in self.facts:
-            knows_fact = yield from student.check_fact(fact, until)
+            knows_fact = yield from student.check_fact(fact, stop_attempt_at)
             if knows_fact:
                 knows += 1
 
@@ -143,8 +146,8 @@ class Exam(BaseLesson, FactBasedLessonMixin):
 
 
 class ExamFeedback:
-    def __init__(self, ratio, passed, attempt_number, feedback=None):
-        self.ratio = ratio
+    def __init__(self, grade, passed, attempt_number, feedback=None):
+        self.grade = grade
         self.passed = passed
         self.attempt_number = attempt_number
         self.feedback = feedback

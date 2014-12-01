@@ -28,6 +28,15 @@ class BaseStudentActivity:
     def cancel(self):
         pass
 
+    def __str__(self):
+        return type(self).__name__
+
+    def __unicode__(self):
+        return self.__str__()
+    
+    def __repr__(self):
+        return super(BaseStudentActivity, self).__repr__()
+
 
 class IdleActivity(BaseStudentActivity):
     def run(self, parameters=None):
@@ -102,5 +111,12 @@ class PassExamActivity(BaseStudentActivity):
         if not exam:
             return
 
-        exam_feedback = yield from exam.take(self._student, complete_before, complete_before)
+        self._logger.info(
+            "{student} attempts {exam} at {now}".format(student=self._student, exam=exam, now=self.env.now)
+        )
+
+        exam_feedback = yield from exam.take(self._student, complete_before)
         self._student.get_feedback(exam, exam_feedback)
+        self._logger.info("{student} {exam} attempt finished with grade {grade} at {now}".format(
+            student=self._student, exam=exam, now=self.env.now, grade=exam_feedback.grade
+        ))

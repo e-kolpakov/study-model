@@ -47,13 +47,13 @@ class StudyCompetenciesGoal(ResourceChoiceMixin, AbstractGoal):
     # Still uses greedy approach. A* suits better, but a bit more complicated, so requires more thorough testing
     # TODO implement using A* or other efficient graph search algorithm
     # TODO add unit tests
-    def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
+    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
         def weighted_new_facts_count(resource):
             facts = set(resource.facts_to_study)
             available_facts = get_available_facts(facts, student.knowledge)
             return sum(map(self._get_fact_weight, available_facts))
 
-        return max(available_resources, key=weighted_new_facts_count)
+        return {resource: weighted_new_facts_count(resource) for resource in available_resources}
 
     def achieved(self, student):
         return all(competency.is_mastered(student.knowledge) for competency in self._target_competencies)

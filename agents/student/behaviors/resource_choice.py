@@ -8,14 +8,24 @@ __author__ = 'e.kolpakov'
 
 
 class ResourceChoiceMixin:
+    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
+        """
+        :param student: Student
+        :param curriculum: Curriculum
+        :param available_resources: tuple[Resource]
+        :return dict[Resource, float]: Resource to confidence map
+        """
+        raise NotImplemented
+
     def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
         """
         :param student: Student
         :param curriculum: Curriculum
         :param available_resources: tuple[Resource]
-        :rtype: Resource
+        :return Resource: Chosen resource
         """
-        raise NotImplemented
+        resource_choices = self.resource_choice_map(student, curriculum, available_resources, remaining_time)
+        return max(resource_choices, key=resource_choices.get)
 
 
 class BaseResourceChoiceBehavior(ResourceChoiceMixin):
@@ -23,30 +33,30 @@ class BaseResourceChoiceBehavior(ResourceChoiceMixin):
 
 
 class RandomResourceChoiceBehavior(BaseResourceChoiceBehavior):
-    def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
+    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
         """
         :param student: Student
         :param curriculum: Curriculum
         :param available_resources: tuple[Resource]
-        :rtype: Resource
+        :return dict[Resource, float]: Resource to confidence map
         """
-        return random.choice(available_resources)
+        return {resource: random.random() for resource in available_resources}
 
 
 class RationalResourceChoiceBehavior(BaseResourceChoiceBehavior):
-    def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
+    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
         """
         :param student: Student
         :param curriculum: Curriculum
         :param available_resources: tuple[Resource]
-        :rtype: Resource
+        :return dict[Resource, float]: Resource to confidence map
         """
         def new_facts_count(resource):
             facts = set(resource.facts_to_study)
             available_facts = get_available_facts(facts, student.knowledge)
             return len(available_facts)
 
-        return max(available_resources, key=new_facts_count)
+        return {resource: new_facts_count(resource) for resource in available_resources}
 
 
 class GoalDrivenResourceChoiceBehavior(BaseResourceChoiceBehavior, GoalDrivenBehaviorMixin):
@@ -55,9 +65,9 @@ class GoalDrivenResourceChoiceBehavior(BaseResourceChoiceBehavior, GoalDrivenBeh
         super(GoalDrivenResourceChoiceBehavior, self).__init__(*args, **kwargs)
 
     def call_handler_method(self, handler, *args, **kwargs):
-        return handler.choose_resource(*args, **kwargs)
+        return handler.resource_choice_map(*args, **kwargs)
 
-    def choose_resource(self, student, curriculum, available_resources, remaining_time=None):
+    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
         return self.get_behavior_result(
             student.goals, ResourceChoiceMixin,
             student, curriculum, available_resources, remaining_time

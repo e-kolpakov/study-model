@@ -1,4 +1,5 @@
 from unittest import mock
+from unittest.mock import PropertyMock
 
 import pytest
 
@@ -48,12 +49,14 @@ class TestRationalResourceChoiceBehavior:
         (['A', 'D'], ['B'], 'r1'),
         (['C'], ['A', 'B'], 'r2'),
     ])
-    def test_student_zero_knowledge(self, student, curriculum, behavior, lesson1, lesson2, exp_res_id):
+    def test_student_zero_knowledge(self, student, env_mock, curriculum, behavior, lesson1, lesson2, exp_res_id):
         resources = (
             Resource('r1', [_make_lecture("l1", lesson1)], agent_id='r1'),
             Resource('r2', [_make_lecture("l2", lesson2)], agent_id='r2')
         )
-
+        type(env_mock).now = PropertyMock(return_value=0)
+        for resource in resources:
+            resource.env = env_mock
         student.knowledge = set()
         chosen = behavior.choose_resource(student, curriculum, resources)
         assert chosen.name == exp_res_id
@@ -63,11 +66,14 @@ class TestRationalResourceChoiceBehavior:
         (['A', 'B'], ['A', 'C'], ['B'], 'r1'),
         (['A', 'C'], ['A', 'C'], ['B'], 'r2'),
     ])
-    def test_nonzero_student_knowledge(self, student, curriculum, behavior, student_know, lesson1, lesson2, exp_res_id):
+    def test_nonzero_student_knowledge(self, student, env_mock, curriculum, behavior, student_know, lesson1, lesson2, exp_res_id):
         resources = (
             Resource('r1', [_make_lecture("l1", lesson1)], agent_id='r1'),
             Resource('r2', [_make_lecture("l2", lesson2)], agent_id='r2')
         )
+        type(env_mock).now = PropertyMock(return_value=0)
+        for resource in resources:
+            resource.env = env_mock
         student.knowledge = set([Fact(comp) for comp in student_know])
         chosen = behavior.choose_resource(student, curriculum, resources)
         assert chosen.name == exp_res_id

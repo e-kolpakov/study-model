@@ -13,6 +13,18 @@ class AbstractGoal(ABC):
         pass
 
 
+class CompositeGoal(AbstractGoal):
+    def __init__(self):
+        self._goals = {}
+
+    def add_goal(self, goal, weight):
+        self._goals[goal] = weight
+        return self
+
+    def achieved(self, student):
+        return all(goal.achieved(student) for goal in self._goals.values())
+
+
 class StudyCompetenciesGoal(ResourceChoiceMixin, AbstractGoal):
     TARGET_COMPETENCY_FACT_WEIGHT = 1.0
     DEPENDENCY_FACT_WEIGHT = 0.5
@@ -55,4 +67,3 @@ class PassExamGoal(AbstractGoal):
     def achieved(self, student):
         exam_results = student.exam_results.get(self._target_exam, [])
         return any(result.passed for result in exam_results)
-

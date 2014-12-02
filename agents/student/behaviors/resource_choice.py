@@ -1,3 +1,4 @@
+from collections import defaultdict
 import random
 
 from agents.student.behaviors.common import GoalDrivenBehaviorMixin
@@ -66,6 +67,14 @@ class GoalDrivenResourceChoiceBehavior(BaseResourceChoiceBehavior, GoalDrivenBeh
 
     def call_handler_method(self, handler, *args, **kwargs):
         return handler.resource_choice_map(*args, **kwargs)
+
+    def merge_goal_results(self, results):
+        result = defaultdict(float)
+        for goal, resource_choice_map in results.items():
+            for resource, confidence in resource_choice_map.items():
+                result[resource] += goal.weight * confidence
+
+        return result
 
     def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
         return self.get_behavior_result(

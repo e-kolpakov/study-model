@@ -1,36 +1,32 @@
 from abc import ABC, abstractmethod
 
 from agents.student.behaviors.resource_choice import ResourceChoiceMixin
+from agents.student.behaviors.stop_participation import StopParticipationBehaviorMixin
 from knowledge_representation import get_available_facts
 
 
 __author__ = 'e.kolpakov'
 
 
-class AbstractGoal(ABC):
+class AbstractGoal(ABC, StopParticipationBehaviorMixin):
+    def __init__(self, weight=1.0):
+        self.weight = weight
+
     @abstractmethod
     def achieved(self, student):
         pass
 
-
-class CompositeGoal(AbstractGoal):
-    def __init__(self):
-        self._goals = {}
-
-    def add_goal(self, goal, weight):
-        self._goals[goal] = weight
-        return self
-
-    def achieved(self, student):
-        return all(goal.achieved(student) for goal in self._goals.values())
+    def stop_participation(self, student, curriculum, available_resources):
+        return self.achieved(student)
 
 
-class StudyCompetenciesGoal(ResourceChoiceMixin, AbstractGoal):
+class StudyCompetenciesGoal(AbstractGoal, ResourceChoiceMixin):
     TARGET_COMPETENCY_FACT_WEIGHT = 1.0
     DEPENDENCY_FACT_WEIGHT = 0.5
     OTHER_FACT_WEIGHT = 0.1
 
-    def __init__(self, target_competencies):
+    def __init__(self, target_competencies, **kwargs):
+        super(StudyCompetenciesGoal, self).__init__(**kwargs)
         self._target_competencies = target_competencies
 
         self._target_facts = frozenset(fact for competency in self._target_competencies for fact in competency.facts)
@@ -60,7 +56,8 @@ class StudyCompetenciesGoal(ResourceChoiceMixin, AbstractGoal):
 
 
 class PassExamGoal(AbstractGoal):
-    def __init__(self, target_exam):
+    def __init__(self, target_exam, **kwargs):
+        super(PassExamGoal, self).__init__(**kwargs)
         self._target_exam = target_exam
         self._achieved = False
 

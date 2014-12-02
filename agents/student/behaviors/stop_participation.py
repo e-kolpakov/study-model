@@ -33,5 +33,14 @@ class AllGoalsAchievedStopParticipationBehavior(BaseStopParticipationBehavior, G
     def __init__(self, *args, **kwargs):
         super(AllGoalsAchievedStopParticipationBehavior, self).__init__(*args, **kwargs)
 
+    def call_handler_method(self, handler, *args, **kwargs):
+        return handler.stop_participation(*args, **kwargs)
+
+    def merge_goal_results(self, results):
+        return all(results.values())
+
     def stop_participation(self, student, curriculum, available_resources):
-        return all(goal.achieved(student) for goal in student.goals)
+        return self.get_behavior_result(
+            student.goals, StopParticipationBehaviorMixin,
+            student, curriculum, available_resources
+        )

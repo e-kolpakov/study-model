@@ -20,25 +20,39 @@ class AbstractGoal(ABC, StopParticipationBehaviorMixin):
         return self.achieved(student)
 
 
-class StudyCompetenciesGoal(AbstractGoal, ResourceChoiceMixin):
-    TARGET_COMPETENCY_FACT_WEIGHT = 1.0
+class WeightedFactGoalMixin:
+    TARGET_FACT_WEIGHT = 1.0
+    DEPENDENCY_FACT_WEIGHT = 0.5
+    OTHER_FACT_WEIGHT = 0.1
+
+    def __init__(self, target_facts=None, *args, **kwargs):
+        self.target_facts_codes = frozenset(fact.code for fact in target_facts)
+        self.dependency_codes = frozenset(dep_code for fact in target_facts for dep_code in fact.dependencies)
+        super(WeightedFactGoalMixin, self).__init__(*args, **kwargs)
+
+    def _get_fact_weight(self, fact):
+        result = 0
+        if fact.code in self.target_facts_codes:
+            result += self.TARGET_FACT_WEIGHT
+        if fact.code in self.dependency_codes:
+            result += self.DEPENDENCY_FACT_WEIGHT
+        return result if result > 0 else self.OTHER_FACT_WEIGHT
+
+    def get_resource_facts_weight(self, resource, prior_knowledge):
+        facts = set(resource.facts_to_study)
+        available_facts = get_available_facts(facts, prior_knowledge)
+        return sum(map(self._get_fact_weight, available_facts))
+
+
+class StudyCompetenciesGoal(WeightedFactGoalMixin, ResourceChoiceMixin, AbstractGoal):
+    TARGET_FACT_WEIGHT = 1.0
     DEPENDENCY_FACT_WEIGHT = 0.5
     OTHER_FACT_WEIGHT = 0.1
 
     def __init__(self, target_competencies, **kwargs):
-        super(StudyCompetenciesGoal, self).__init__(**kwargs)
         self._target_competencies = target_competencies
-
-        self._target_facts = frozenset(fact for competency in self._target_competencies for fact in competency.facts)
-        all_dependency_codes = frozenset(dep_code for fact in self._target_facts for dep_code in fact.dependencies)
-        self._dependency_codes = all_dependency_codes - set(fact.code for fact in self._target_facts)
-
-    def _get_fact_weight(self, fact):
-        if fact in self._target_facts:
-            return self.TARGET_COMPETENCY_FACT_WEIGHT
-        if fact.code in self._dependency_codes:
-            return self.DEPENDENCY_FACT_WEIGHT
-        return self.OTHER_FACT_WEIGHT
+        target_facts = frozenset(fact for competency in target_competencies for fact in competency.facts)
+        super(StudyCompetenciesGoal, self).__init__(target_facts=target_facts, **kwargs)
 
     # Still uses greedy approach. A* suits better, but a bit more complicated, so requires more thorough testing
     # TODO implement using A* or other efficient graph search algorithm
@@ -55,12 +69,29 @@ class StudyCompetenciesGoal(AbstractGoal, ResourceChoiceMixin):
         return all(competency.is_mastered(student.knowledge) for competency in self._target_competencies)
 
 
-class PassExamGoal(AbstractGoal):
+class PassExamGoal(WeightedFactGoalMixin, ResourceChoiceMixin, AbstractGoal):
+    TARGET_EXAM_WEIGHT = 1.0
+    TARGET_FACT_WEIGHT = 0.5
+    DEPENDENCY_FACT_WEIGHT = 0.3
+    OTHER_FACT_WEIGHT = 0.0
+
     def __init__(self, target_exam, **kwargs):
-        super(PassExamGoal, self).__init__(**kwargs)
         self._target_exam = target_exam
-        self._achieved = False
+        super(PassExamGoal, self).__init__(target_facts=self._target_exam.facts, **kwargs)
 
     def achieved(self, student):
         exam_results = student.exam_results.get(self._target_exam, [])
         return any(result.passed for result in exam_results)
+
+    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
+        def weight_resource(resource):
+            weight = 0
+            if self._target_exam in resource.exams and student.expects_can_pass(self._target_exam):
+                weight += self.TARGET_EXAM_WEIGHT
+
+            # facts = set(resource.facts_to_study)
+            # available_facts = get_available_facts(facts, student.knowledge)
+            # return sum(map(self._get_fact_weight, available_facts))
+            return weight
+
+        return {resource: weight_resource(resource) for resource in available_resources}

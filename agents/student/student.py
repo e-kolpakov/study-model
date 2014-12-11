@@ -172,22 +172,30 @@ class Student(IntelligentAgent, ResourceRosterMixin):
     # weighted sum of ratios of mastery of that competencies. For now it uses facts, which essentially means student
     # knows exam questions beforehand.
     # TODO: behavior?
-    def _calculate_pass_probability(self, exam):
+    def _estimate_pass_probability(self, exam):
         knows_facts = exam.facts & self.knowledge
         return len(knows_facts) / float(len(exam.facts))
+
+    def expects_can_pass(self, exam):
+        """
+        Student perception of if it can pass an exam
+        :param Exam exam: exam to check
+        :return: bool
+        """
+        return self._estimate_pass_probability(exam) > 0.8
 
     # TODO: behavior
     def choose_exam(self, complete_before=INFINITY):
         exams = self.get_available_exams()
         exam_map = {
-            exam: self._calculate_pass_probability(exam)
+            exam: self._estimate_pass_probability(exam)
             for exam in exams
             if self.env.now + self.estimate_exam_time(exam) <= complete_before
         }
         exams_to_attempt = {
             exam: exam.weight * probability
             for exam, probability in exam_map.items()
-            if probability > 0.8 and not self._passed_exam(exam)
+            if self.expects_can_pass(exam) and not self._passed_exam(exam)
         }
         if not exams_to_attempt:
             return None

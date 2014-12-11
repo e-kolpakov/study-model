@@ -1,23 +1,11 @@
-from unittest import mock
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch
 
 import pytest
 
-from agents.student import Student
 from agents.student.activities import IdleActivity, StudySessionActivity
 
 
 __author__ = 'e.kolpakov'
-
-
-@pytest.fixture
-def student(behavior_group, resource_lookup, env):
-    student_mock = mock.Mock(spec_set=Student)
-    student_mock.behavior = PropertyMock(return_value=behavior_group)
-    student_mock.env = env
-    student_mock.curriculum = PropertyMock()
-    student_mock.env = env
-    return student_mock
 
 
 class TestIdleActivity:

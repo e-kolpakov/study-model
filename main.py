@@ -3,7 +3,7 @@ import logging.config
 import sys
 
 from log_config import log_config
-from simulation.simulation_output import HumanReadableOutputRenderer, JsonOutputRenderer
+from simulation.simulation_output import HumanReadableOutputRenderer
 from simulation.simulation import Simulation
 from simulation.result import SimulationResult
 from simulation.simulation_input import get_simulation_input
@@ -28,5 +28,5 @@ if __name__ == "__main__":
     simulation.run()
 
     logger.debug("Simulation finished, displaying results")
-    output_renderer = HumanReadableOutputRenderer(sys.stdout)
+    output_renderer = HumanReadableOutputRenderer(sys.stdout, True, True, True, True)
     output_renderer.render(result)

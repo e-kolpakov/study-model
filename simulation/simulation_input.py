@@ -104,14 +104,14 @@ class SimulationInputBuilder:
         ))
         student2 = GoalDrivenStudent("Ben", [], agent_id='s2', skill=1.0)
         student2.goals.extend((
-            PassExamGoal(curriculum.find_lesson('half_semester_exam')),
-            PassExamGoal(curriculum.find_lesson('final_exam'))
+            StudyCompetenciesGoal([curriculum.find_competency('diff_eq')], weight=1.0),
+            PassExamGoal(curriculum.find_lesson('final_exam'), weight=0.5)
         ))
-        student2 = RationalStudent("Charlie", [], agent_id='s2', skill=1.0)
+        student3 = RationalStudent("Charlie", [], agent_id='s3', skill=1.0)
         student1.meet(student2)
         student2.meet(student1)
 
-        students = [student1, student2]
+        students = [student1, student2, student3]
         for student in students:
             for resource in resources:
                 student.add_resource(resource)

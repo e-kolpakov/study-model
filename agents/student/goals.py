@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from agents.student.activities import StudySessionActivity
+
 from agents.student.behaviors.resource_choice import ResourceChoiceMixin
 from agents.student.behaviors.stop_participation import StopParticipationBehaviorMixin
 from knowledge_representation import get_available_facts
@@ -18,6 +20,9 @@ class AbstractGoal(ABC, StopParticipationBehaviorMixin):
 
     def stop_participation(self, student, curriculum, available_resources):
         return self.achieved(student)
+
+    def requires_activity(self, student, activity_type):
+        return True
 
 
 class WeightedFactGoalMixin:
@@ -43,6 +48,12 @@ class WeightedFactGoalMixin:
         available_facts = get_available_facts(facts, prior_knowledge)
         return sum(map(self._get_fact_weight, available_facts))
 
+    # Still uses greedy approach. A* suits better, but a bit more complicated, so requires more thorough testing
+    # TODO implement using A* or other efficient graph search algorithm
+    # TODO add unit tests
+    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
+        return {resource: self.get_resource_facts_weight(resource, student.knowledge) for resource in available_resources}
+
 
 class StudyCompetenciesGoal(WeightedFactGoalMixin, ResourceChoiceMixin, AbstractGoal):
     TARGET_FACT_WEIGHT = 1.0
@@ -54,23 +65,30 @@ class StudyCompetenciesGoal(WeightedFactGoalMixin, ResourceChoiceMixin, Abstract
         target_facts = frozenset(fact for competency in target_competencies for fact in competency.facts)
         super(StudyCompetenciesGoal, self).__init__(target_facts=target_facts, **kwargs)
 
-    # Still uses greedy approach. A* suits better, but a bit more complicated, so requires more thorough testing
-    # TODO implement using A* or other efficient graph search algorithm
-    # TODO add unit tests
-    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
-        def weighted_new_facts_count(resource):
-            facts = set(resource.facts_to_study)
-            available_facts = get_available_facts(facts, student.knowledge)
-            return sum(map(self._get_fact_weight, available_facts))
+    def achieved(self, student):
+        return all(competency.is_mastered(student.knowledge) for competency in self._target_competencies)
 
-        return {resource: weighted_new_facts_count(resource) for resource in available_resources}
+    def requires_activity(self, student, activity_type):
+        if activity_type == StudySessionActivity and self.achieved(student):
+            return False
+        return super().requires_activity(student, activity_type)
+
+
+class StudyAllCompetenciesGoal(StudyCompetenciesGoal):
+    def __init__(self, curriculum, **kwargs):
+        target_competencies = curriculum.all_competencies()
+        super(StudyAllCompetenciesGoal, self).__init__(target_competencies)
 
     def achieved(self, student):
         return all(competency.is_mastered(student.knowledge) for competency in self._target_competencies)
 
+    def requires_activity(self, student, activity_type):
+        if activity_type == StudySessionActivity and self.achieved(student):
+            return False
+        return super().requires_activity(student, activity_type)
+
 
 class PassExamGoal(WeightedFactGoalMixin, ResourceChoiceMixin, AbstractGoal):
-    TARGET_EXAM_WEIGHT = 1.0
     TARGET_FACT_WEIGHT = 0.5
     DEPENDENCY_FACT_WEIGHT = 0.3
     OTHER_FACT_WEIGHT = 0.0
@@ -83,15 +101,7 @@ class PassExamGoal(WeightedFactGoalMixin, ResourceChoiceMixin, AbstractGoal):
         exam_results = student.exam_results.get(self._target_exam.code, [])
         return any(result.passed for result in exam_results)
 
-    def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
-        def weight_resource(resource):
-            weight = 0
-            if self._target_exam in resource.exams and student.expects_can_pass(self._target_exam):
-                weight += self.TARGET_EXAM_WEIGHT
-
-            facts = set(resource.facts_to_study)
-            available_facts = get_available_facts(facts, student.knowledge)
-            weight += sum(map(self._get_fact_weight, available_facts))
-            return weight
-
-        return {resource: weight_resource(resource) for resource in available_resources}
+    def requires_activity(self, student, activity_type):
+        if activity_type == StudySessionActivity and self.achieved(student):
+            return False
+        return super().requires_activity(student, activity_type)

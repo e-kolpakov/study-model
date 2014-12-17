@@ -1,12 +1,11 @@
+from abc import ABC, abstractmethod
 import logging
-
-import simpy
 
 
 __author__ = 'e.kolpakov'
 
 
-class BaseStudentActivity:
+class BaseStudentActivity(ABC):
     def __init__(self, student, length=None, env=None):
         """:type: Student"""
         self._student = student
@@ -22,11 +21,14 @@ class BaseStudentActivity:
     def length(self):
         return self._length
 
+    @abstractmethod
     def run(self, **kwargs):
         raise NotImplemented
 
     def cancel(self):
         pass
+
+    can_skip_if_not_required_by_goal = False
 
     def __str__(self):
         return type(self).__name__
@@ -47,7 +49,7 @@ class IdleActivity(BaseStudentActivity):
 
 
 class StudySessionActivity(BaseStudentActivity):
-    PARAMETER_INTERRUPTIBLE = 'interruptable'
+    can_skip_if_not_required_by_goal = True
 
     def run(self, **kwargs):
         entered = self.env.now
@@ -55,41 +57,23 @@ class StudySessionActivity(BaseStudentActivity):
             student=self._student, time=self.env.now, length=self._length
         ))
 
-        interruptible = kwargs.get(self.PARAMETER_INTERRUPTIBLE, False)
-
         study_until = entered + self._length
 
         choose_resource = self._student.behavior.resource_choice.choose_resource
         study_resource = self._student.study_resource
         get_accessible_resources = self._student.get_accessible_resources
-        stop_participation = self._student.behavior.stop_participation.stop_participation
 
-        def get_loop_parameters():
-            res = get_accessible_resources()
-            stop = stop_participation(self._student, self._student.curriculum, res)
-            time = study_until - self.env.now
-            return time, res, stop
-
-        remaining_time, resources, stop = get_loop_parameters()
-        while remaining_time > 0 and not stop and resources:
+        remaining_time, resources = (study_until - self.env.now), list(get_accessible_resources())
+        while remaining_time > 0 and resources:
             resource_to_study = choose_resource(self._student, self._student.curriculum, resources, remaining_time)
+            if resource_to_study is None:
+                break
             self._logger.info("{0}: resource {1} chosen at {2}".format(self._student, resource_to_study, self.env.now))
             study_event = self.env.process(study_resource(resource_to_study, study_until))
-            try:
-                completed = yield study_event
-                if not completed:
-                    break
-                remaining_time, resources, stop = get_loop_parameters()
-            # TODO: not tested and not verified
-            except simpy.Interrupt as i:
-                if not interruptible:
-                    yield study_event
-                else:
-                    study_event.interrupt(i.cause)
-                    break
-
-        if stop:
-            self._student.stop_participation()
+            completed = yield study_event
+            if not completed:
+                break
+            remaining_time, resources = (study_until - self.env.now), list(get_accessible_resources())
 
 
 class PeerStudentInteractionActivity(BaseStudentActivity):
@@ -102,6 +86,8 @@ class PeerStudentInteractionActivity(BaseStudentActivity):
 
 
 class PassExamActivity(BaseStudentActivity):
+    can_skip_if_not_required_by_goal = True
+
     def run(self, **kwargs):
         entered = self.env.now
         complete_before = entered + self._length

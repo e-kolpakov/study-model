@@ -25,8 +25,15 @@ class ResourceChoiceMixin:
         :param available_resources: tuple[Resource]
         :return Resource: Chosen resource
         """
-        resource_choices = self.resource_choice_map(student, curriculum, available_resources, remaining_time)
-        return max(resource_choices, key=resource_choices.get)
+        resource_choices = {
+            resource: weight for resource, weight
+            in self.resource_choice_map(student, curriculum, available_resources, remaining_time).items()
+            if weight > 0
+        }
+        if resource_choices:
+            return max(resource_choices, key=resource_choices.get)
+
+        return None
 
 
 class BaseResourceChoiceBehavior(ResourceChoiceMixin):

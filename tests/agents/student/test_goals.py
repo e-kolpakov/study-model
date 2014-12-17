@@ -29,14 +29,12 @@ def _make_competency(facts, is_mastered):
     return result
 
 
-def _fact_weight(target=0, dependency=0, other=0, exam=0, cls=StudyCompetenciesGoal):
+def _fact_weight(target=0, dependency=0, other=0, cls=StudyCompetenciesGoal):
     result = sum([
         target * cls.TARGET_FACT_WEIGHT,
         dependency * cls.DEPENDENCY_FACT_WEIGHT,
         other * cls.OTHER_FACT_WEIGHT
     ])
-    if exam > 0:
-        result += exam * cls.TARGET_EXAM_WEIGHT
     return result
 
 
@@ -149,9 +147,9 @@ class TestPassExamGoal:
                 'r1': _fact_weight(cls=PassExamGoal, target=1),
                 'r2': _fact_weight(cls=PassExamGoal, target=1),
                 'r3': _fact_weight(cls=PassExamGoal, target=1),
-                'r4': _fact_weight(cls=PassExamGoal, target=1, exam=1),
-                'r5': _fact_weight(cls=PassExamGoal, target=1, exam=1),
-                'r6': _fact_weight(cls=PassExamGoal, exam=1),
+                'r4': _fact_weight(cls=PassExamGoal, target=1),
+                'r5': _fact_weight(cls=PassExamGoal, target=1),
+                'r6': _fact_weight(cls=PassExamGoal),
             }
         ),
         (
@@ -160,9 +158,9 @@ class TestPassExamGoal:
                 'r1': _fact_weight(cls=PassExamGoal, target=1),
                 'r2': _fact_weight(cls=PassExamGoal, target=2),
                 'r3': _fact_weight(cls=PassExamGoal, target=2),
-                'r4': _fact_weight(cls=PassExamGoal, target=1, exam=1),
-                'r5': _fact_weight(cls=PassExamGoal, target=2, exam=1),
-                'r6': _fact_weight(cls=PassExamGoal, target=1, exam=1),
+                'r4': _fact_weight(cls=PassExamGoal, target=1),
+                'r5': _fact_weight(cls=PassExamGoal, target=2),
+                'r6': _fact_weight(cls=PassExamGoal, target=1),
             },
         ),
         (
@@ -171,9 +169,9 @@ class TestPassExamGoal:
                 'r1': _fact_weight(cls=PassExamGoal, target=1),
                 'r2': _fact_weight(cls=PassExamGoal, target=1, dependency=1),
                 'r3': _fact_weight(cls=PassExamGoal, target=1, dependency=1),
-                'r4': _fact_weight(cls=PassExamGoal, target=1, exam=1),
-                'r5': _fact_weight(cls=PassExamGoal, target=1, dependency=1, exam=1),
-                'r6': _fact_weight(cls=PassExamGoal, dependency=1, exam=1),
+                'r4': _fact_weight(cls=PassExamGoal, target=1),
+                'r5': _fact_weight(cls=PassExamGoal, target=1, dependency=1),
+                'r6': _fact_weight(cls=PassExamGoal, dependency=1),
             },
         ),
         (
@@ -182,9 +180,9 @@ class TestPassExamGoal:
                 'r1': _fact_weight(cls=PassExamGoal, target=0),
                 'r2': _fact_weight(cls=PassExamGoal, dependency=1),
                 'r3': _fact_weight(cls=PassExamGoal, dependency=1),
-                'r4': _fact_weight(cls=PassExamGoal, target=1, exam=1),
-                'r5': _fact_weight(cls=PassExamGoal, dependency=1, exam=1),
-                'r6': _fact_weight(cls=PassExamGoal, target=1, dependency=1, exam=1),
+                'r4': _fact_weight(cls=PassExamGoal, target=1),
+                'r5': _fact_weight(cls=PassExamGoal, dependency=1),
+                'r6': _fact_weight(cls=PassExamGoal, target=1, dependency=1),
             },
         )
     ])

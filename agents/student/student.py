@@ -184,7 +184,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         """
         return self._estimate_pass_probability(exam) > 0.8
 
-    # TODO: behavior
+    # TODO: behavior (goal driven)
     def choose_exam(self, complete_before=INFINITY):
         exams = self.get_available_exams()
         exam_map = {
@@ -296,10 +296,18 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         for activity_type in cycle([
             StudySessionActivity, PeerStudentInteractionActivity, PassExamActivity, IdleActivity
         ]):
-            if self.stop_participation_event.processed:
+            if self.behavior.stop_participation.stop_participation(
+                    self, self.curriculum, self.get_accessible_resources()
+            ):
+                self.stop_participation()
                 return
+            if activity_type.can_skip_if_not_required_by_goal and not self._activity_required(activity_type):
+                continue
             activity_length = self._activity_lengths.get(activity_type)(self, self.env.now)
             yield activity_type(self, activity_length, self.env)
+
+    def _activity_required(self, activity):
+        return not self.goals or any(map(lambda goal: goal.requires_activity(self, activity), self.goals))
 
     def _passed_exam(self, exam):
         # TODO allow attempting passed exam again if there's room for improvement

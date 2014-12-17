@@ -116,7 +116,7 @@ class PassExamActivity(BaseStudentActivity):
         )
 
         exam_feedback = yield from exam.take(self._student, complete_before)
-        self._student.get_feedback(exam, exam_feedback)
+        self._student.accept_feedback(exam, exam_feedback)
         self._logger.info("{student} {exam} attempt finished with grade {grade} at {now}".format(
             student=self._student, exam=exam, now=self.env.now, grade=exam_feedback.grade
         ))

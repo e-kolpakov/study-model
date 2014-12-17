@@ -80,7 +80,7 @@ class PassExamGoal(WeightedFactGoalMixin, ResourceChoiceMixin, AbstractGoal):
         super(PassExamGoal, self).__init__(target_facts=self._target_exam.facts, **kwargs)
 
     def achieved(self, student):
-        exam_results = student.exam_results.get(self._target_exam, [])
+        exam_results = student.exam_results.get(self._target_exam.code, [])
         return any(result.passed for result in exam_results)
 
     def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
@@ -89,9 +89,9 @@ class PassExamGoal(WeightedFactGoalMixin, ResourceChoiceMixin, AbstractGoal):
             if self._target_exam in resource.exams and student.expects_can_pass(self._target_exam):
                 weight += self.TARGET_EXAM_WEIGHT
 
-            # facts = set(resource.facts_to_study)
-            # available_facts = get_available_facts(facts, student.knowledge)
-            # return sum(map(self._get_fact_weight, available_facts))
+            facts = set(resource.facts_to_study)
+            available_facts = get_available_facts(facts, student.knowledge)
+            weight += sum(map(self._get_fact_weight, available_facts))
             return weight
 
         return {resource: weight_resource(resource) for resource in available_resources}

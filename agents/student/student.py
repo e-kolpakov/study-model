@@ -155,8 +155,8 @@ class Student(IntelligentAgent, ResourceRosterMixin):
 
         self._known_students[other_student.agent_id] = other_student
 
-    def get_feedback(self, exam, exam_feedback):
-        self._exam_results[exam].append(exam_feedback)
+    def accept_feedback(self, exam, exam_feedback):
+        self._exam_results[exam.code].append(exam_feedback)
         pub.sendMessage(
             ResultTopics.EXAM_RESULTS, student=self, exam=exam, exam_feedback=exam_feedback, time=self.env.now
         )
@@ -303,4 +303,4 @@ class Student(IntelligentAgent, ResourceRosterMixin):
 
     def _passed_exam(self, exam):
         # TODO allow attempting passed exam again if there's room for improvement
-        return any(feedback.passed for feedback in self._exam_results.get(exam, []))
+        return any(feedback.passed for feedback in self._exam_results.get(exam.code, []))

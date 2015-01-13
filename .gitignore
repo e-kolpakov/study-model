@@ -56,3 +56,6 @@ docs/_build/
 # PyCharm metadada
 .idea/
 
+# Logs, results, etc.
+/log
+/results

@@ -1,6 +1,7 @@
 import logging
 import logging.config
 import sys
+import os
 
 from log_config import log_config
 from simulation.simulation_output import HumanReadableOutputRenderer, JsonOutputRenderer
@@ -35,5 +36,12 @@ if __name__ == "__main__":
         'counts': True,
         'exam_feedbacks': True
     }
-    output_renderer = HumanReadableOutputRenderer(sys.stdout, output_config)
-    output_renderer.render(result)
+
+    os.makedirs("results", exist_ok=True)
+    with open("results/result.json", 'w+') as json_result:
+        json_renderer = JsonOutputRenderer(json_result, output_config)
+        json_renderer.render(result)
+
+    with open("results/result.txt", 'w+') as txt_result:
+        human_renderer = HumanReadableOutputRenderer(txt_result, output_config)
+        human_renderer.render(result)

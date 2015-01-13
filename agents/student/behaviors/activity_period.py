@@ -1,10 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 import random
 
 __author__ = 'e.kolpakov'
 
 
-class BaseActivityLengthsBehavior(ABC):
+class BaseActivityLengthsBehavior(metaclass=ABCMeta):
     def __init__(self, idle_period=10, study_period=20, peer_interaction_period=5, pass_exam_period=5):
         self._idle_period = idle_period
         self._study_period = study_period

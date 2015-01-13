@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 try:
     # noinspection PyShadowingBuiltins,PyUnresolvedReferences
@@ -9,7 +9,7 @@ except ImportError:
 __author__ = 'e.kolpakov'
 
 
-class GoalDrivenBehaviorMixin(ABC):
+class GoalDrivenBehaviorMixin(metaclass=ABCMeta):
     def __init__(self, backup_behavior, **kwargs):
         # noinspection PyArgumentList
         super(GoalDrivenBehaviorMixin, self).__init__(**kwargs)

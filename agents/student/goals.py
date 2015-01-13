@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 from agents.student.activities import StudySessionActivity
 
@@ -10,7 +10,7 @@ from knowledge_representation import get_available_facts
 __author__ = 'e.kolpakov'
 
 
-class AbstractGoal(ABC, StopParticipationBehaviorMixin):
+class AbstractGoal(StopParticipationBehaviorMixin, metaclass=ABCMeta):
     def __init__(self, weight=1.0):
         self.weight = weight
 

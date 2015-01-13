@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 import logging
 
 
 __author__ = 'e.kolpakov'
 
 
-class BaseStudentActivity(ABC):
+class BaseStudentActivity(metaclass=ABCMeta):
     def __init__(self, student, length=None, env=None):
         """:type: Student"""
         self._student = student

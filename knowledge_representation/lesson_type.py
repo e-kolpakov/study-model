@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 import logging
 
@@ -10,7 +10,7 @@ from infrastructure import INFINITY
 __author__ = 'e.kolpakov'
 
 
-class BaseLesson(ABC):
+class BaseLesson(metaclass=ABCMeta):
     def __init__(self, code, publish_at=0, name=None, **kwargs):
         self._code = code
 

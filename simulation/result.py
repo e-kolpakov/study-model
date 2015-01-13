@@ -88,6 +88,7 @@ class SimulationResult(SimulationResultBase):
         self._register_result_handler(self.knowledge_snapshot_listener, ResultTopics.KNOWLEDGE_SNAPSHOT)
         self._register_result_handler(self.knowledge_delta_listener, ResultTopics.KNOWLEDGE_DELTA)
         self._register_result_handler(self.knowledge_count_listener, ResultTopics.KNOWLEDGE_COUNT)
+        self._register_result_handler(self.exam_feedback_listener, ResultTopics.EXAM_RESULTS)
 
     def resource_usage_listener(self, agent, args, kwargs):
         """
@@ -118,6 +119,18 @@ class SimulationResult(SimulationResultBase):
         :type value:
         """
         self.register_result(SimulationResultItem(agent, ResultTopics.KNOWLEDGE_COUNT, agent.time, value))
+
+    def exam_feedback_listener(self, agent, args, kwargs):
+        """
+        Listens for exam feedback events
+        :param agent: BaseAgent
+        :param args: list[Any]
+        :param kwargs: dict[str, Any]
+        :return:
+        """
+        self.register_result(
+            SimulationResultItem(agent, ResultTopics.EXAM_RESULTS, agent.time, kwargs.get('feedback'))
+        )
 
 
 class ResultTopics:

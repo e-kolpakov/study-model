@@ -64,6 +64,17 @@ class Student(IntelligentAgent, ResourceRosterMixin):
         self._logger.info("{student} subscribes to inbox {address}".format(student=self, address=self.inbox_address))
         pub.subscribe(self._receive_message, self.inbox_address)
 
+    def __lt__(self, other):
+        assert isinstance(other, Student)
+        return self.agent_id < other.agent_id
+
+    def __eq__(self, other):
+        assert isinstance(other, Student)
+        return self.agent_id == other.agent_id
+
+    def __hash__(self):
+        return hash(self.agent_id)
+
     def __unicode__(self):
         return "{type} {name}({id})".format(type=type(self).__name__, id=self._agent_id, name=self._name)
 
@@ -155,11 +166,9 @@ class Student(IntelligentAgent, ResourceRosterMixin):
 
         self._known_students[other_student.agent_id] = other_student
 
-    def accept_feedback(self, exam, exam_feedback):
+    @AgentCallObserver.observe(topic=ResultTopics.EXAM_RESULTS)
+    def accept_feedback(self, exam=None, exam_feedback=None):
         self._exam_results[exam.code].append(exam_feedback)
-        pub.sendMessage(
-            ResultTopics.EXAM_RESULTS, student=self, exam=exam, exam_feedback=exam_feedback, time=self.env.now
-        )
 
     def get_available_exams(self):
         accessible_resources = self.get_accessible_resources()

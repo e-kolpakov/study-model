@@ -134,7 +134,7 @@ class TestPassExamGoal:
     def test_achieved(self, student, exam_results, expected_result):
         exam = _make_exam(DEFAULT_EXAM_CODE, [])
         type(student).exam_results = PropertyMock(return_value={
-            code: [ExamFeedback(0, feedback, 1) for feedback in feedbacks]
+            code: [ExamFeedback(exam, 0, feedback, 1) for feedback in feedbacks]
             for code, feedbacks in exam_results.items()
         })
         goal = PassExamGoal(exam)

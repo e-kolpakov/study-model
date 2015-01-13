@@ -142,11 +142,12 @@ class Exam(BaseLesson, FactBasedLessonMixin):
                 knows += 1
 
         ratio = knows / total
-        return ExamFeedback(ratio, ratio >= self.pass_threshold, self._exam_attempts[student])
+        return ExamFeedback(self, ratio, ratio >= self.pass_threshold, self._exam_attempts[student])
 
 
 class ExamFeedback:
-    def __init__(self, grade, passed, attempt_number, feedback=None):
+    def __init__(self, exam, grade, passed, attempt_number, feedback=None):
+        self.exam = exam
         self.grade = grade
         self.passed = passed
         self.attempt_number = attempt_number

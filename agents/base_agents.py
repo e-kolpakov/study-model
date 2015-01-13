@@ -10,13 +10,13 @@ __author__ = 'e.kolpakov'
 class BaseAgent:
     agent_count_by_type = defaultdict(int)
 
-    def __init__(self, agent_id=None, **kwargs):
+    def __init__(self, agent_id=None):
         actual_type = type(self)
         self.agent_count_by_type[actual_type] += 1
         self._agent_id = agent_id if agent_id else actual_type.__name__ + str(self.agent_count_by_type[actual_type])
         self._env = None
         self._observers_cache = None
-        super(BaseAgent, self).__init__(**kwargs)
+        super(BaseAgent, self).__init__()
 
     @property
     def agent_id(self):
@@ -45,6 +45,17 @@ class BaseAgent:
 
     def __unicode__(self):
         return "{type} {id}".format(type=type(self).__name__, id=self._agent_id)
+
+    def __lt__(self, other):
+        assert type(self) == type(other)
+        return self.agent_id < other.agent_id
+
+    def __eq__(self, other):
+        assert type(self) == type(other)
+        return self.agent_id == other.agent_id
+
+    def __hash__(self):
+        return hash(self.agent_id)
 
     def observe(self):
         for observer in self._get_all_observables():
@@ -78,11 +89,6 @@ class BaseAgent:
             if isinstance(member, property):
                 yield member.fget
 
-    def __hash__(self):
-        return hash(self._agent_id)
-
 
 class IntelligentAgent(BaseAgent):
     pass
-
-

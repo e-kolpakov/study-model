@@ -1,7 +1,6 @@
 import random
-import itertools
 
-from agents.student.messages import FactMessage, ResourceMessage
+from agents.student.messages import FactMessage, ResourceMessageAsync
 
 __author__ = 'e.kolpakov'
 
@@ -10,7 +9,8 @@ class BaseSendMessagesBehavior:
     def __init__(self):
         pass
 
-    def choose_students(self, student):
+    @staticmethod
+    def choose_students(student):
         """
         :param Student student: sender
         :rtype: List[Student]
@@ -42,7 +42,8 @@ class ChooseAllStudentsMixin:
 
 
 class ChooseRandomStudentsMixin:
-    def choose_students(self, student):
+    @staticmethod
+    def choose_students(student):
         known_students = student.known_students
         if not known_students:
             return tuple()
@@ -62,16 +63,15 @@ class RandomFactMessagesMixin:
         :param kwargs: keyword arguments
         :rtype: itertools.Iterable[BaseMessage]
         """
-        if not from_student.knowledge:
-            return
+        if from_student.knowledge:
+            fact = random.sample(from_student.knowledge, 1)[0]
+            yield FactMessage(fact)
 
-        fact = random.sample(from_student.knowledge, 1)[0]
-        yield FactMessage(fact)
         yield from super(RandomFactMessagesMixin, self).generate_messages(from_student, to_student, **kwargs)
 
 
 class RandomResourceMessagesMixin:
-    def generate_message(self, from_student, to_student, **kwargs):
+    def generate_messages(self, from_student, to_student, **kwargs):
         """
         :param Student from_student: student sending messages
         :param Student to_student: recipient student
@@ -79,13 +79,11 @@ class RandomResourceMessagesMixin:
         :rtype: itertools.Iterable[BaseMessage]
         """
         available_resources = from_student.known_resources
-        if not available_resources:
-            return
+        if available_resources:
+            resource = random.sample(available_resources, 1)[0]
+            yield ResourceMessageAsync(resource)
 
-        resource = random.sample(available_resources)
-        yield ResourceMessage(resource)
-        yield from super(RandomResourceMessagesMixin, self).generate_message(from_student, to_student, **kwargs)
-
+        yield from super(RandomResourceMessagesMixin, self).generate_messages(from_student, to_student, **kwargs)
 
 
 class RandomFactToAllStudentsInteractionBehavior(ChooseAllStudentsMixin, RandomFactMessagesMixin,

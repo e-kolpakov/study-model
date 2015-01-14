@@ -12,6 +12,12 @@ class BaseMessage:
         pass
 
 
+class SynchronousMessageAdapterMixin:
+    def process(self, student, until=None):
+        super(SynchronousMessageAdapterMixin, self).process(student, until)
+        yield student.env.timeout(0)
+
+
 class FactMessage(BaseMessage):
     COMPLEXITY_REDUCTION_FACTOR = 5
 
@@ -48,6 +54,12 @@ class ResourceMessage(BaseMessage):
     def time_to_send(self, student):
         return 0.1
 
+    def __repr__(self):
+        return "{name} ({id}): {resource}".format(name=self.__class__.__name__, id=id(self), resource=self._resource)
+
+
+class ResourceMessageAsync(SynchronousMessageAdapterMixin, ResourceMessage):
+    pass
 
 
 

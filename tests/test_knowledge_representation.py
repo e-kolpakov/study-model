@@ -1,6 +1,6 @@
 import pytest
 
-from knowledge_representation import Competency, Fact, Curriculum, get_available_facts
+from model.knowledge_representation import Competency, Fact, Curriculum, get_available_facts
 
 __author__ = 'e.kolpakov'
 

@@ -1,9 +1,9 @@
 from copy import deepcopy
 
-__author__ = 'e.kolpakov'
-
-from .fact import Fact, Competency
 from .curriculum import Curriculum
+from .fact import Fact, Competency
+
+__author__ = 'e.kolpakov'
 
 
 def get_available_facts(facts, known_facts):

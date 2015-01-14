@@ -2,9 +2,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from agents.base_agents import BaseAgent
-from infrastructure.observers import Observer, DeltaObserver, CallObserver, AgentCallObserver, get_observers, \
-    BaseObserver
+from model.agents.base_agents import BaseAgent
+from model.infrastructure.observers import (
+    Observer, DeltaObserver, CallObserver, AgentCallObserver, get_observers, BaseObserver
+)
 
 
 __author__ = 'e.kolpakov'

@@ -4,17 +4,17 @@ from unittest.mock import PropertyMock
 import pytest
 from simpy import Environment
 
-from agents.resource import Resource
-from agents.student import Student
-from agents.student.behaviors.behavior_group import BehaviorGroup
-from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
-from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
-from agents.student.behaviors.activity_period import BaseActivityLengthsBehavior
-from agents.student.behaviors.student_interaction import BaseSendMessagesBehavior
-from knowledge_representation import Curriculum
-from knowledge_representation.lesson_type import Lecture
-from simulation.resource_access import ResourceAccessService
+from model.agents.resource import Resource
+from model.agents.student import Student
+from model.agents.student.behaviors.behavior_group import BehaviorGroup
+from model.agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from model.agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
+from model.agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
+from model.agents.student.behaviors.activity_period import BaseActivityLengthsBehavior
+from model.agents.student.behaviors.student_interaction import BaseSendMessagesBehavior
+from model.knowledge_representation import Curriculum
+from model.knowledge_representation.lesson_type import Lecture
+from model.simulation.resource_access import ResourceAccessService
 
 
 __author__ = 'e.kolpakov'

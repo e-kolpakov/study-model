@@ -4,16 +4,15 @@ from itertools import cycle
 
 from pubsub import pub
 
-from agents.base_agents import IntelligentAgent
-from agents.student.activities import (
+from model.agents.base_agents import IntelligentAgent
+from model.agents.student.activities import (
     IdleActivity, StudySessionActivity, PeerStudentInteractionActivity, PassExamActivity
 )
-from agents.student.behaviors.behavior_group import BehaviorGroup
-from agents.student.messages import BaseMessage
-from infrastructure import INFINITY
-from infrastructure.observers import Observer, observer_trigger, AgentCallObserver, DeltaObserver
-from simulation.resource_access import ResourceRosterMixin
-from simulation.result import ResultTopics
+from model.agents.student.messages import BaseMessage
+from model.infrastructure import INFINITY
+from model.infrastructure.observers import Observer, observer_trigger, AgentCallObserver, DeltaObserver
+from model.simulation.resource_access import ResourceRosterMixin
+from model.simulation.result import ResultTopics
 
 
 __author__ = 'e.kolpakov'

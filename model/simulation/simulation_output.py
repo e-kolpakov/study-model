@@ -3,7 +3,7 @@ from collections import OrderedDict, defaultdict
 from itertools import groupby
 import json
 
-from simulation.result import ResultTopics
+from model.simulation.result import ResultTopics
 
 
 def _sort_and_group(sequence, key):

@@ -1,6 +1,6 @@
 import pytest
 
-from agents.student.behaviors.activity_period import FixedActivityLengthsBehavior, BaseActivityLengthsBehavior, \
+from model.agents.student.behaviors.activity_period import FixedActivityLengthsBehavior, BaseActivityLengthsBehavior, \
     RandomActivityLengthsBehavior, QuarterHourRandomActivityLengthsBehavior
 
 

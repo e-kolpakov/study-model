@@ -1,4 +1,4 @@
-from agents.student.behaviors.common import GoalDrivenBehaviorMixin
+from model.agents.student.behaviors.common import GoalDrivenBehaviorMixin
 
 __author__ = 'e.kolpakov'
 

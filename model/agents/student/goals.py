@@ -1,10 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
-from agents.student.activities import StudySessionActivity
-
-from agents.student.behaviors.resource_choice import ResourceChoiceMixin
-from agents.student.behaviors.stop_participation import StopParticipationBehaviorMixin
-from knowledge_representation import get_available_facts
+from model.agents.student.activities import StudySessionActivity
+from model.agents.student.behaviors.resource_choice import ResourceChoiceMixin
+from model.agents.student.behaviors.stop_participation import StopParticipationBehaviorMixin
+from model.knowledge_representation import get_available_facts
 
 
 __author__ = 'e.kolpakov'

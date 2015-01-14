@@ -4,7 +4,7 @@ import logging
 
 from lazy import lazy
 
-from infrastructure import INFINITY
+from model.infrastructure import INFINITY
 
 
 __author__ = 'e.kolpakov'

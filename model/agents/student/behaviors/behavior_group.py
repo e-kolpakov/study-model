@@ -1,9 +1,9 @@
-from agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
-from agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
-from agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
-from agents.student.behaviors.student_interaction import BaseSendMessagesBehavior
-from agents.student.behaviors.activity_period import BaseActivityLengthsBehavior
-from infrastructure.descriptors import TypedDescriptor
+from model.agents.student.behaviors.stop_participation import BaseStopParticipationBehavior
+from model.agents.student.behaviors.knowledge_acquisition import BaseFactsAcquisitionBehavior
+from model.agents.student.behaviors.resource_choice import BaseResourceChoiceBehavior
+from model.agents.student.behaviors.student_interaction import BaseSendMessagesBehavior
+from model.agents.student.behaviors.activity_period import BaseActivityLengthsBehavior
+from model.infrastructure.descriptors import TypedDescriptor
 
 
 __author__ = 'e.kolpakov'

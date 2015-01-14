@@ -1,10 +1,11 @@
 from itertools import chain
 
-from agents.resource import Resource
-from agents.student.goals import StudyCompetenciesGoal, PassExamGoal
-from agents.student import GoalDrivenStudent, RationalStudent
-from knowledge_representation import Competency, Fact, Curriculum
-from knowledge_representation.lesson_type import Lecture, Exam
+from model.agents.resource import Resource
+from model.agents.student.goals import StudyCompetenciesGoal, PassExamGoal
+from model.agents.student import GoalDrivenStudent, RationalStudent
+from model.knowledge_representation.fact import Competency, Fact
+from model.knowledge_representation.curriculum import Curriculum
+from model.knowledge_representation.lesson_type import Lecture, Exam
 
 
 __author__ = 'e.kolpakov'

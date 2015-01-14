@@ -1,6 +1,6 @@
 import random
 
-from agents.student.messages import FactMessage, ResourceMessageAsync
+from model.agents.student.messages import FactMessage, ResourceMessageAsync
 
 __author__ = 'e.kolpakov'
 

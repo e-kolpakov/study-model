@@ -3,8 +3,8 @@ from unittest.mock import patch, PropertyMock
 
 import pytest
 
-from agents.student import Student
-from simulation.result import ResultTopics
+from model.agents.student import Student
+from model.simulation.result import ResultTopics
 
 
 __author__ = 'e.kolpakov'

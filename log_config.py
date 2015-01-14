@@ -20,7 +20,7 @@ log_config = {
         "file": {
             "class": "utils.make_file_logger.MakeFileHandler",
             "formatter": "trace",
-            "filename": "log/trace.log",
+            "filename": "../log/trace.log",
             "maxBytes": 102400,
             "backupCount": 2
         }

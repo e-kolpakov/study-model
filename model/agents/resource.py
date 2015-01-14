@@ -1,8 +1,8 @@
 import itertools
 
-from agents.base_agents import BaseAgent
-from knowledge_representation.lesson_type import Lecture, Exam
-from simulation.resource_access import ResourceAccessService
+from model.agents.base_agents import BaseAgent
+from model.knowledge_representation.lesson_type import Lecture, Exam
+from model.simulation.resource_access import ResourceAccessService
 
 
 __author__ = 'e.kolpakov'

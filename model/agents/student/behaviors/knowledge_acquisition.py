@@ -1,4 +1,4 @@
-from knowledge_representation import get_available_facts
+from model.knowledge_representation import get_available_facts
 
 __author__ = 'e.kolpakov'
 

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from itertools import chain
 
-from infrastructure.observers import BaseObserver, get_observers
+from model.infrastructure.observers import BaseObserver, get_observers
 
 
 __author__ = 'e.kolpakov'

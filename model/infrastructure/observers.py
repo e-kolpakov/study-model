@@ -1,4 +1,5 @@
 from functools import wraps
+
 from pubsub import pub
 
 
@@ -19,7 +20,7 @@ def get_observers(target):
 
 
 def get_agent_for_class_method(args):
-    from agents.base_agents import BaseAgent
+    from model.agents.base_agents import BaseAgent
     agent = args[0]
     if not isinstance(agent, BaseAgent):
         raise ValueError("Base agent expected, got {0}", agent)

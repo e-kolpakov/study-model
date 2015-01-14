@@ -1,8 +1,8 @@
 from collections import defaultdict
 import random
 
-from agents.student.behaviors.common import GoalDrivenBehaviorMixin
-from knowledge_representation import get_available_facts
+from model.agents.student.behaviors.common import GoalDrivenBehaviorMixin
+from model.knowledge_representation import get_available_facts
 
 
 __author__ = 'e.kolpakov'

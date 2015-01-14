@@ -3,10 +3,10 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from agents.resource import Resource
-from agents.student.behaviors.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
-from knowledge_representation import Fact, Curriculum
-from knowledge_representation.lesson_type import Lecture
+from model.agents.resource import Resource
+from model.agents.student.behaviors.resource_choice import RandomResourceChoiceBehavior, RationalResourceChoiceBehavior
+from model.knowledge_representation import Fact, Curriculum
+from model.knowledge_representation.lesson_type import Lecture
 
 
 __author__ = 'e.kolpakov'

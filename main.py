@@ -3,10 +3,10 @@ import logging.config
 import os
 
 from log_config import log_config
-from simulation.simulation_output import HumanReadableOutputRenderer, JsonOutputRenderer
-from simulation.simulation import Simulation
-from simulation.result import SimulationResult
-from simulation.simulation_input import get_simulation_input
+from model.simulation.simulation_output import HumanReadableOutputRenderer, JsonOutputRenderer
+from model.simulation.simulation import Simulation
+from model.simulation.result import SimulationResult
+from model.simulation.simulation_input import get_simulation_input
 
 
 __author__ = 'e.kolpakov'
@@ -36,11 +36,11 @@ if __name__ == "__main__":
         'exam_feedbacks': True
     }
 
-    os.makedirs("results", exist_ok=True)
-    with open("results/result.json", 'w+') as json_result:
+    os.makedirs("../results", exist_ok=True)
+    with open("../results/result.json", 'w+') as json_result:
         json_renderer = JsonOutputRenderer(json_result, output_config)
         json_renderer.render(result)
 
-    with open("results/result.txt", 'w+') as txt_result:
+    with open("../results/result.txt", 'w+') as txt_result:
         human_renderer = HumanReadableOutputRenderer(txt_result, output_config)
         human_renderer.render(result)

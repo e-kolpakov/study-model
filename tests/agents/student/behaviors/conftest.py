@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from agents.student import Student
+from model.agents.student import Student
 
 
 __author__ = 'e.kolpakov'

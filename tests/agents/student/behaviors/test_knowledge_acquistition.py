@@ -2,11 +2,11 @@ from unittest import mock
 
 import pytest
 
-from agents.resource import Resource
-from agents.student.behaviors.knowledge_acquisition import (
+from model.agents.resource import Resource
+from model.agents.student.behaviors.knowledge_acquisition import (
     AllDependenciesAcquisitionBehavior, GetAllFactsAcquisitionBehavior
 )
-from knowledge_representation import Fact
+from model.knowledge_representation import Fact
 
 
 __author__ = 'e.kolpakov'

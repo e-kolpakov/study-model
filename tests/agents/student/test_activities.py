@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from agents.student.activities import IdleActivity, StudySessionActivity
+from model.agents.student.activities import IdleActivity, StudySessionActivity
 
 
 __author__ = 'e.kolpakov'

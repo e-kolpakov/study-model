@@ -3,10 +3,10 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from agents.resource import Resource
-from agents.student.goals import StudyCompetenciesGoal, PassExamGoal
-from knowledge_representation import Competency, Fact
-from knowledge_representation.lesson_type import Exam, ExamFeedback
+from model.agents.resource import Resource
+from model.agents.student.goals import StudyCompetenciesGoal, PassExamGoal
+from model.knowledge_representation import Competency, Fact
+from model.knowledge_representation.lesson_type import Exam, ExamFeedback
 
 
 __author__ = 'e.kolpakov'

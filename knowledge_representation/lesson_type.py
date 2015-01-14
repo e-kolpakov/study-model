@@ -29,6 +29,14 @@ class BaseLesson(metaclass=ABCMeta):
         """
         return self._code
 
+    def __lt__(self, other):
+        """
+        :param other:
+        :return:
+        """
+        assert isinstance(other, type(self))
+        return self.code < other.code
+
     def __eq__(self, other):
         """
         :param other: object to compare to

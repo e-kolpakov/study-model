@@ -129,7 +129,7 @@ class SimulationResult(SimulationResultBase):
         :return:
         """
         self.register_result(
-            SimulationResultItem(agent, ResultTopics.EXAM_RESULTS, agent.time, kwargs.get('feedback'))
+            SimulationResultItem(agent, ResultTopics.EXAM_RESULTS, agent.time, kwargs.get('exam_feedback'))
         )
 
 

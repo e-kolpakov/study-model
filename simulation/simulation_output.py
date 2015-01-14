@@ -29,6 +29,7 @@ class HumanReadableOutputRenderer(OutputRenderer):
             ('snapshots', self.print_snapshots),
             ('deltas', self.print_deltas),
             ('counts', self.print_counts),
+            ('exam_feedbacks', self.print_exams),
         ])
 
     def render(self, results):
@@ -91,6 +92,23 @@ class HumanReadableOutputRenderer(OutputRenderer):
             self._print("====== Count END ======", result_stream)
             return result_stream.getvalue()
 
+    def print_exams(self, results):
+        with StringIO() as result_stream:
+            self._print("== Exam Results START ==", result_stream)
+            exam_results = results.get_parameter(ResultTopics.EXAM_RESULTS)
+            for item in exam_results:
+                feedback = item.value
+                self._print(
+                    "Student {name} taken {exam} at {time} and got {grade} ({passed})"
+                    .format(
+                        name=item.agent.name, exam=feedback.exam.code, time=item.time,
+                        grade=feedback.grade, passed="passed" if feedback.passed else "not passed"
+                    ),
+                    result_stream
+                )
+            self._print("=== Exam Results End ===", result_stream)
+            return result_stream.getvalue()
+
 
 class JsonOutputRenderer(OutputRenderer):
     def __init__(self, output_stream, config=None, pretty_print=True):
@@ -104,6 +122,7 @@ class JsonOutputRenderer(OutputRenderer):
             ('snapshots', self.get_snapshots),
             ('deltas', self.get_deltas),
             ('counts', self.get_counts),
+            ('exam_feedbacks', self.get_exam_feedbacks),
         ])
 
         for key, handler in handler_map.items():
@@ -126,7 +145,7 @@ class JsonOutputRenderer(OutputRenderer):
         resource_usages = results.get_parameter(ResultTopics.RESOURCE_USAGE)
         for time, group in _sort_and_group(resource_usages, key=lambda item: item.time):
             result[time] = {}
-            for resource, items in _sort_and_group(list(group), key=lambda item: item.value):
+            for resource, items in _sort_and_group(group, key=lambda item: item.value):
                 result[time][resource.name] = list(map(lambda item: item.agent.name, items))
         return result
 
@@ -140,3 +159,12 @@ class JsonOutputRenderer(OutputRenderer):
 
     def get_counts(self, results):
         return self.time_series(results, ResultTopics.KNOWLEDGE_COUNT, value_transform=int)
+
+    def get_exam_feedbacks(self, results):
+        result = OrderedDict()
+        exam_feedbacks = results.get_parameter(ResultTopics.EXAM_RESULTS)
+        for exam, group in _sort_and_group(exam_feedbacks, key=lambda item: item.value.exam):
+            result[exam.code] = {}
+            for agent, items in _sort_and_group(group, key=lambda item: item.agent):
+                result[exam.code][agent.name] = {item.time: (item.value.grade, item.value.passed) for item in items}
+        return result

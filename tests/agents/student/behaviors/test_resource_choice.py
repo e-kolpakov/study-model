@@ -66,7 +66,9 @@ class TestRationalResourceChoiceBehavior:
         (['A', 'B'], ['A', 'C'], ['B'], 'r1'),
         (['A', 'C'], ['A', 'C'], ['B'], 'r2'),
     ])
-    def test_nonzero_student_knowledge(self, student, env_mock, curriculum, behavior, student_know, lesson1, lesson2, exp_res_id):
+    def test_nonzero_student_knowledge(
+            self, student, env_mock, curriculum, behavior, student_know, lesson1, lesson2, exp_res_id
+    ):
         resources = (
             Resource('r1', [_make_lecture("l1", lesson1)], agent_id='r1'),
             Resource('r2', [_make_lecture("l2", lesson2)], agent_id='r2')

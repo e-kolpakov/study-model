@@ -25,7 +25,7 @@ class OutputRenderer:
 class HumanReadableOutputRenderer(OutputRenderer):
     def _handler_map(self):
         return OrderedDict([
-            ('resourse_usage', self.print_resource_usages),
+            ('resource_usage', self.print_resource_usages),
             ('snapshots', self.print_snapshots),
             ('deltas', self.print_deltas),
             ('counts', self.print_counts),
@@ -118,7 +118,7 @@ class JsonOutputRenderer(OutputRenderer):
     def render(self, results):
         result = OrderedDict()
         handler_map = OrderedDict([
-            ('resourse_usage', self.get_resourse_access),
+            ('resource_usage', self.get_resource_access),
             ('snapshots', self.get_snapshots),
             ('deltas', self.get_deltas),
             ('counts', self.get_counts),
@@ -140,7 +140,7 @@ class JsonOutputRenderer(OutputRenderer):
                 result[agent.name][item.time] = value_transform(item.value)
         return result
 
-    def get_resourse_access(self, results):
+    def get_resource_access(self, results):
         result = OrderedDict()
         resource_usages = results.get_parameter(ResultTopics.RESOURCE_USAGE)
         for time, group in _sort_and_group(resource_usages, key=lambda item: item.time):

@@ -52,7 +52,10 @@ class WeightedFactGoalMixin:
     # TODO implement using A* or other efficient graph search algorithm
     # TODO add unit tests
     def resource_choice_map(self, student, curriculum, available_resources, remaining_time=None):
-        return {resource: self.get_resource_facts_weight(resource, student.knowledge) for resource in available_resources}
+        return {
+            resource: self.get_resource_facts_weight(resource, student.knowledge)
+            for resource in available_resources
+        }
 
 
 class StudyCompetenciesGoal(WeightedFactGoalMixin, ResourceChoiceMixin, AbstractGoal):

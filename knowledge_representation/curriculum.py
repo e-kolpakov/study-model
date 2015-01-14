@@ -65,15 +65,14 @@ class Curriculum:
     def all_lessons(self):
         return self._lesson_index.values()
 
-    def find_lessons(self, type=None):
+    def find_lessons(self, lesson_type=None):
         filters = []
-        if type is not None:
-            filters.append(lambda lesson: isinstance(lesson, type))
+        if lesson_type is not None:
+            filters.append(lambda lesson: isinstance(lesson, lesson_type))
 
         composite_filter = lambda lesson: all(subfilter(lesson) for subfilter in filters)
 
         return filter(composite_filter, self._lesson_index.values())
-
 
     @staticmethod
     def _register(entity, index, message="{0} already registered", code_selector=None):

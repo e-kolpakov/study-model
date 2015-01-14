@@ -35,6 +35,7 @@ def behavior_group():
 def env():
     return Environment()
 
+
 @pytest.fixture
 def env_mock():
     return mock.Mock(spec_set=Environment)

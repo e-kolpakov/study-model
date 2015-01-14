@@ -9,6 +9,7 @@ from simulation.result import ResultTopics
 
 __author__ = 'e.kolpakov'
 
+
 @pytest.fixture
 def student(behavior_group, curriculum, resource_lookup, env):
     """

@@ -19,7 +19,7 @@ class TestIdleActivity:
             patched_timeout.assert_called_once_with(length)
 
 
-class TestStudySessionActibity:
+class TestStudySessionActivity:
     @pytest.fixture
     def activity(self, student):
         return StudySessionActivity(student)

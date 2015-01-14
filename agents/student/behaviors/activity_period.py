@@ -23,7 +23,7 @@ class BaseActivityLengthsBehavior(metaclass=ABCMeta):
     @abstractmethod
     def get_idle_period(self, student, current_time):
         """
-        Gets time span between study serssions
+        Gets time span between study sessions
         :param student:
         :return: double
         """

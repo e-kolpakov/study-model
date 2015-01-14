@@ -2,10 +2,12 @@ from agents.student import Student
 from agents.student.behaviors.behavior_group import BehaviorGroup
 from agents.student.behaviors.knowledge_acquisition import AllDependenciesAcquisitionBehavior
 from agents.student.behaviors.resource_choice import RationalResourceChoiceBehavior, GoalDrivenResourceChoiceBehavior
-from agents.student.behaviors.stop_participation import CourseCompleteStopParticipationBehavior, \
-    AllGoalsAchievedStopParticipationBehavior
-from agents.student.behaviors.student_interaction import RandomFactToAllStudentsInteractionBehavior, \
-    RandomFactToRandomStudentsInteractionBehavior
+from agents.student.behaviors.stop_participation import (
+    CourseCompleteStopParticipationBehavior, AllGoalsAchievedStopParticipationBehavior
+)
+from agents.student.behaviors.student_interaction import (
+    RandomFactToAllStudentsInteractionBehavior, RandomFactToRandomStudentsInteractionBehavior
+)
 from agents.student.behaviors.activity_period import QuarterHourRandomActivityLengthsBehavior
 
 

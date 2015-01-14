@@ -1,6 +1,5 @@
 import logging
 import logging.config
-import sys
 import os
 
 from log_config import log_config
@@ -30,7 +29,7 @@ if __name__ == "__main__":
 
     logger.debug("Simulation finished, displaying results")
     output_config = {
-        'resourse_usage': True,
+        'resource_usage': True,
         'snapshots': True,
         'deltas': True,
         'counts': True,

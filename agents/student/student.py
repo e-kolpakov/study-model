@@ -177,7 +177,7 @@ class Student(IntelligentAgent, ResourceRosterMixin):
     def estimate_exam_time(self, exam):
         return sum(fact.complexity / self.check_fact_skill for fact in exam.facts)
 
-    # TODO: exam should expose competencies instead of facts, than student should weight it's chances of passing based on
+    # TODO: exam should expose competencies instead of facts, than student should weight his chances of passing based on
     # weighted sum of ratios of mastery of that competencies. For now it uses facts, which essentially means student
     # knows exam questions beforehand.
     # TODO: behavior?

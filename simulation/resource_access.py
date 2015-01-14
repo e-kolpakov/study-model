@@ -6,6 +6,7 @@ __author__ = 'e.kolpakov'
 class ResourceRosterMixin:
     def __init__(self, *args, **kwargs):
         self._known_resources = set()
+        self._logger = getattr(self, '_logger', None)
 
     def add_resource(self, resource):
         if resource in self._known_resources:
@@ -22,7 +23,7 @@ class ResourceRosterMixin:
 
     @property
     def logger(self):
-        if not hasattr(self, '_logger'):
+        if not self._logger:
             self._logger = logging.getLogger(self.__class__.__name__)
         return self._logger
 

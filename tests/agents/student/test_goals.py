@@ -62,7 +62,7 @@ class TestStudyCompetenciesGoal:
             for index, resource_facts in res_map.items()
         ]
 
-        with mock.patch('agents.student.goals.get_available_facts') as available_facts_mock:
+        with mock.patch('model.agents.student.goals.get_available_facts') as available_facts_mock:
             available_facts_mock.side_effect = lambda res, stud: res
             resource_map = goal.resource_choice_map(student, curriculum, resources)
             return {resource.agent_id: weight for resource, weight in resource_map.items()}
@@ -204,7 +204,7 @@ class TestPassExamGoal:
         expected_weight_map = {resource.agent_id: 0 for resource in resources}
         expected_weight_map.update(reduced_expected_map)
 
-        with mock.patch('agents.student.goals.get_available_facts') as available_facts_mock:
+        with mock.patch('model.agents.student.goals.get_available_facts') as available_facts_mock:
             available_facts_mock.side_effect = lambda res, stud: res
             resource_map = goal.resource_choice_map(student, curriculum, resources)
             assert {resource.agent_id: weight for resource, weight in resource_map.items()} == expected_weight_map

@@ -44,7 +44,7 @@ class TestStudent:
 
     def test_study_resource_triggers_observe(self, student, behavior_group, resource):
         behavior_group.knowledge_acquisition.acquire_facts = mock.Mock(return_value=set())
-        with patch('infrastructure.observers.pub.sendMessage') as observe_mock:
+        with patch('model.infrastructure.observers.pub.sendMessage') as observe_mock:
             student.study_resource(resource)
             call_args = observe_mock.call_args
             args, kwargs = call_args
